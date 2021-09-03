@@ -5,15 +5,13 @@ import java.util.*;
 import BWEB.Blocks.GlobalMembers;
 import bwapi.*;
 
-//C++ TO JAVA CONVERTER NOTE: Java has no need of forward class declarations:
-//class Wall;
-
 public class Path {
 	private ArrayList<TilePosition> tiles = new ArrayList<>();
 	private double dist;
 	private boolean reachable;
 	private TilePosition source;
 	private TilePosition target;
+
 	public Path() {
 		tiles = new ArrayList<>();
 		BWAPI_ext.GlobalMembers.dist = 0.0;
@@ -22,32 +20,32 @@ public class Path {
 		target = TilePosition.Invalid;
 	}
 
-	/// <summary> Returns the vector of TilePositions associated with this Path. </summary>
+	/// Returns the vector of TilePositions associated with this Path.
 	public final ArrayList<TilePosition> getTiles() {
 		return tiles;
 	}
 
-	/// <summary> Returns the source (start) TilePosition of the Path. </summary>
+	/// Returns the source (start) TilePosition of the Path.
 	public final TilePosition getSource() {
 		return source;
 	}
 
-	/// <summary> Returns the target (end) TilePosition of the Path. </summary>
+	/// Returns the target (end) TilePosition of the Path.
 	public final TilePosition getTarget() {
 		return target;
 	}
 
-	/// <summary> Returns the distance from the source to the target in pixels. </summary>
+	/// Returns the distance from the source to the target in pixels.
 	public final double getDistance() {
 		return BWAPI_ext.GlobalMembers.dist;
 	}
 
-	/// <summary> Returns a check if the path was able to reach the target. </summary>
+	/// Returns a check if the path was able to reach the target.
 	public final boolean isReachable() {
 		return reachable;
 	}
 
-	/// <summary> Creates a path from the source to the target using JPS and collision provided by BWEB based on walkable tiles and used tiles. </summary>
+	/// Creates a path from the source to the target using JPS and collision provided by BWEB based on walkable tiles and used tiles.
 	public void createUnitPath(final Position s, final Position t) {
 		target = new TilePosition(t);
 		source = new TilePosition(s);
@@ -77,8 +75,8 @@ public class Path {
 		}
 
 		ArrayList<TilePosition> newJPSPath = new ArrayList<TilePosition>();
-		final int width = Broodwar.mapWidth();
-		final int height = Broodwar.mapHeight();
+		final int width = Broodwar.game.mapWidth();
+		final int height = Broodwar.game.mapHeight();
 
 		final var isWalkable = (int x, int y) -> {
 			TilePosition tile = new TilePosition(x, y);
@@ -127,18 +125,17 @@ public class Path {
 		}
 	}
 
-	/// <summary> Creates a path from the source to the target using JPS, your provided walkable function, and whether diagonals are allowed. </summary>
+	/// Creates a path from the source to the target using JPS, your provided walkable function, and whether diagonals are allowed.
 	public void jpsPath(final Position s, final Position t, final function <boolean(const TilePosition)> passedWalkable) {
 		jpsPath(s, t, passedWalkable, true);
 	}
-//C++ TO JAVA CONVERTER NOTE: Java does not allow default values for parameters. Overloaded methods are inserted above:
-//ORIGINAL LINE: void jpsPath(const Position s, const Position t, function <boolean(const TilePosition&)> passedWalkable, boolean diagonal = true)
+
 	public void jpsPath(final Position s, final Position t, final function <boolean(const TilePosition)> passedWalkable, boolean diagonal) {
 		target = TilePosition(t);
 		source = TilePosition(s);
 
 		// If this path does not exist in cache, remove last reference and erase reference
-		var pathPoints = new tangible.Pair<BWAPI.TilePosition, BWAPI.TilePosition>(source, target);
+		var pathPoints = new tangible.Pair<TilePosition, TilePosition>(source, target);
 		var thisCached = GlobalMembers.customPathCache.get(passedWalkable);
 
 		if (thisCached.iteratorList.find(pathPoints) == thisCached.iteratorList.end()) {
@@ -163,10 +160,10 @@ public class Path {
 		}
 
 		ArrayList<TilePosition> newJPSPath = new ArrayList<TilePosition>();
-		final var width = Broodwar.mapWidth();
-		final var height = Broodwar.mapHeight();
+		final int width = Broodwar.game.mapWidth();
+		final int height = Broodwar.game.mapHeight();
 
-		final var isWalkable = (int x, int y) -> {
+		final boolean isWalkable = (int x, int y) -> {
 			TilePosition tile = new TilePosition(x, y);
 			if (x > width || y > height || x < 0 || y < 0) {
 				return false;
@@ -213,18 +210,17 @@ public class Path {
 		}
 	}
 
-	/// <summary> Creates a path from the source to the target using BFS, your provided walkable function, and whether diagonals are allowed. </summary>
+	/// Creates a path from the source to the target using BFS, your provided walkable function, and whether diagonals are allowed.
 	public void bfsPath(final Position s, final Position t, final function <boolean(const TilePosition)> isWalkable) {
 		bfsPath(s, t, isWalkable, true);
 	}
-//C++ TO JAVA CONVERTER NOTE: Java does not allow default values for parameters. Overloaded methods are inserted above:
-//ORIGINAL LINE: void bfsPath(const Position s, const Position t, function <boolean(const TilePosition&)> isWalkable, boolean diagonal = true)
+
 	public void bfsPath(final Position s, final Position t, final function <boolean(const TilePosition)> isWalkable, boolean diagonal) {
 		TilePosition source = new TilePosition(s);
 		TilePosition target = new TilePosition(t);
 		double maxDist = source.getDistance(target);
-		final int width = Broodwar.mapWidth();
-		final int height = Broodwar.mapHeight();
+		final int width = Broodwar.game.mapWidth();
+		final int height = Broodwar.game.mapHeight();
 		ArrayList<TilePosition> direction = new ArrayList<TilePosition>(Arrays.asList({0, 1},{1, 0},{-1, 0},{0, -1}));
 
 		if (source == target || source == TilePosition(0, 0) || target == TilePosition(0, 0)) {
@@ -248,8 +244,8 @@ public class Path {
 			} while (check != source);
 
 			// HACK: Try to make it more accurate to positions instead of tiles
-			var correctionSource = new Position(*(tiles.end() - 1));
-			var correctionTarget = new Position(*(tiles.iterator() + 1));
+			Position correctionSource = new Position(*(tiles.end() - 1));
+			Position correctionTarget = new Position(*(tiles.iterator() + 1));
 			BWAPI_ext.GlobalMembers.dist += s.getDistance(correctionSource);
 			BWAPI_ext.GlobalMembers.dist += t.getDistance(correctionTarget);
 			BWAPI_ext.GlobalMembers.dist -= 64.0;
@@ -257,9 +253,7 @@ public class Path {
 
 		LinkedList<TilePosition> nodeQueue = new LinkedList<TilePosition>();
 		nodeQueue.emplace(source);
-//C++ TO JAVA CONVERTER TODO TASK: The following line was determined to be a copy assignment (rather than a reference assignment) - this should be verified and a 'copyFrom' method should be created:
-//ORIGINAL LINE: parentGrid[source.x][source.y] = source;
-		parentGrid[source.x][source.y].copyFrom(source);
+		parentGrid[source.x][source.y] = source;
 
 		// While not empty, pop off top the closest TilePosition to target
 		while (!nodeQueue.isEmpty()) {

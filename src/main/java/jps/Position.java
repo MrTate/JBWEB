@@ -1,9 +1,9 @@
 package jps;
 
-import internal.Searcher;
-import java.util.*;
-
 public class Position implements Comparable<Position> {
+	public int x;
+	public int y;
+
 	public final int compareTo(Position otherInstance) {
 		if (lessThan(otherInstance)) {
 			return -1;
@@ -14,9 +14,6 @@ public class Position implements Comparable<Position> {
 
 		return 0;
 	}
-
-	public int x;
-	public int y;
 
 	public boolean equalsTo(final Position p) {
 		return x == p.x && y == p.y;

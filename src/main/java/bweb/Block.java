@@ -12,6 +12,7 @@ public class Block {
 	private TreeSet<TilePosition> largeTiles;
 	private boolean proxy = false;
 	private boolean defensive = false;
+
 	public Block() {
 		this.w = 0;
 		this.h = 0;
@@ -23,11 +24,8 @@ public class Block {
 	public Block(TilePosition _tile, java.util.ArrayList<Piece> _pieces) {
 		this(_tile, _pieces, false, false);
 	}
-//C++ TO JAVA CONVERTER NOTE: Java does not allow default values for parameters. Overloaded methods are inserted above:
-//ORIGINAL LINE: Block(BWAPI::TilePosition _tile, java.util.ArrayList<Piece> _pieces, boolean _proxy = false, boolean _defensive = false)
+
 	public Block(TilePosition _tile, ArrayList<Piece> _pieces, boolean _proxy, boolean _defensive) {
-//C++ TO JAVA CONVERTER TODO TASK: The following line was determined to be a copy assignment (rather than a reference assignment) - this should be verified and a 'copyFrom' method should be created:
-//ORIGINAL LINE: tile = _tile;
 		tile = _tile;
 		proxy = _proxy;
 		defensive = _defensive;
@@ -36,31 +34,31 @@ public class Block {
 		int rowHeight = 0;
 		int rowWidth = 0;
 		TilePosition here = tile;
-		for (var p : _pieces) {
+		for (Piece p : _pieces) {
 			if (p == Piece.Small) {
 				smallTiles.add(here);
-				here += BWAPI.TilePosition(2, 0);
+				here = new TilePosition(here.x + 2, here.y);
 				rowWidth += 2;
 				rowHeight = Math.max(rowHeight, 2);
 			}
 			if (p == Piece.Medium) {
 				mediumTiles.add(here);
-				here += BWAPI.TilePosition(3, 0);
+				here = new TilePosition(here.x + 3, here.y);
 				rowWidth += 3;
 				rowHeight = Math.max(rowHeight, 2);
 			}
 			if (p == Piece.Large) {
-				if (Broodwar.self().getRace() == Races.Zerg && !Broodwar.canBuildHere(here, UnitType.Zerg_Hatchery)) {
+				if (Broodwar.game.self().getRace() == Race.Zerg && !Broodwar.game.canBuildHere(here, UnitType.Zerg_Hatchery)) {
 					continue;
 				}
 				largeTiles.add(here);
-				here += new TilePosition(4, 0);
+				here = new TilePosition(here.x + 4, here.y);
 				rowWidth += 4;
 				rowHeight = Math.max(rowHeight, 3);
 			}
 			if (p == Piece.Addon) {
-				smallTiles.add(here + new TilePosition(0, 1));
-				here += new TilePosition(2, 0);
+				smallTiles.add(new TilePosition(here.x, here.y + 1));
+				here = new TilePosition(here.x + 2, here.y);
 				rowWidth += 2;
 				rowHeight = Math.max(rowHeight, 2);
 			}
@@ -69,9 +67,7 @@ public class Block {
 				h += rowHeight;
 				rowWidth = 0;
 				rowHeight = 0;
-//C++ TO JAVA CONVERTER TODO TASK: The following line was determined to be a copy assignment (rather than a reference assignment) - this should be verified and a 'copyFrom' method should be created:
-//ORIGINAL LINE: here = tile + BWAPI::TilePosition(0, h);
-				here = tile + new TilePosition(0, h);
+				here = new TilePosition(tile.x, tile.y + h);
 			}
 		}
 
@@ -80,80 +76,78 @@ public class Block {
 		h += rowHeight;
 	}
 
-	/// <summary> Returns the top left TilePosition of this Block. </summary>
-//C++ TO JAVA CONVERTER WARNING: 'const' methods are not available in Java:
-//ORIGINAL LINE: BWAPI::TilePosition getTilePosition() const
+	/// Returns the top left TilePosition of this Block.
 	public final TilePosition getTilePosition() {
 		return tile;
 	}
 
-	/// <summary> Returns the set of TilePositions that belong to 2x2 (small) buildings. </summary>
+	/// Returns the set of TilePositions that belong to 2x2 (small) buildings.
 	public final TreeSet<TilePosition> getSmallTiles() {
 		return smallTiles;
 	}
 
-	/// <summary> Returns the set of TilePositions that belong to 3x2 (medium) buildings. </summary>
+	/// Returns the set of TilePositions that belong to 3x2 (medium) buildings.
 	public final TreeSet<TilePosition> getMediumTiles() {
 		return mediumTiles;
 	}
 
-	/// <summary> Returns the set of TilePositions that belong to 4x3 (large) buildings. </summary>
+	/// Returns the set of TilePositions that belong to 4x3 (large) buildings.
 	public final TreeSet<TilePosition> getLargeTiles() {
 		return largeTiles;
 	}
 
-	/// <summary> Returns true if this Block was generated for proxy usage. </summary>
+	/// Returns true if this Block was generated for proxy usage.
 	public final boolean isProxy() {
 		return proxy;
 	}
 
-	/// <summary> Returns true if this Block was generated for defensive usage. </summary>
+	/// Returns true if this Block was generated for defensive usage.
 	public final boolean isDefensive() {
 		return defensive;
 	}
 
-	/// <summary> Returns the width of the Block in TilePositions. </summary>
+	/// Returns the width of the Block in TilePositions.
 	public final int width() {
 		return w;
 	}
 
-	/// <summary> Returns the height of the Block in TilePositions. </summary>
+	/// Returns the height of the Block in TilePositions.
 	public final int height() {
 		return h;
 	}
 
-	/// <summary> Inserts a 2x2 (small) building at this location. </summary>
+	/// Inserts a 2x2 (small) building at this location.
 	public void insertSmall(final TilePosition here) {
 		smallTiles.add(here);
 	}
 
-	/// <summary> Inserts a 3x2 (medium) building at this location. </summary>
+	/// Inserts a 3x2 (medium) building at this location.
 	public void insertMedium(final TilePosition here) {
 		mediumTiles.add(here);
 	}
 
-	/// <summary> Inserts a 4x3 (large) building at this location. </summary>
+	/// Inserts a 4x3 (large) building at this location.
 	public void insertLarge(final TilePosition here) {
 		largeTiles.add(here);
 	}
 
-	/// <summary> Draws all the features of the Block. </summary>
+	/// Draws all the features of the Block.
 	public final void draw() {
-		int color = Broodwar.self().getColor();
-		int textColor = color == 185 ? textColor = Text.DarkGreen : Broodwar.self().getTextColor();
+		Color color = Broodwar.game.self().getColor();
+		Text textColor = color.id == 185 ? Text.DarkGreen: Broodwar.game.self().getTextColor();
 
 		// Draw boxes around each feature
-		for (var tile : smallTiles) {
-			Broodwar.drawBoxMap(Position(tile), Position(tile) + Position(65, 65), color);
-			Broodwar.drawTextMap(Position(tile) + Position(52, 52), "%cB", textColor);
+		for (TilePosition tile : smallTiles) {
+			Broodwar.game.drawBoxMap(tile.toPosition(), new Position(tile.x + 65, tile.y + 65), color);
+			Broodwar.game.drawTextMap(new Position(tile.x + 52, tile.y + 52), "%cB", textColor);
 		}
-		for (var tile : mediumTiles) {
-			Broodwar.drawBoxMap(Position(tile), Position(tile) + Position(97, 65), color);
-			Broodwar.drawTextMap(Position(tile) + Position(84, 52), "%cB", textColor);
+		for (TilePosition tile : mediumTiles) {
+			Broodwar.game.drawBoxMap(tile.toPosition(), new Position(tile.x + 97, tile.y + 65), color);
+			Broodwar.game.drawTextMap(new Position(tile.x + 84, tile.y + 52), "%cB", textColor);
 		}
-		for (var tile : largeTiles) {
-			Broodwar.drawBoxMap(Position(tile), Position(tile) + Position(129, 97), color);
-			Broodwar.drawTextMap(Position(tile) + Position(116, 84), "%cB", textColor);
+		for (TilePosition tile : largeTiles) {
+			Broodwar.game.drawBoxMap(tile.toPosition(), new Position(tile.x + 129, tile.y + 97), color);
+			Broodwar.game.drawTextMap(new Position(tile.x + 116, tile.y + 84), "%cB", textColor);
 		}
 	}
 }

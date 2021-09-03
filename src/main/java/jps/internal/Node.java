@@ -2,20 +2,20 @@ package jps.internal;
 
 import jps.*;
 
-public class Node
-{
+public class Node {
+	public int f;
+	public int g;
+	public Position pos;
+	public Node parent;
+	private int flags;
+
 	public Node(final Position p) {
 		this.f = 0;
 		this.g = 0;
-		this.pos = new jps.Position(p);
+		this.pos = p;
 		this.parent = null;
 		this.flags = 0;
 	}
-	public int f;
-	public int g;
-	public final Position pos = new Position();
-	public Node parent;
-	private int flags;
 
 	public final void setOpen() {
 		flags |= 1;
@@ -39,7 +39,4 @@ public class Node
 		parent = null;
 		flags = 0;
 	}
-
-//C++ TO JAVA CONVERTER TODO TASK: The implementation of the following method could not be found:
-//	boolean operator ==(final Node o); // not implemented, nodes should not be compared
 }

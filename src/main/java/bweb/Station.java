@@ -12,8 +12,6 @@ public class Station {
 	private boolean natural;
 
 	public Station(Position _resourceCentroid, TreeSet<TilePosition> _defenses, Base _base, boolean _main, boolean _natural) {
-//C++ TO JAVA CONVERTER TODO TASK: The following line was determined to be a copy assignment (rather than a reference assignment) - this should be verified and a 'copyFrom' method should be created:
-//ORIGINAL LINE: resourceCentroid = _resourceCentroid;
 		resourceCentroid = _resourceCentroid;
 		defenses = new TreeSet<TilePosition>(_defenses);
 		base = _base;
@@ -21,25 +19,25 @@ public class Station {
 		natural = _natural;
 	}
 
-	/// <summary> Returns the central position of the resources associated with this base including geysers. </summary>
+	/// Returns the central position of the resources associated with this base including geysers.
 	public final Position getResourceCentroid() {
 		return resourceCentroid;
 	}
 
-	/// <summary> Returns the set of defense locations associated with this base. </summary>
+	/// Returns the set of defense locations associated with this base.
 	public final TreeSet<TilePosition> getDefenseLocations() {
 		return defenses;
 	}
 
-	/// <summary> Returns the BWEM base associated with this BWEB base. </summary>
+	/// Returns the BWEM base associated with this BWEB base.
 	public final Base getBWEMBase() {
 		return base;
 	}
 
-	/// <summary> Returns the number of ground defenses associated with this Station. </summary>
+	/// Returns the number of ground defenses associated with this Station.
 	public final int getGroundDefenseCount() {
 		int count = 0;
-		for (var defense : defenses) {
+		for (TilePosition defense : defenses) {
 			UnitType type = map.isUsed(defense);
 			if (type == UnitType.Protoss_Photon_Cannon || type == UnitType.Zerg_Sunken_Colony || type == UnitType.Terran_Bunker) {
 				count++;
@@ -48,10 +46,10 @@ public class Station {
 		return count;
 	}
 
-	/// <summary> Returns the number of air defenses associated with this Station. </summary>
+	/// Returns the number of air defenses associated with this Station.
 	public final int getAirDefenseCount() {
 		int count = 0;
-		for (var defense : defenses) {
+		for (TilePosition defense : defenses) {
 			UnitType type = map.isUsed(defense);
 			if (type == UnitType.Protoss_Photon_Cannon || type == UnitType.Zerg_Spore_Colony || type == UnitType.Terran_Missile_Turret) {
 				count++;
@@ -60,27 +58,27 @@ public class Station {
 		return count;
 	}
 
-	/// <summary> Returns true if the Station is a main Station. </summary>
+	/// Returns true if the Station is a main Station.
 	public final boolean isMain() {
 		return main;
 	}
 
-	/// <summary> Returns true if the Station is a natural Station. </summary>
+	/// Returns true if the Station is a natural Station.
 	public final boolean isNatural() {
 		return natural;
 	}
 
-	/// <summary> Draws all the features of the Station. </summary>
+	/// Draws all the features of the Station.
 	public final void draw() {
-		int color = Broodwar.self().getColor();
-		int textColor = color == 185 ? textColor = Text.DarkGreen : Broodwar.self().getTextColor();
+		Color color = Broodwar.game.self().getColor();
+		Text textColor = color.id == 185 ? Text.DarkGreen: Broodwar.game.self().getTextColor();
 
 		// Draw boxes around each feature
-		for (var tile : defenses) {
-			Broodwar.drawBoxMap(Position(tile), Position(tile) + Position(65, 65), color);
-			Broodwar.drawTextMap(Position(tile) + Position(4, 52), "%cS", textColor);
+		for (TilePosition tile : defenses) {
+			Broodwar.game.drawBoxMap(Position(tile), Position(tile) + Position(65, 65), color);
+			Broodwar.game.drawTextMap(Position(tile) + Position(4, 52), "%cS", textColor);
 		}
-		Broodwar.drawBoxMap(Position(base.Location()), Position(base.Location()) + Position(129, 97), color);
+		Broodwar.game.drawBoxMap(Position(base.Location()), Position(base.Location()) + Position(129, 97), color);
 	}
 
 	public boolean equalsTo (Station s) {
