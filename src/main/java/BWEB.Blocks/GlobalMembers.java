@@ -1,4 +1,4 @@
-package bweb.blocks;
+package BWEB.Blocks;
 
 public class GlobalMembers
 {

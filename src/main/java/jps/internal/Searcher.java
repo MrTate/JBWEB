@@ -1,14 +1,14 @@
 package jps.internal;
 
+import bwapi.*;
+import bwapi.Position;
 import jps.*;
 import java.util.*;
 
 //C++ TO JAVA CONVERTER WARNING: The original C++ template specifier was replaced with a Java generic specifier, which may not produce the same behavior:
 //ORIGINAL LINE: template <typename GRID>
-public class Searcher<GRID>
-{
-	public Searcher(final GRID g)
-	{
+public class Searcher<GRID> {
+	public Searcher(final GRID g) {
 		this.grid = g;
 		this.endNode = null;
 		this.skip = 1;
@@ -17,7 +17,7 @@ public class Searcher<GRID>
 	}
 
 	// single-call
-	public final boolean findPath(ArrayList<BWAPI.TilePosition> path, Position start, Position end, int step)
+	public final boolean findPath(ArrayList<TilePosition> path, Position start, Position end, int step)
 	{
 //C++ TO JAVA CONVERTER TODO TASK: The following line was determined to contain a copy constructor call - this should be verified and a copy constructor should be created:
 //ORIGINAL LINE: Result res = findPathInit(start, end);
@@ -116,7 +116,7 @@ public class Searcher<GRID>
 		return NEED_MORE_STEPS;
 	}
 
-	public final boolean findPathFinish(ArrayList<BWAPI.TilePosition> path, int step)
+	public final boolean findPathFinish(ArrayList<TilePosition> path, int step)
 	{
 		return generatePath(path, step);
 	}
@@ -131,24 +131,17 @@ public class Searcher<GRID>
 		// other containers known to be empty.
 	}
 
-	public final void setSkip(int s)
-	{
+	public final void setSkip(int s) {
 		skip = Math.max(1, s);
 	}
-//C++ TO JAVA CONVERTER WARNING: 'const' methods are not available in Java:
-//ORIGINAL LINE: inline size_t getStepsDone() const
-	public final size_t getStepsDone()
-	{
+
+	public final size_t getStepsDone() {
 		return new size_t(stepsDone);
 	}
-//C++ TO JAVA CONVERTER WARNING: 'const' methods are not available in Java:
-//ORIGINAL LINE: inline size_t getNodesExpanded() const
-	public final size_t getNodesExpanded()
-	{
+
+	public final int getNodesExpanded() {
 		return nodegrid.size();
 	}
-
-
 
 	private final GRID grid;
 	private Node endNode;
@@ -159,15 +152,13 @@ public class Searcher<GRID>
 
 	private TreeMap<Position, Node> nodegrid = new TreeMap<Position, Node>();
 
-	private Node getNode(final Position pos)
-	{
+	private Node getNode(final Position pos) {
 	//C++ TO JAVA CONVERTER TODO TASK: The #define macro 'JPS_ASSERT' was defined in multiple preprocessor conditionals and cannot be replaced in-line:
 		JPS_ASSERT(grid(pos.x, pos.y));
 		return nodegrid.put(pos, new Node(pos)).first.second;
 	}
 
-	private void identifySuccessors(Node n)
-	{
+	private void identifySuccessors(Node n) {
 		Position[] buf = tangible.Arrays.initializeWithDefaultPositionInstances(8);
 //C++ TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 //#if JPS_ASTAR_ONLY
@@ -175,8 +166,7 @@ public class Searcher<GRID>
 //#else
 		final int num = findNeighbors(n, buf[0]);
 //#endif
-		for (int i = num - 1; i >= 0; --i)
-		{
+		for (int i = num - 1; i >= 0; --i) {
 			// Invariant: A node is only a valid neighbor if the corresponding grid position is walkable (asserted in jumpP)
 //C++ TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 //#if JPS_ASTAR_ONLY
@@ -188,8 +178,7 @@ public class Searcher<GRID>
 	//C++ TO JAVA CONVERTER TODO TASK: The #define macro 'JPS_ASSERT' was defined in multiple preprocessor conditionals and cannot be replaced in-line:
 			JPS_ASSERT(jp.equalsTo(jumpPRec(buf[i], n.pos)));
 //#endif
-			if (!jp.isValid())
-			{
+			if (!jp.isValid()) {
 				continue;
 			}
 //#endif
@@ -197,22 +186,17 @@ public class Searcher<GRID>
 			Node jn = getNode(jp);
 	//C++ TO JAVA CONVERTER TODO TASK: The #define macro 'JPS_ASSERT' was defined in multiple preprocessor conditionals and cannot be replaced in-line:
 			JPS_ASSERT(jn && jn != n);
-			if (jn.isClosed() == 0)
-			{
+			if (jn.isClosed() == 0) {
 				int extraG = heuristic.GlobalMembers.Euclidean(jn, n);
 				int newG = n.g + extraG;
-				if (jn.isOpen() == 0 || newG < jn.g)
-				{
+				if (jn.isOpen() == 0 || newG < jn.g) {
 					jn.g = newG;
 					jn.f = jn.g + heuristic.GlobalMembers.Manhattan(jn, endNode);
 					jn.parent = n;
-					if (jn.isOpen() == 0)
-					{
+					if (jn.isOpen() == 0) {
 						open.push(jn);
 						jn.setOpen();
-					}
-					else
-					{
+					} else {
 						open.fixup();
 					}
 				}
@@ -222,23 +206,18 @@ public class Searcher<GRID>
 
 //C++ TO JAVA CONVERTER WARNING: 'const' methods are not available in Java:
 //ORIGINAL LINE: boolean generatePath(java.util.ArrayList<BWAPI::TilePosition>& path, uint step) const
-	private boolean generatePath(ArrayList<BWAPI.TilePosition> path, int step)
-	{
-		if (endNode == null)
-		{
+	private boolean generatePath(ArrayList<TilePosition> path, int step) {
+		if (endNode == null) {
 			return false;
 		}
 		size_t offset = path.size();
-		if (step != 0)
-		{
+		if (step != 0) {
 			Node next = endNode;
 			Node prev = endNode.parent;
-			if (prev == null)
-			{
+			if (prev == null) {
 				return false;
 			}
-			do
-			{
+			do {
 				final int x = next.pos.x;
 				final int y = next.pos.y;
 				int dx = prev.pos.x - x;
@@ -252,8 +231,7 @@ public class Searcher<GRID>
 				dy *= (int)step;
 				int dxa = 0;
 				int dya = 0;
-				for (int i = 0; i < steps; i += step)
-				{
+				for (int i = 0; i < steps; i += step) {
 					path.add(BWAPI.TilePosition(x + dxa, y + dya));
 					dxa += dx;
 					dya += dy;
@@ -261,16 +239,12 @@ public class Searcher<GRID>
 				next = prev;
 				prev = prev.parent;
 			} while (prev != null);
-		}
-		else
-		{
+		} else {
 			Node next = endNode;
-			if (next.parent == null)
-			{
+			if (next.parent == null) {
 				return false;
 			}
-			do
-			{
+			do {
 	//C++ TO JAVA CONVERTER TODO TASK: The #define macro 'JPS_ASSERT' was defined in multiple preprocessor conditionals and cannot be replaced in-line:
 				JPS_ASSERT(next != next.parent);
 				path.add(BWAPI.TilePosition(next.pos.x, next.pos.y));
@@ -285,8 +259,7 @@ public class Searcher<GRID>
 //#if ! JPS_DISABLE_GREEDY
 //C++ TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 //#if ! JPS_DISABLE_GREEDY
-	private boolean findPathGreedy(Node n)
-	{
+	private boolean findPathGreedy(Node n) {
 		Position midpos = GlobalMembers.npos;
 		int x = n.pos.x;
 		int y = n.pos.y;
@@ -310,27 +283,21 @@ public class Searcher<GRID>
 		dy *= skip;
 
 		// go diagonally first
-		if (x != ex && y != ey)
-		{
+		if (x != ex && y != ey) {
 	//C++ TO JAVA CONVERTER TODO TASK: The #define macro 'JPS_ASSERT' was defined in multiple preprocessor conditionals and cannot be replaced in-line:
 			JPS_ASSERT(dx && dy);
 			final int minlen = (int)Math.min(adx, ady);
 			final int tx = x + dx * minlen;
-			for (; x != tx;)
-			{
-				if (grid(x, y) && (grid(x + dx, y) || grid(x, y + dy))) // prevent tunneling as well
-				{
+			for (; x != tx;) {
+				if (grid(x, y) && (grid(x + dx, y) || grid(x, y + dy))) { // prevent tunneling as well
 					x += dx;
 					y += dy;
-				}
-				else
-				{
+				} else {
 					return false;
 				}
 			}
 
-			if (!grid(x, y))
-			{
+			if (!grid(x, y)) {
 				return false;
 			}
 
@@ -343,20 +310,15 @@ public class Searcher<GRID>
 	//C++ TO JAVA CONVERTER TODO TASK: The #define macro 'JPS_ASSERT' was defined in multiple preprocessor conditionals and cannot be replaced in-line:
 		JPS_ASSERT(x == ex || y == ey);
 
-		if (!(x == ex && y == ey))
-		{
-			while (x != ex)
-			{
-				if (!grid(x += dx, y))
-				{
+		if (!(x == ex && y == ey)) {
+			while (x != ex) {
+				if (!grid(x += dx, y)) {
 					return false;
 				}
 			}
 
-			while (y != ey)
-			{
-				if (!grid(x, y += dy))
-				{
+			while (y != ey) {
+				if (!grid(x, y += dy)) {
 					return false;
 				}
 			}
@@ -365,19 +327,15 @@ public class Searcher<GRID>
 			JPS_ASSERT(x == ex && y == ey);
 		}
 
-		if (midpos.isValid())
-		{
+		if (midpos.isValid()) {
 			Node mid = getNode(midpos);
 	//C++ TO JAVA CONVERTER TODO TASK: The #define macro 'JPS_ASSERT' was defined in multiple preprocessor conditionals and cannot be replaced in-line:
 			JPS_ASSERT(mid && mid != n);
 			mid.parent = n;
-			if (mid != endNode)
-			{
+			if (mid != endNode) {
 				endNode.parent = mid;
 			}
-		}
-		else
-		{
+		} else {
 			endNode.parent = n;
 		}
 
@@ -390,8 +348,7 @@ public class Searcher<GRID>
 	//-------------- Plain old A* search ----------------
 //C++ TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 //#if JPS_ASTAR_ONLY
-	private int findNeighborsAStar(Node n, Position wptr)
-	{
+	private int findNeighborsAStar(Node n, Position wptr) {
 //C++ TO JAVA CONVERTER TODO TASK: Pointer arithmetic is detected on this variable, so pointers on this variable are left unchanged:
 //C++ TO JAVA CONVERTER TODO TASK: The following line was determined to contain a copy constructor call - this should be verified and a copy constructor should be created:
 //ORIGINAL LINE: Position *w = wptr;
@@ -399,107 +356,75 @@ public class Searcher<GRID>
 		final int x = n.pos.x;
 		final int y = n.pos.y;
 		final int d = skip;
-		do
-		{
-			if (grid(x + (-d),y) || grid(x,y + (-d)))
-			{
-				do
-				{
-				if ((grid(x + (-d), y + (-d))))
-				{
-					do
-					{
-					*w++ = jps.GlobalMembers.Pos(x + (-d), y + (-d));
-					} while (false);
-				}
+		do {
+			if (grid(x + (-d),y) || grid(x,y + (-d))) {
+				do {
+					if ((grid(x + (-d), y + (-d)))) {
+						do {
+							*w++ = jps.GlobalMembers.Pos(x + (-d), y + (-d));
+						} while (false);
+					}
 				} while (false);
 			}
 		} while (false);
-		do
-		{
-			if ((grid(x + (0), y + (-d))))
-			{
-				do
-				{
-				*w++ = jps.GlobalMembers.Pos(x + (0), y + (-d));
+		do {
+			if ((grid(x + (0), y + (-d)))) {
+				do {
+					*w++ = jps.GlobalMembers.Pos(x + (0), y + (-d));
 				} while (false);
 			}
 		} while (false);
-		do
-		{
-			if (grid(x + (+d),y) || grid(x,y + (-d)))
-			{
-				do
-				{
-				if ((grid(x + (+d), y + (-d))))
-				{
-					do
-					{
-					*w++ = jps.GlobalMembers.Pos(x + (+d), y + (-d));
-					} while (false);
-				}
+		do {
+			if (grid(x + (+d),y) || grid(x,y + (-d))) {
+				do {
+					if ((grid(x + (+d), y + (-d)))) {
+						do {
+							*w++ = jps.GlobalMembers.Pos(x + (+d), y + (-d));
+						} while (false);
+					}
 				} while (false);
 			}
 		} while (false);
-		do
-		{
-			if ((grid(x + (-d), y + (0))))
-			{
-				do
-				{
-				*w++ = jps.GlobalMembers.Pos(x + (-d), y + (0));
+		do {
+			if ((grid(x + (-d), y + (0)))) {
+				do {
+					*w++ = jps.GlobalMembers.Pos(x + (-d), y + (0));
 				} while (false);
 			}
 		} while (false);
-		do
-		{
-			if ((grid(x + (+d), y + (0))))
-			{
-				do
-				{
-				*w++ = jps.GlobalMembers.Pos(x + (+d), y + (0));
+		do {
+			if ((grid(x + (+d), y + (0)))) {
+				do {
+					*w++ = jps.GlobalMembers.Pos(x + (+d), y + (0));
 				} while (false);
 			}
 		} while (false);
-		do
-		{
-			if (grid(x + (-d),y) || grid(x,y + (+d)))
-			{
-				do
-				{
-				if ((grid(x + (-d), y + (+d))))
-				{
-					do
-					{
-					*w++ = jps.GlobalMembers.Pos(x + (-d), y + (+d));
-					} while (false);
-				}
+		do {
+			if (grid(x + (-d),y) || grid(x,y + (+d))) {
+				do {
+					if ((grid(x + (-d), y + (+d)))) {
+						do {
+							*w++ = jps.GlobalMembers.Pos(x + (-d), y + (+d));
+						} while (false);
+					}
 				} while (false);
 			}
 		} while (false);
-		do
-		{
-			if ((grid(x + (0), y + (+d))))
-			{
-				do
-				{
-				*w++ = jps.GlobalMembers.Pos(x + (0), y + (+d));
+		do {
+			if ((grid(x + (0), y + (+d)))) {
+				do {
+					*w++ = jps.GlobalMembers.Pos(x + (0), y + (+d));
 				} while (false);
 			}
 		} while (false);
-		do
-		{
-			if (grid(x + (+d),y) || grid(x,y + (+d)))
-			{
-				do
-				{
-				if ((grid(x + (+d), y + (+d))))
-				{
-					do
-					{
-					*w++ = jps.GlobalMembers.Pos(x + (+d), y + (+d));
-					} while (false);
-				}
+		do {
+			if (grid(x + (+d),y) || grid(x,y + (+d))) {
+				do {
+					if ((grid(x + (+d), y + (+d)))) {
+						do {
+							*w++ = jps.GlobalMembers.Pos(x + (+d), y + (+d));
+						} while (false);
+					}
 				} while (false);
 			}
 		} while (false);
@@ -512,122 +437,85 @@ public class Searcher<GRID>
 //#if ! JPS_ASTAR_ONLY
 //C++ TO JAVA CONVERTER WARNING: 'const' methods are not available in Java:
 //ORIGINAL LINE: uint findNeighbors(const Node *n, Position *wptr) const
-	private int findNeighbors(Node n, Position wptr)
-	{
-//C++ TO JAVA CONVERTER TODO TASK: Pointer arithmetic is detected on this variable, so pointers on this variable are left unchanged:
-//C++ TO JAVA CONVERTER TODO TASK: The following line was determined to contain a copy constructor call - this should be verified and a copy constructor should be created:
-//ORIGINAL LINE: Position *w = wptr;
-		Position * w = new Position(wptr);
+	private int findNeighbors(Node n, Position wptr) {
+		Position w = wptr;
 		final int x = n.pos.x;
 		final int y = n.pos.y;
 		final int skip = this.skip;
 
-		if (n.parent == null)
-		{
+		if (n.parent == null) {
 			// straight moves
-			do
-			{
-				if ((grid(x + (-skip), y + (0))))
-				{
-					do
-					{
-					*w++ = jps.GlobalMembers.Pos(x + (-skip), y + (0));
+			do {
+				if ((grid(x + (-skip), y + (0)))) {
+					do {
+						*w++ = jps.GlobalMembers.Pos(x + (-skip), y + (0));
 					} while (false);
 				}
 			} while (false);
-			do
-			{
-				if ((grid(x + (0), y + (-skip))))
-				{
-					do
-					{
-					*w++ = jps.GlobalMembers.Pos(x + (0), y + (-skip));
+			do {
+				if ((grid(x + (0), y + (-skip)))) {
+					do {
+						*w++ = jps.GlobalMembers.Pos(x + (0), y + (-skip));
 					} while (false);
 				}
 			} while (false);
-			do
-			{
-				if ((grid(x + (0), y + (skip))))
-				{
-					do
-					{
-					*w++ = jps.GlobalMembers.Pos(x + (0), y + (skip));
+			do {
+				if ((grid(x + (0), y + (skip)))) {
+					do {
+						*w++ = jps.GlobalMembers.Pos(x + (0), y + (skip));
 					} while (false);
 				}
 			} while (false);
-			do
-			{
-				if ((grid(x + (skip), y + (0))))
-				{
-					do
-					{
-					*w++ = jps.GlobalMembers.Pos(x + (skip), y + (0));
+			do {
+				if ((grid(x + (skip), y + (0)))) {
+					do {
+						*w++ = jps.GlobalMembers.Pos(x + (skip), y + (0));
 					} while (false);
 				}
 			} while (false);
 
 			// diagonal moves + prevent tunneling
-			do
-			{
-				if (grid(x + (-skip),y) || grid(x,y + (-skip)))
-				{
-					do
-					{
-					if ((grid(x + (-skip), y + (-skip))))
-					{
-						do
-						{
-						*w++ = jps.GlobalMembers.Pos(x + (-skip), y + (-skip));
-						} while (false);
-					}
+			do {
+				if (grid(x + (-skip),y) || grid(x,y + (-skip))) {
+					do {
+						if ((grid(x + (-skip), y + (-skip)))) {
+							do {
+								*w++ = jps.GlobalMembers.Pos(x + (-skip), y + (-skip));
+							} while (false);
+						}
 					} while (false);
 				}
 			} while (false);
-			do
-			{
-				if (grid(x + (-skip),y) || grid(x,y + (skip)))
-				{
-					do
-					{
-					if ((grid(x + (-skip), y + (skip))))
-					{
-						do
-						{
-						*w++ = jps.GlobalMembers.Pos(x + (-skip), y + (skip));
-						} while (false);
-					}
+			do {
+				if (grid(x + (-skip),y) || grid(x,y + (skip))) {
+					do {
+						if ((grid(x + (-skip), y + (skip)))) {
+							do {
+								*w++ = jps.GlobalMembers.Pos(x + (-skip), y + (skip));
+							} while (false);
+						}
 					} while (false);
 				}
 			} while (false);
-			do
-			{
-				if (grid(x + (skip),y) || grid(x,y + (-skip)))
-				{
-					do
-					{
-					if ((grid(x + (skip), y + (-skip))))
-					{
-						do
-						{
-						*w++ = jps.GlobalMembers.Pos(x + (skip), y + (-skip));
-						} while (false);
-					}
+			do {
+				if (grid(x + (skip),y) || grid(x,y + (-skip))) {
+					do {
+						if ((grid(x + (skip), y + (-skip)))) {
+							do {
+								*w++ = jps.GlobalMembers.Pos(x + (skip), y + (-skip));
+							} while (false);
+						}
 					} while (false);
 				}
 			} while (false);
-			do
-			{
-				if (grid(x + (skip),y) || grid(x,y + (skip)))
-				{
-					do
-					{
-					if ((grid(x + (skip), y + (skip))))
-					{
-						do
-						{
-						*w++ = jps.GlobalMembers.Pos(x + (skip), y + (skip));
-						} while (false);
-					}
+			do {
+				if (grid(x + (skip),y) || grid(x,y + (skip))) {
+					do {
+						if ((grid(x + (skip), y + (skip)))) {
+							do {
+								*w++ = jps.GlobalMembers.Pos(x + (skip), y + (skip));
+							} while (false);
+						}
 					} while (false);
 				}
 			} while (false);
@@ -643,140 +531,103 @@ public class Searcher<GRID>
 		dy /= Math.max(Math.abs(dy), 1);
 		dy *= skip;
 
-		if (dx != 0 && dy != 0)
-		{
+		if (dx != 0 && dy != 0) {
 			// diagonal
 			// natural neighbors
 			boolean walkX = false;
 			boolean walkY = false;
-			if ((walkX = grid(x + dx, y)))
-			{
+			if ((walkX = grid(x + dx, y))) {
 				*w++ = jps.GlobalMembers.Pos(x + dx, y);
 			}
-			if ((walkY = grid(x, y + dy)))
-			{
+			if ((walkY = grid(x, y + dy))) {
 				*w++ = jps.GlobalMembers.Pos(x, y + dy);
 			}
 
-			if (walkX || walkY)
-			{
-				do
-				{
-				if ((grid(x + (dx), y + (dy))))
-				{
-					do
-					{
-					*w++ = jps.GlobalMembers.Pos(x + (dx), y + (dy));
-					} while (false);
-				}
+			if (walkX || walkY) {
+				do {
+					if ((grid(x + (dx), y + (dy)))) {
+						do
+						{
+							*w++ = jps.GlobalMembers.Pos(x + (dx), y + (dy));
+						} while (false);
+					}
 				} while (false);
 			}
 
 			// forced neighbors
-			if (walkY && !(grid(x + (-dx), y + (0))))
-			{
-				do
-				{
-				if ((grid(x + (-dx), y + (dy))))
-				{
-					do
-					{
-					*w++ = jps.GlobalMembers.Pos(x + (-dx), y + (dy));
-					} while (false);
-				}
+			if (walkY && !(grid(x + (-dx), y + (0)))) {
+				do {
+					if ((grid(x + (-dx), y + (dy)))) {
+						do {
+							*w++ = jps.GlobalMembers.Pos(x + (-dx), y + (dy));
+						} while (false);
+					}
 				} while (false);
 			}
 
-			if (walkX && !(grid(x + (0), y + (-dy))))
-			{
-				do
-				{
-				if ((grid(x + (dx), y + (-dy))))
-				{
-					do
-					{
-					*w++ = jps.GlobalMembers.Pos(x + (dx), y + (-dy));
-					} while (false);
-				}
+			if (walkX && !(grid(x + (0), y + (-dy)))) {
+				do {
+					if ((grid(x + (dx), y + (-dy)))) {
+						do
+						{
+							*w++ = jps.GlobalMembers.Pos(x + (dx), y + (-dy));
+						} while (false);
+					}
 				} while (false);
 			}
 		}
-		else if (dx)
-		{
+		else if (dx) {
 			// along X axis
-			if ((grid(x + (dx), y + (0))))
-			{
-				do
-				{
+			if ((grid(x + (dx), y + (0)))) {
+				do {
 					*w++ = jps.GlobalMembers.Pos(x + (dx), y + (0));
 				} while (false);
 
 				// Forced neighbors (+ prevent tunneling)
-				if (!(grid(x + (0), y + (skip))))
-				{
-					do
-					{
-					if ((grid(x + (dx), y + (skip))))
-					{
-						do
-						{
-						*w++ = jps.GlobalMembers.Pos(x + (dx), y + (skip));
-						} while (false);
-					}
+				if (!(grid(x + (0), y + (skip)))) {
+					do {
+						if ((grid(x + (dx), y + (skip)))) {
+							do {
+								*w++ = jps.GlobalMembers.Pos(x + (dx), y + (skip));
+							} while (false);
+						}
 					} while (false);
 				}
-				if (!(grid(x + (0), y + (-skip))))
-				{
-					do
-					{
-					if ((grid(x + (dx), y + (-skip))))
-					{
-						do
-						{
-						*w++ = jps.GlobalMembers.Pos(x + (dx), y + (-skip));
-						} while (false);
-					}
+				if (!(grid(x + (0), y + (-skip)))) {
+					do {
+						if ((grid(x + (dx), y + (-skip)))) {
+							do {
+								*w++ = jps.GlobalMembers.Pos(x + (dx), y + (-skip));
+							} while (false);
+						}
 					} while (false);
 				}
 			}
-
-
 		}
-		else if (dy)
-		{
+		else if (dy) {
 			// along Y axis
-			if ((grid(x + (0), y + (dy))))
-			{
-				do
-				{
+			if ((grid(x + (0), y + (dy)))) {
+				do {
 					*w++ = jps.GlobalMembers.Pos(x + (0), y + (dy));
 				} while (false);
 
 				// Forced neighbors (+ prevent tunneling)
-				if (!(grid(x + (skip), y + (0))))
-				{
-					do
-					{
-					if ((grid(x + (skip), y + (dy))))
-					{
-						do
-						{
-						*w++ = jps.GlobalMembers.Pos(x + (skip), y + (dy));
-						} while (false);
-					}
+				if (!(grid(x + (skip), y + (0)))) {
+					do {
+						if ((grid(x + (skip), y + (dy)))) {
+							do {
+								*w++ = jps.GlobalMembers.Pos(x + (skip), y + (dy));
+							} while (false);
+						}
 					} while (false);
 				}
-				if (!(grid(x + (-skip), y + (0))))
-				{
-					do
-					{
-					if ((grid(x + (-skip), y + (dy))))
-					{
-						do
-						{
-						*w++ = jps.GlobalMembers.Pos(x + (-skip), y + (dy));
-						} while (false);
-					}
+				if (!(grid(x + (-skip), y + (0)))) {
+					do {
+						if ((grid(x + (-skip), y + (dy)))) {
+							do {
+								*w++ = jps.GlobalMembers.Pos(x + (-skip), y + (dy));
+							} while (false);
+						}
 					} while (false);
 				}
 			}
@@ -788,8 +639,7 @@ public class Searcher<GRID>
 
 //C++ TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 //#if ! JPS_ASTAR_ONLY
-	private Position jumpP(final Position p, final Position src)
-	{
+	private Position jumpP(final Position p, final Position src) {
 	//C++ TO JAVA CONVERTER TODO TASK: The #define macro 'JPS_ASSERT' was defined in multiple preprocessor conditionals and cannot be replaced in-line:
 		JPS_ASSERT(grid(p.x, p.y));
 
@@ -798,20 +648,15 @@ public class Searcher<GRID>
 	//C++ TO JAVA CONVERTER TODO TASK: The #define macro 'JPS_ASSERT' was defined in multiple preprocessor conditionals and cannot be replaced in-line:
 		JPS_ASSERT(dx || dy);
 
-		if (dx != 0 && dy != 0)
-		{
+		if (dx != 0 && dy != 0) {
 //C++ TO JAVA CONVERTER TODO TASK: The following line was determined to contain a copy constructor call - this should be verified and a copy constructor should be created:
 //ORIGINAL LINE: return jumpD(p, dx, dy);
 			return new jps.Position(jumpD(new jps.Position(p), dx, dy));
-		}
-		else if (dx)
-		{
+		} else if (dx) {
 //C++ TO JAVA CONVERTER TODO TASK: The following line was determined to contain a copy constructor call - this should be verified and a copy constructor should be created:
 //ORIGINAL LINE: return jumpX(p, dx);
 			return new jps.Position(jumpX(new jps.Position(p), dx));
-		}
-		else if (dy)
-		{
+		} else if (dy) {
 //C++ TO JAVA CONVERTER TODO TASK: The following line was determined to contain a copy constructor call - this should be verified and a copy constructor should be created:
 //ORIGINAL LINE: return jumpY(p, dy);
 			return new jps.Position(jumpY(new jps.Position(p), dy));
@@ -825,8 +670,7 @@ public class Searcher<GRID>
 		return new jps.Position(GlobalMembers.npos);
 	}
 
-	private Position jumpD(Position p, int dx, int dy)
-	{
+	private Position jumpD(Position p, int dx, int dy) {
 	//C++ TO JAVA CONVERTER TODO TASK: The #define macro 'JPS_ASSERT' was defined in multiple preprocessor conditionals and cannot be replaced in-line:
 		JPS_ASSERT(grid(p.x, p.y));
 	//C++ TO JAVA CONVERTER TODO TASK: The #define macro 'JPS_ASSERT' was defined in multiple preprocessor conditionals and cannot be replaced in-line:
@@ -835,10 +679,8 @@ public class Searcher<GRID>
 		final Position endpos = endNode.pos;
 		int steps = 0;
 
-		while (true)
-		{
-			if (p.equalsTo(endpos))
-			{
+		while (true) {
+			if (p.equalsTo(endpos)) {
 				break;
 			}
 
@@ -846,31 +688,25 @@ public class Searcher<GRID>
 			final int x = p.x;
 			final int y = p.y;
 
-			if ((grid(x - dx, y + dy) && !grid(x - dx, y)) || (grid(x + dx, y - dy) && !grid(x, y - dy)))
-			{
+			if ((grid(x - dx, y + dy) && !grid(x - dx, y)) || (grid(x + dx, y - dy) && !grid(x, y - dy))) {
 				break;
 			}
 
 			final boolean gdx = grid(x + dx, y);
 			final boolean gdy = grid(x, y + dy);
 
-			if (gdx && jumpX(jps.GlobalMembers.Pos(x + dx, y), dx).isValid())
-			{
+			if (gdx && jumpX(jps.GlobalMembers.Pos(x + dx, y), dx).isValid()) {
 				break;
 			}
 
-			if (gdy && jumpY(jps.GlobalMembers.Pos(x, y + dy), dy).isValid())
-			{
+			if (gdy && jumpY(jps.GlobalMembers.Pos(x, y + dy), dy).isValid()) {
 				break;
 			}
 
-			if ((gdx || gdy) && grid(x + dx, y + dy))
-			{
+			if ((gdx || gdy) && grid(x + dx, y + dy)) {
 				p.x += dx;
 				p.y += dy;
-			}
-			else
-			{
+			} else {
 //C++ TO JAVA CONVERTER TODO TASK: The following line was determined to be a copy assignment (rather than a reference assignment) - this should be verified and a 'copyFrom' method should be created:
 //ORIGINAL LINE: p = npos;
 				p.copyFrom(GlobalMembers.npos);
@@ -884,8 +720,7 @@ public class Searcher<GRID>
 		return new jps.Position(p);
 	}
 
-	private Position jumpX(Position p, int dx)
-	{
+	private Position jumpX(Position p, int dx) {
 	//C++ TO JAVA CONVERTER TODO TASK: The #define macro 'JPS_ASSERT' was defined in multiple preprocessor conditionals and cannot be replaced in-line:
 		JPS_ASSERT(dx);
 	//C++ TO JAVA CONVERTER TODO TASK: The #define macro 'JPS_ASSERT' was defined in multiple preprocessor conditionals and cannot be replaced in-line:
@@ -898,17 +733,14 @@ public class Searcher<GRID>
 
 		int a = ~((!!grid(p.x, y + skip)) | ((!!grid(p.x, y - skip)) << 1));
 
-		while (true)
-		{
+		while (true) {
 			final int xx = p.x + dx;
 			final int b = (!!grid(xx, y + skip)) | ((!!grid(xx, y - skip)) << 1);
 
-			if ((b & a) != 0 || p.equalsTo(endpos))
-			{
+			if ((b & a) != 0 || p.equalsTo(endpos)) {
 				break;
 			}
-			if (!grid(xx, y))
-			{
+			if (!grid(xx, y)) {
 //C++ TO JAVA CONVERTER TODO TASK: The following line was determined to be a copy assignment (rather than a reference assignment) - this should be verified and a 'copyFrom' method should be created:
 //ORIGINAL LINE: p = npos;
 				p.copyFrom(GlobalMembers.npos);
@@ -927,8 +759,7 @@ public class Searcher<GRID>
 		return new jps.Position(p);
 	}
 
-	private Position jumpY(Position p, int dy)
-	{
+	private Position jumpY(Position p, int dy) {
 	//C++ TO JAVA CONVERTER TODO TASK: The #define macro 'JPS_ASSERT' was defined in multiple preprocessor conditionals and cannot be replaced in-line:
 		JPS_ASSERT(dy);
 	//C++ TO JAVA CONVERTER TODO TASK: The #define macro 'JPS_ASSERT' was defined in multiple preprocessor conditionals and cannot be replaced in-line:
@@ -941,17 +772,14 @@ public class Searcher<GRID>
 
 		int a = ~((!!grid(x + skip, p.y)) | ((!!grid(x - skip, p.y)) << 1));
 
-		while (true)
-		{
+		while (true) {
 			final int yy = p.y + dy;
 			final int b = (!!grid(x + skip, yy)) | ((!!grid(x - skip, yy)) << 1);
 
-			if ((a & b) != 0 || p.equalsTo(endpos))
-			{
+			if ((a & b) != 0 || p.equalsTo(endpos)) {
 				break;
 			}
-			if (!grid(x, yy))
-			{
+			if (!grid(x, yy)) {
 //C++ TO JAVA CONVERTER TODO TASK: The following line was determined to be a copy assignment (rather than a reference assignment) - this should be verified and a 'copyFrom' method should be created:
 //ORIGINAL LINE: p = npos;
 				p.copyFrom(GlobalMembers.npos);
@@ -975,18 +803,15 @@ public class Searcher<GRID>
 //#if JPS_VERIFY
 //C++ TO JAVA CONVERTER WARNING: 'const' methods are not available in Java:
 //ORIGINAL LINE: Position jumpPRec(const Position& p, const Position& src) const
-	private Position jumpPRec(final Position p, final Position src)
-	{
+	private Position jumpPRec(final Position p, final Position src) {
 		int x = p.x;
 		int y = p.y;
-		if (!grid(x, y))
-		{
+		if (!grid(x, y)) {
 //C++ TO JAVA CONVERTER TODO TASK: The following line was determined to contain a copy constructor call - this should be verified and a copy constructor should be created:
 //ORIGINAL LINE: return npos;
 			return new jps.Position(GlobalMembers.npos);
 		}
-		if (p.equalsTo(endNode.pos))
-		{
+		if (p.equalsTo(endNode.pos)) {
 			return p;
 		}
 
@@ -995,42 +820,32 @@ public class Searcher<GRID>
 	//C++ TO JAVA CONVERTER TODO TASK: The #define macro 'JPS_ASSERT' was defined in multiple preprocessor conditionals and cannot be replaced in-line:
 		JPS_ASSERT(dx || dy);
 
-		if (dx != 0 && dy != 0)
-		{
-			if ((grid(x - dx, y + dy) && !grid(x - dx, y)) || (grid(x + dx, y - dy) && !grid(x, y - dy)))
-			{
+		if (dx != 0 && dy != 0) {
+			if ((grid(x - dx, y + dy) && !grid(x - dx, y)) || (grid(x + dx, y - dy) && !grid(x, y - dy))) {
 				return p;
 			}
 		}
-		else if (dx)
-		{
-			if ((grid(x + dx, y + skip) && !grid(x, y + skip)) || (grid(x + dx, y - skip) && !grid(x, y - skip)))
-			{
+		else if (dx) {
+			if ((grid(x + dx, y + skip) && !grid(x, y + skip)) || (grid(x + dx, y - skip) && !grid(x, y - skip))) {
 				return p;
 			}
 		}
-		else if (dy)
-		{
-			if ((grid(x + skip, y + dy) && !grid(x + skip, y)) || (grid(x - skip, y + dy) && !grid(x - skip, y)))
-			{
+		else if (dy) {
+			if ((grid(x + skip, y + dy) && !grid(x + skip, y)) || (grid(x - skip, y + dy) && !grid(x - skip, y))) {
 				return p;
 			}
 		}
 
-		if (dx != 0 && dy != 0)
-		{
-			if (jumpPRec(jps.GlobalMembers.Pos(x + dx, y), p).isValid())
-			{
+		if (dx != 0 && dy != 0) {
+			if (jumpPRec(jps.GlobalMembers.Pos(x + dx, y), p).isValid()) {
 				return p;
 			}
-			if (jumpPRec(jps.GlobalMembers.Pos(x, y + dy), p).isValid())
-			{
+			if (jumpPRec(jps.GlobalMembers.Pos(x, y + dy), p).isValid()) {
 				return p;
 			}
 		}
 
-		if (grid(x + dx, y) || grid(x, y + dy))
-		{
+		if (grid(x + dx, y) || grid(x, y + dy)) {
 //C++ TO JAVA CONVERTER TODO TASK: The following line was determined to contain a copy constructor call - this should be verified and a copy constructor should be created:
 //ORIGINAL LINE: return jumpPRec(Pos(x + dx, y + dy), p);
 			return new jps.Position(jumpPRec(jps.GlobalMembers.Pos(x + dx, y + dy), p));

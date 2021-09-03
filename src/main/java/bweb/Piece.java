@@ -1,10 +1,6 @@
 package bweb;
 
-import BWAPI.*;
-import java.util.*;
-
-public enum Piece
-{
+public enum Piece {
 	Small,
 	Medium,
 	Large,
@@ -13,13 +9,11 @@ public enum Piece
 
 	public static final int SIZE = java.lang.Integer.SIZE;
 
-	public int getValue()
-	{
+	public int getValue() {
 		return this.ordinal();
 	}
 
-	public static Piece forValue(int value)
-	{
+	public static Piece forValue(int value) {
 		return values()[value];
 	}
 }

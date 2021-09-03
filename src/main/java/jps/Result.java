@@ -156,8 +156,7 @@ Returns false if the pathfinding did not finish or generating the path failed.
 
 
 
-public enum Result
-{
+public enum Result {
 	NO_PATH,
 	FOUND_PATH,
 	NEED_MORE_STEPS,
@@ -165,13 +164,11 @@ public enum Result
 
 	public static final int SIZE = java.lang.Integer.SIZE;
 
-	public int getValue()
-	{
+	public int getValue() {
 		return this.ordinal();
 	}
 
-	public static Result forValue(int value)
-	{
+	public static Result forValue(int value) {
 		return values()[value];
 	}
 }
