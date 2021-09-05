@@ -2,6 +2,7 @@ package bweb;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import bwapi.*;
@@ -11,7 +12,6 @@ public class Blocks {
     static List<Block> allBlocks;
     HashMap<Area, Integer> typePerArea;
     HashMap<Piece, Integer> mainPieces;
-
 
     int countPieces(List<Piece> pieces, Piece type) {
         int count = 0;
@@ -400,7 +400,7 @@ public class Blocks {
     }
 
     void findProductionBlocks() {
-        HashMap<Double, TilePosition> tilesByPathDist;
+        HashMap<Double, TilePosition> tilesByPathDist = new HashMap<>();
         int totalMedium = 0;
         int totalLarge = 0;
 
@@ -409,9 +409,10 @@ public class Blocks {
             for (int x = 0; x < Map.game.mapWidth(); x++) {
                 TilePosition t = new TilePosition(x, y);
                 if (t.isValid(Map.game) && Map.game.isBuildable(t)) {
-                    Position p = Position(x * 32, y * 32);
-                    double dist = (Map.getNaturalChoke() && Map.game.self().getRace() != Race.Zerg) ? p.getDistance(Position(Map.getNaturalChoke().getCenter())) : p.getDistance(Map.getMainPosition());
-                    tilesByPathDist.insert(make_pair(dist, t));
+                    Position p = new Position(x * 32, y * 32);
+                    double dist = (Map.getNaturalChoke() != null && Map.game.self().getRace() != Race.Zerg) ?
+                            p.getDistance(new Position(Map.getNaturalChoke().getCenter())) : p.getDistance(Map.getMainPosition());
+                    tilesByPathDist.put(dist, t);
                 }
             }
         }
@@ -429,37 +430,41 @@ public class Blocks {
                 int mediumCount = countPieces(pieces, Piece.Medium);
                 int largeCount = countPieces(pieces, Piece.Large);
 
-                for (auto &[_, tile] : tilesByPathDist) {
+                for (Double key : tilesByPathDist.keySet()) {
+                    TilePosition tile = tilesByPathDist.get(key);
 
                     // Protoss caps large pieces in the main at 12 if we don't have necessary medium pieces
-                    if (Broodwar->self()->getRace() == Race.Protoss) {
-                        if (largeCount > 0 && Map.mapBWEM.getMap().getArea(tile) == Map.getMainArea() && mainPieces[Piece::Large] >= 12 && mainPieces[Piece::Medium] < 10)
-                        continue;
+                    if (Map.game.self().getRace() == Race.Protoss) {
+                        if (largeCount > 0 && Map.mapBWEM.getMap().getArea(tile) == Map.getMainArea() && mainPieces.get(Piece.Large) >= 12 && mainPieces.get(Piece.Medium) < 10) {
+                            continue;
+                        }
                     }
 
                     // Zerg only need 4 medium pieces and 2 small piece
-                    if (Broodwar->self()->getRace() == Race.Zerg) {
-                        if ((mediumCount > 0 && mainPieces[Piece.Medium] >= 4)
-                                || (smallCount > 0 && mainPieces[Piece.Small] >= 2)) {
+                    if (Map.game.self().getRace() == Race.Zerg) {
+                        if ((mediumCount > 0 && mainPieces.get(Piece.Medium) >= 4)
+                                || (smallCount > 0 && mainPieces.get(Piece.Small) >= 2)) {
                             continue;
                         }
                     }
 
                     // Terran only need about 20 depot spots
                     if (Map.game.self().getRace() == Race.Terran) {
-                        if (mediumCount > 0 && mainPieces[Piece.Medium] >= 20)
+                        if (mediumCount > 0 && mainPieces.get(Piece.Medium) >= 20) {
                             continue;
+                        }
                     }
 
                     if (canAddBlock(tile, i, j)) {
                         insertBlock(tile, pieces);
-
                         totalMedium += mediumCount;
                         totalLarge += largeCount;
 
-                        if (Map::mapBWEM.GetArea(tile) == Map.getMainArea()) {
-                            for (auto &piece : pieces)
-                            mainPieces[piece]++;
+                        if (Map.mapBWEM.getMap().getArea(tile) == Map.getMainArea()) {
+                            for (Piece piece : pieces) {
+                                int tmp = mainPieces.get(piece) + 1;
+                                mainPieces.put(piece, tmp);
+                            }
                         }
                     }
                 }
@@ -467,108 +472,127 @@ public class Blocks {
         }
     }
 
-//    void findProxyBlock() {
-//        // For base-specific locations, avoid all areas likely to be traversed by worker scouts
-//        set<const BWEM::Area*> areasToAvoid;
-//        for (auto &first : Map::mapBWEM.StartingLocations()) {
-//        for (auto &second : Map::mapBWEM.StartingLocations()) {
-//            if (first == second)
-//                continue;
-//
-//            for (auto &choke : Map::mapBWEM.GetPath(Position(first), Position(second))) {
-//                areasToAvoid.insert(choke->GetAreas().first);
-//                areasToAvoid.insert(choke->GetAreas().second);
-//            }
-//        }
-//
-//        // Also add any areas that neighbour each start location
-//        auto baseArea = Map::mapBWEM.GetNearestArea(first);
-//        for (auto &area : baseArea->AccessibleNeighbours())
-//        areasToAvoid.insert(area);
-//    }
-//
-//        // Gather the possible enemy start locations
-//        vector<TilePosition> enemyStartLocations;
-//        for (auto &start : Map::mapBWEM.StartingLocations()) {
-//        if (Map::mapBWEM.GetArea(start) != Map::getMainArea())
-//        enemyStartLocations.push_back(start);
-//    }
-//
-//        // Check if this block is in a good area
-//            const auto goodArea = [&](TilePosition t) {
-//        for (auto &start : enemyStartLocations) {
-//            if (Map::mapBWEM.GetArea(t) == Map::mapBWEM.GetArea(start))
-//            return false;
-//        }
-//        for (auto &area : areasToAvoid) {
-//            if (Map::mapBWEM.GetArea(t) == area)
-//            return false;
-//        }
-//        return true;
-//    };
-//
-//        // Check if there's a blocking neutral between the positions to prevent bad pathing
-//            const auto blockedPath = [&](Position source, Position target) {
-//        for (auto &choke : Map::mapBWEM.GetPath(source, target)) {
-//            if (Map::isUsed(TilePosition(choke->Center())) != UnitTypes::None)
-//            return true;
-//        }
-//        return false;
-//    };
-//
-//        // Find the best locations
-//        TilePosition tileBest = TilePositions::Invalid;
-//        auto distBest = DBL_MAX;
-//        for (int x = 0; x < Broodwar->mapWidth(); x++) {
-//            for (int y = 0; y < Broodwar->mapHeight(); y++) {
-//                    const TilePosition topLeft(x, y);
-//                    const TilePosition botRight(x + 8, y + 5);
-//
-//                if (!topLeft.isValid()
-//                        || !botRight.isValid()
-//                        || !canAddProxyBlock(topLeft, 8, 5))
-//                    continue;
-//
-//                    const Position blockCenter = Position(topLeft) + Position(160, 96);
-//
-//                // Consider each start location
-//                auto dist = 0.0;
-//                for (auto &base : enemyStartLocations) {
-//                        const auto baseCenter = Position(base) + Position(64, 48);
-//                    dist += Map::getGroundDistance(blockCenter, baseCenter);
-//                    if (blockedPath(blockCenter, baseCenter)) {
-//                        dist = DBL_MAX;
-//                        break;
-//                    }
-//                }
-//
-//                // Bonus for placing in a good area
-//                if (goodArea(topLeft) && goodArea(botRight))
-//                    dist = log(dist);
-//
-//                if (dist < distBest) {
-//                    distBest = dist;
-//                    tileBest = topLeft;
-//                }
-//            }
-//        }
-//
-//        // Add the blocks
-//        if (canAddProxyBlock(tileBest, 8, 5))
-//            insertProxyBlock(tileBest, { Piece::Large, Piece::Large, Piece::Row, Piece::Small, Piece::Small, Piece::Small, Piece::Small });
-//    }
-//}
-//
-//    void eraseBlock(const TilePosition here)
-//    {
-//        for (auto &it = allBlocks.begin(); it != allBlocks.end(); ++it) {
-//            auto &block = *it;
-//            if (here.x >= block.getTilePosition().x && here.x < block.getTilePosition().x + block.width() && here.y >= block.getTilePosition().y && here.y < block.getTilePosition().y + block.height()) {
-//                allBlocks.erase(it);
-//                return;
-//            }
-//        }
-//    }
+    // Check if this block is in a good area
+    private boolean goodArea(TilePosition t, List<TilePosition> enemyStartLocations, HashSet<Area> areasToAvoid) {
+        for (TilePosition start : enemyStartLocations) {
+            if (Map.mapBWEM.getMap().getArea(t) == Map.mapBWEM.getMap().getArea(start)) {
+                return false;
+            }
+        }
+        for (Area area : areasToAvoid) {
+            if (Map.mapBWEM.getMap().getArea(t) == area) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Check if there's a blocking neutral between the positions to prevent bad pathing
+    private boolean blockedPath(Position source, Position target) {
+        for (ChokePoint choke : Map.mapBWEM.getMap().getPath(source, target)) {
+            if (Map.isUsed(new TilePosition(choke.getCenter()), 1, 1) != UnitType.None){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void findProxyBlock() {
+        // For base-specific locations, avoid all areas likely to be traversed by worker scouts
+        HashSet<Area> areasToAvoid = new HashSet<>();
+        for (TilePosition first : Map.mapBWEM.getMap().getStartingLocations()) {
+            for (TilePosition second : Map.mapBWEM.getMap().getStartingLocations()) {
+                if (first == second) {
+                    continue;
+                }
+
+                for (ChokePoint choke : Map.mapBWEM.getMap().getPath(new Position(first), new Position(second))) {
+                    areasToAvoid.add(choke.getAreas().getFirst());
+                    areasToAvoid.add(choke.getAreas().getSecond());
+                }
+            }
+
+            // Also add any areas that neighbour each start location
+            Area baseArea = Map.mapBWEM.getMap().getNearestArea(first);
+            for (Area area : baseArea.getAccessibleNeighbors()) {
+                areasToAvoid.add(area);
+            }
+        }
+
+        // Gather the possible enemy start locations
+        List<TilePosition> enemyStartLocations = new ArrayList<>();
+        for (TilePosition start : Map.mapBWEM.getMap().getStartingLocations()) {
+            if (Map.mapBWEM.getMap().getArea(start) != Map.getMainArea()){
+                enemyStartLocations.add(start);
+            }
+        }
+
+        // Find the best locations
+        TilePosition tileBest = TilePosition.Invalid;
+        double distBest = Double.MAX_VALUE;
+        for (int x = 0; x < Map.game.mapWidth(); x++) {
+            for (int y = 0; y < Map.game.mapHeight(); y++) {
+                TilePosition topLeft = new TilePosition(x, y);
+                TilePosition botRight = new TilePosition(x + 8, y + 5);
+
+                if (!topLeft.isValid(Map.game)
+                        || !botRight.isValid(Map.game)
+                        || !canAddProxyBlock(topLeft, 8, 5)) {
+                    continue;
+                }
+
+                Position blockCenter = new Position(topLeft.toPosition().x + 160, topLeft.toPosition().y + 96);
+
+                // Consider each start location
+                double dist = 0.0;
+                for (TilePosition base : enemyStartLocations) {
+                    Position baseCenter = new Position(base.toPosition().x + 64, base.toPosition().y + 48);
+                    dist += Map.getGroundDistance(blockCenter, baseCenter);
+                    if (blockedPath(blockCenter, baseCenter)) {
+                        dist = Double.MAX_VALUE;
+                        break;
+                    }
+                }
+
+                // Bonus for placing in a good area
+                if (goodArea(topLeft, enemyStartLocations, areasToAvoid) &&
+                        goodArea(botRight, enemyStartLocations, areasToAvoid)) {
+                    dist = Math.log(dist);
+                }
+
+                if (dist < distBest) {
+                    distBest = dist;
+                    tileBest = topLeft;
+                }
+            }
+        }
+
+        // Add the blocks
+        if (canAddProxyBlock(tileBest, 8, 5)) {
+            List<Piece> p = new ArrayList<>();
+            p.add(Piece.Large);
+            p.add(Piece.Large);
+            p.add(Piece.Row);
+            p.add(Piece.Small);
+            p.add(Piece.Small);
+            p.add(Piece.Small);
+            p.add(Piece.Small);
+            insertProxyBlock(tileBest, p);
+        }
+    }
+
+    void eraseBlock(TilePosition here) {
+        List<Block> blocksToRemove = new ArrayList<>();
+        for (Block block : allBlocks) {
+            if (here.x >= block.getTilePosition().x && here.x < block.getTilePosition().x + block.width() &&
+                    here.y >= block.getTilePosition().y && here.y < block.getTilePosition().y + block.height()) {
+                blocksToRemove.add(block);
+            }
+        }
+        for (Block block : blocksToRemove) {
+            allBlocks.remove(block);
+        }
+    }
 
     public void findBlocks() {
         findMainDefenseBlock();
