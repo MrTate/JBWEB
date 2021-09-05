@@ -24,11 +24,11 @@ public class Map {
     boolean drawReserveOverlap, drawUsed, drawWalk, drawArea;
 
     HashMap<Key, Boolean> lastKeyState;
-    HashMap<ChokePoint, Set<TilePosition>> chokeTiles;
+    static HashMap<ChokePoint, Set<TilePosition>> chokeTiles;
     HashMap<ChokePoint, Pair<Position, Position>> chokeLines;
 
-    int overlapGrid[][] = new int[256][256];
-    UnitType usedGrid[][] = new UnitType[256][256];
+    static int overlapGrid[][] = new int[256][256];
+    static UnitType usedGrid[][] = new UnitType[256][256];
     boolean walkGrid[][] = new boolean[256][256];
     boolean logInfo = true;
 
@@ -451,7 +451,7 @@ public class Map {
         onUnitDiscover(unit);
     }
 
-    void addReserve(TilePosition t, int w, int h) {
+    public static void addReserve(TilePosition t, int w, int h) {
         for (int x = t.x; x < t.x + w; x++) {
             for (int y = t.y; y < t.y + h; y++) {
                 TilePosition t2 = new TilePosition(x, y);
@@ -473,7 +473,7 @@ public class Map {
         }
     }
 
-    boolean isReserved(TilePosition here, int width, int height) {
+    public static boolean isReserved(TilePosition here, int width, int height) {
         for (int x = here.x; x < here.x + width; x++) {
             for (int y = here.y; y < here.y + height; y++) {
                 TilePosition t = new TilePosition(x, y);
@@ -488,7 +488,7 @@ public class Map {
         return false;
     }
 
-    void addUsed(TilePosition t, UnitType type) {
+    public static void addUsed(TilePosition t, UnitType type) {
         for (int x = t.x; x < t.x + type.tileWidth(); x++) {
             for (int y = t.y; y < t.y + type.tileHeight(); y++)
                 if (new TilePosition(x, y).isValid(game))
@@ -496,7 +496,7 @@ public class Map {
         }
     }
 
-    void removeUsed(TilePosition t, int w, int h) {
+    public static void removeUsed(TilePosition t, int w, int h) {
         for (int x = t.x; x < t.x + w; x++) {
             for (int y = t.y; y < t.y + h; y++) {
                 TilePosition t2 = new TilePosition(x, y);
@@ -507,7 +507,7 @@ public class Map {
         }
     }
 
-    public UnitType isUsed(TilePosition here, int width, int height) {
+    public static UnitType isUsed(TilePosition here, int width, int height) {
         for (int x = here.x; x < here.x + width; x++) {
             for (int y = here.y; y < here.y + height; y++) {
                 TilePosition t = new TilePosition(x, y);
@@ -525,7 +525,7 @@ public class Map {
         return walkGrid[here.x][here.y];
     }
 
-    public boolean isPlaceable(UnitType type, TilePosition location) {
+    public static boolean isPlaceable(UnitType type, TilePosition location) {
         if (type.requiresCreep()) {
             for (int x = location.x; x < location.x + type.tileWidth(); x++) {
                 TilePosition creepTile = new TilePosition(x, location.y + type.tileHeight());
@@ -570,7 +570,7 @@ public class Map {
         return cnt;
     }
 
-    private Position validatePoint(WalkPosition w) {
+    private static Position validatePoint(WalkPosition w) {
         double distBest = 0.0;
         Position posBest = new Position(w);
         for (int x = w.x - 1; x < w.x + 1; x++) {
@@ -591,7 +591,7 @@ public class Map {
         return posBest;
     }
 
-    Position fastClosestNode(ChokePoint cp, Position last) {
+    private static Position fastClosestNode(ChokePoint cp, Position last) {
         Position n1 = new Position(cp.getNodePosition(ChokePoint.Node.END1));
         Position n2 = new Position(cp.getNodePosition(ChokePoint.Node.END2));
         Position n3 = new Position(cp.getCenter());
@@ -604,12 +604,12 @@ public class Map {
     }
 
     // Find the closest chokepoint node
-    Position accurateClosestNode(ChokePoint cp, Position start) {
+    private static Position accurateClosestNode(ChokePoint cp, Position start) {
         return getClosestChokeTile(cp, start);
     }
 
 
-    public double getGroundDistance(Position s, Position e) {
+    public static double getGroundDistance(Position s, Position e) {
         Position start = new Position(s);
         Position end = new Position(e);
         double dist = 0.0;
@@ -649,7 +649,7 @@ public class Map {
     }
 
 
-    public Position getClosestChokeTile(ChokePoint choke, Position here) {
+    private static Position getClosestChokeTile(ChokePoint choke, Position here) {
         double best = Double.MAX_VALUE;
         Position posBest = Position.Invalid;
         for (TilePosition tile : getChokeTiles(choke)) {
@@ -663,7 +663,7 @@ public class Map {
         return posBest;
     }
 
-    public Set<TilePosition> getChokeTiles(ChokePoint choke) {
+    private static Set<TilePosition> getChokeTiles(ChokePoint choke) {
         if (choke != null) {
             return chokeTiles.get(choke);
         }
@@ -735,7 +735,7 @@ public class Map {
         }
 
         // Search through each station to find the closest valid TilePosition
-        for (Station station : Stations::getStations()) {
+        for (Station station : Stations.getStations()) {
             for (TilePosition tile : station.getDefenseLocations()) {
                 double dist = tile.getDistance(searchCenter);
                 if (dist < distBest && isPlaceable(type, tile)) {

@@ -4,12 +4,13 @@ import bwapi.*;
 import bwem.*;
 import javafx.geometry.Pos;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class Stations {
-    List<Station> stations;
+    static List<Station> stations;
     List<Station> mains;
     List<Station> naturals;
 
@@ -130,17 +131,17 @@ public class Stations {
         if (Map.game.self().getRace() == Race.Terran) {
             TilePosition scannerTile = new TilePosition(here.x + 4, here.y + 1);
             defenses.add(scannerTile);
-            Map::addReserve(scannerTile, 2, 2);
-            Map::addUsed(scannerTile, defenseType);
+            Map.addReserve(scannerTile, 2, 2);
+            Map.addUsed(scannerTile, defenseType);
         }
 
         // Add a defense near each base placement if possible
         for (TilePosition placement : basePlacements) {
             TilePosition tile = new TilePosition(base.getLocation().x + placement.x, base.getLocation().y + placement.y);
-            if (Map::isPlaceable(defenseType, tile)) {
+            if (Map.isPlaceable(defenseType, tile)) {
                 defenses.add(tile);
-                Map::addReserve(tile, 2, 2);
-                Map::addUsed(tile, defenseType);
+                Map.addReserve(tile, 2, 2);
+                Map.addUsed(tile, defenseType);
             }
         }
 
@@ -148,17 +149,17 @@ public class Stations {
         for (Geyser geyser : base.getGeysers()) {
             for (TilePosition placement : geyserPlacements) {
                 TilePosition tile = new TilePosition(geyser.getTopLeft().x + placement.x, geyser.getTopLeft().y + placement.y);
-                if (Map::isPlaceable(defenseType, tile)) {
+                if (Map.isPlaceable(defenseType, tile)) {
                     defenses.add(tile);
-                    Map::addReserve(tile, 2, 2);
-                    Map::addUsed(tile, defenseType);
+                    Map.addReserve(tile, 2, 2);
+                    Map.addUsed(tile, defenseType);
                 }
             }
         }
 
         // Remove used
         for (TilePosition tile : defenses){
-            Map::removeUsed (tile, 2, 2);
+            Map.removeUsed (tile, 2, 2);
         }
 
         return defenses;
@@ -179,7 +180,7 @@ public class Stations {
                     if (!t.isValid(Map.game))
                         continue;
 
-                    double dist = Map::isReserved(t) ? p.getDistance(stationCenter) + 16 : p.getDistance(stationCenter);
+                    double dist = Map.isReserved(t, 1, 1) ? p.getDistance(stationCenter) + 16 : p.getDistance(stationCenter);
                     if (dist <= distBest) {
                         test = t;
                         distBest = dist;
@@ -188,14 +189,14 @@ public class Stations {
             }
 
             if (test.isValid(Map.game))
-                Map::addReserve(test, 1, 1);
+                Map.addReserve(test, 1, 1);
         }
     }
 
     void findStations() {
         // Find all main bases
-        List<Base> mainBases;
-        List<Base> natBases;
+        List<Base> mainBases = new ArrayList<>();
+        List<Base> natBases = new ArrayList<>();
         for (Area area : Map.mapBWEM.getMap().getAreas()) {
             for (Base base : area.getBases()) {
                 if (base.isStartingLocation())
@@ -216,7 +217,7 @@ public class Stations {
                             || base.getMinerals().size() < 5)
                         continue;
 
-                    double dist = Map::getGroundDistance(base.getCenter(), main.getCenter());
+                    double dist = Map.getGroundDistance(base.getCenter(), main.getCenter());
                     if (dist < distBest) {
                         distBest = dist;
                         baseBest = base;
@@ -247,8 +248,8 @@ public class Stations {
                 }
 
                 for (Geyser gas : base.getGeysers()) {
-                    defenseCentroid = (defenseCentroid + gas->Pos()) / 2;
-                    resourceCentroid += gas->Pos();
+                    defenseCentroid = new Position((defenseCentroid.x + gas.getCenter().x)/2, (defenseCentroid.y + gas.getCenter().y)/2);
+                    resourceCentroid = new Position(resourceCentroid.x + gas.getCenter().x, resourceCentroid.y + gas.getCenter().y);
                     cnt++;
                 }
 
@@ -257,15 +258,15 @@ public class Stations {
 
                 // Add reserved tiles
                 for (Mineral m : base.getMinerals()) {
-                    Map::addReserve(m.getTopLeft()), 2, 1);
+                    Map.addReserve(m.getTopLeft(), 2, 1);
                     addResourceOverlap(resourceCentroid, m.getCenter(), base.getCenter());
                 }
 
                 for (Geyser g : base.getGeysers()) {
-                    Map::addReserve(g.getTopLeft(), 4, 2);
+                    Map.addReserve(g.getTopLeft(), 4, 2);
                     addResourceOverlap(resourceCentroid, g.getCenter(), base.getCenter());
                 }
-                Map::addReserve(base.getLocation(), 4, 3);
+                Map.addReserve(base.getLocation(), 4, 3);
 
 
                 // Station info
@@ -290,7 +291,7 @@ public class Stations {
                 Set<TilePosition> defenses = stationDefenses(base, placeRight, placeBelow, isMain, isNatural);
 
                 // Add to our station lists
-                Station newStation(resourceCentroid, defenses, base, isMain, isNatural);
+                Station newStation = new Station(resourceCentroid, defenses, base, isMain, isNatural);
                 stations.add(newStation);
 
                 if (isMain)
@@ -350,7 +351,7 @@ public class Stations {
         return bestStation;
     }
 
-    public List<Station> getStations() {
+    public static List<Station> getStations() {
         return stations;
     }
 

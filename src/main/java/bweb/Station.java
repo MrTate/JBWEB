@@ -39,7 +39,7 @@ public class Station {
     public int getGroundDefenseCount() {
         int count = 0;
         for (TilePosition defense : defenses) {
-            UnitType type = Map::isUsed(defense);
+            UnitType type = Map.isUsed(defense, 1, 1);
             if (type == UnitType.Protoss_Photon_Cannon
                     || type == UnitType.Zerg_Sunken_Colony
                     || type == UnitType.Terran_Bunker)
@@ -51,7 +51,7 @@ public class Station {
     public int getAirDefenseCount() {
         int count = 0;
         for (TilePosition defense : defenses) {
-            UnitType type = Map::isUsed(defense);
+            UnitType type = Map.isUsed(defense, 1, 1);
             if (type == UnitType.Protoss_Photon_Cannon
                     || type == UnitType.Zerg_Spore_Colony
                     || type == UnitType.Terran_Missile_Turret)
