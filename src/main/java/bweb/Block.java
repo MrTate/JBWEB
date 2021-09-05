@@ -68,4 +68,65 @@ public class Block {
         w = Math.max(w, rowWidth);
         h += rowHeight;
     }
+
+    public TilePosition getTilePosition() {
+        return tile;
+    }
+
+    public TreeSet<TilePosition> getSmallTiles() {
+        return smallTiles;
+    }
+
+    public TreeSet<TilePosition> getMediumTiles() {
+        return mediumTiles;
+    }
+
+    public TreeSet<TilePosition> getLargeTiles() {
+        return largeTiles;
+    }
+
+    public void insertSmall(TilePosition here) {
+        smallTiles.add(here);
+    }
+
+    public void insertMedium(TilePosition here) {
+        mediumTiles.add(here);
+    }
+
+    public void insertLarge(TilePosition here) {
+        largeTiles.add(here);
+    }
+
+    public int width() {
+        return w;
+    }
+
+    public int height() {
+        return h;
+    }
+
+    void draw() {
+        Color color = Map.game.self().getColor();
+        Text textColor = color.id == 185 ? textColor = Text.DarkGreen : Map.game.self().getTextColor();
+
+        // Draw boxes around each feature
+        for (TilePosition tile : smallTiles) {
+            Position p1 = new Position(tile.toPosition().x + 65, tile.toPosition().x + 65);
+            Position p2 = new Position(tile.toPosition().x + 52, tile.toPosition().x + 52);
+            Map.game.drawBoxMap(new Position(tile), p1, color);
+            Map.game.drawTextMap(p2, "%cB", textColor);
+        }
+        for (TilePosition tile : mediumTiles) {
+            Position p1 = new Position(tile.toPosition().x + 97, tile.toPosition().x + 65);
+            Position p2 = new Position(tile.toPosition().x + 84, tile.toPosition().x + 52);
+            Map.game.drawBoxMap(new Position(tile), p1, color);
+            Map.game.drawTextMap(p2, "%cB", textColor);
+        }
+        for (TilePosition tile : largeTiles) {
+            Position p1 = new Position(tile.toPosition().x + 129, tile.toPosition().x + 97);
+            Position p2 = new Position(tile.toPosition().x + 116, tile.toPosition().x + 84);
+            Map.game.drawBoxMap(new Position(tile), p1, color);
+            Map.game.drawTextMap(p2, "%cB", textColor);
+        }
+    }
 }

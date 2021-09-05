@@ -1,369 +1,473 @@
 package bweb;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import bwapi.*;
+import bwem.*;
+
 public class Blocks {
-//    vector<Block> allBlocks;
-//    map<const BWEM::Area *, int> typePerArea;
-//    map<Piece, int> mainPieces;
-//
-//    void drawSingleBlock() {
-//        int color = Broodwar->self()->getColor();
-//        int textColor = color == 185 ? textColor = Text::DarkGreen : Broodwar->self()->getTextColor();
-//
-//        // Draw boxes around each feature
-//        for (auto &tile : smallTiles) {
-//            Broodwar->drawBoxMap(Position(tile), Position(tile) + Position(65, 65), color);
-//            Broodwar->drawTextMap(Position(tile) + Position(52, 52), "%cB", textColor);
-//        }
-//        for (auto &tile : mediumTiles) {
-//            Broodwar->drawBoxMap(Position(tile), Position(tile) + Position(97, 65), color);
-//            Broodwar->drawTextMap(Position(tile) + Position(84, 52), "%cB", textColor);
-//        }
-//        for (auto &tile : largeTiles) {
-//            Broodwar->drawBoxMap(Position(tile), Position(tile) + Position(129, 97), color);
-//            Broodwar->drawTextMap(Position(tile) + Position(116, 84), "%cB", textColor);
-//        }
-//    }
-//
-//    int countPieces(vector<Piece> pieces, Piece type)
-//    {
-//        auto count = 0;
-//        for (auto &piece : pieces) {
-//        if (piece == type)
-//            count++;
-//    }
-//        return count;
-//    }
-//
-//    vector<Piece> whichPieces(int width, int height, bool faceUp = false, bool faceLeft = false)
-//    {
-//        vector<Piece> pieces;
-//
-//        // Zerg Block pieces
-//        if (Broodwar->self()->getRace() == Races::Zerg) {
-//        if (height == 2) {
-//            if (width == 2)
-//                pieces ={ Piece::Small };
-//            if (width == 3)
-//                pieces ={ Piece::Medium };
-//            if (width == 5)
-//                pieces ={ Piece::Small, Piece::Medium };
-//        }
-//        else if (height == 3) {
-//            if (width == 4)
-//                pieces ={ Piece::Large };
-//        }
-//        else if (height == 4) {
-//            if (width == 3)
-//                pieces ={ Piece::Medium, Piece::Row, Piece::Medium };
-//            if (width == 5)
-//                pieces ={ Piece::Small, Piece::Medium, Piece::Row, Piece::Small, Piece::Medium };
-//        }
-//        else if (height == 6) {
-//            if (width == 5)
-//                pieces ={ Piece::Small, Piece::Medium, Piece::Row, Piece::Medium, Piece::Small, Piece::Row, Piece::Small, Piece::Medium };
-//        }
-//    }
-//
-//        // Protoss Block pieces
-//        if (Broodwar->self()->getRace() == Races::Protoss) {
-//        if (height == 2) {
-//            if (width == 5)
-//                pieces ={ Piece::Small, Piece::Medium };
-//        }
-//        else if (height == 4) {
-//            if (width == 5)
-//                pieces ={ Piece::Small, Piece::Medium, Piece::Row, Piece::Small, Piece::Medium };
-//        }
-//        else if (height == 5) {
-//            if (width == 4)
-//                pieces ={ Piece::Large, Piece::Row, Piece::Small, Piece::Small };
-//            if (width == 8) {
-//                if (faceLeft) {
-//                    if (faceUp)
-//                        pieces ={ Piece::Large, Piece::Large, Piece::Row, Piece::Medium, Piece::Medium, Piece::Small };
-//                    else
-//                        pieces ={ Piece::Medium, Piece::Medium, Piece::Small, Piece::Row, Piece::Large, Piece::Large };
-//                }
-//                else {
-//                    if (faceUp)
-//                        pieces ={ Piece::Large, Piece::Large, Piece::Row, Piece::Small, Piece::Medium, Piece::Medium };
-//                    else
-//                        pieces ={ Piece::Small, Piece::Medium, Piece::Medium, Piece::Row, Piece::Large, Piece::Large };
-//                }
-//            }
-//        }
-//        else if (height == 6) {
-//            if (width == 10)
-//                pieces ={ Piece::Large, Piece::Addon, Piece::Large, Piece::Row, Piece::Large, Piece::Small, Piece::Large };
-//            if (width == 18)
-//                pieces ={ Piece::Large, Piece::Large, Piece::Addon, Piece::Large, Piece::Large, Piece::Row, Piece::Large, Piece::Large, Piece::Small, Piece::Large, Piece::Large };
-//        }
-//        else if (height == 8) {
-//            if (width == 8)
-//                pieces ={ Piece::Large, Piece::Large, Piece::Row, Piece::Small, Piece::Small, Piece::Small, Piece::Small, Piece::Row, Piece::Large, Piece::Large };
-//            if (width == 5)
-//                pieces ={ Piece::Large, Piece::Row, Piece::Small, Piece::Medium, Piece::Row, Piece::Large };
-//        }
-//    }
-//
-//        // Terran Block pieces
-//        if (Broodwar->self()->getRace() == Races::Terran) {
-//        if (height == 2) {
-//            if (width == 3)
-//                pieces ={ Piece::Medium };
-//            if (width == 6)
-//                pieces ={ Piece::Medium, Piece::Medium };
-//        }
-//        else if (height == 4) {
-//            if (width == 3)
-//                pieces ={ Piece::Medium, Piece::Row, Piece::Medium };
-//        }
-//        else if (height == 6) {
-//            if (width == 3)
-//                pieces ={ Piece::Medium, Piece::Row, Piece::Medium, Piece::Row, Piece::Medium };
-//        }
-//        else if (height == 3) {
-//            if (width == 6)
-//                pieces ={ Piece::Large, Piece::Addon };
-//        }
-//        else if (height == 4) {
-//            if (width == 6)
-//                pieces ={ Piece::Medium, Piece::Medium, Piece::Row, Piece::Medium, Piece::Medium };
-//            if (width == 9)
-//                pieces ={ Piece::Medium, Piece::Medium, Piece::Medium, Piece::Row, Piece::Medium, Piece::Medium, Piece::Medium };
-//        }
-//        else if (height == 5) {
-//            if (width == 6)
-//                pieces ={ Piece::Large, Piece::Addon, Piece::Row, Piece::Medium, Piece::Medium };
-//        }
-//        else if (height == 6) {
-//            if (width == 6)
-//                pieces ={ Piece::Large, Piece::Addon, Piece::Row, Piece::Large, Piece::Addon };
-//        }
-//    }
-//        return pieces;
-//    }
-//
-//    bool canAddBlock(const TilePosition here, const int width, const int height)
-//    {
-//        // Check if a block of specified size would overlap any bases, resources or other blocks
-//        for (auto x = here.x - 1; x < here.x + width + 1; x++) {
-//            for (auto y = here.y - 1; y < here.y + height + 1; y++) {
-//                    const TilePosition t(x, y);
-//                if (!t.isValid() || !Map::mapBWEM.GetTile(t).Buildable() || Map::isReserved(t))
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
-//
-//    bool canAddProxyBlock(const TilePosition here, const int width, const int height)
-//    {
-//        // Check if a proxy block of specified size is not buildable here
-//        for (auto x = here.x - 1; x < here.x + width + 1; x++) {
-//            for (auto y = here.y - 1; y < here.y + height + 1; y++) {
-//                    const TilePosition t(x, y);
-//                if (!t.isValid() || !Map::mapBWEM.GetTile(t).Buildable() || !Broodwar->isWalkable(WalkPosition(t)))
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
-//
-//    void insertBlock(TilePosition here, vector<Piece> pieces)
-//    {
-//        Block newBlock(here, pieces);
-//        allBlocks.push_back(newBlock);
-//        Map::addReserve(here, newBlock.width(), newBlock.height());
-//    }
-//
-//    void insertProxyBlock(TilePosition here, vector<Piece> pieces)
-//    {
-//        Block newBlock(here, pieces, true);
-//        allBlocks.push_back(newBlock);
-//        Map::addReserve(here, newBlock.width(), newBlock.height());
-//    }
-//
-//    void insertDefensiveBlock(TilePosition here, vector<Piece> pieces)
-//    {
-//        Block newBlock(here, pieces, false, true);
-//        allBlocks.push_back(newBlock);
-//        Map::addReserve(here, newBlock.width(), newBlock.height());
-//    }
-//
-//    void findMainStartBlocks()
-//    {
-//            const auto race = Broodwar->self()->getRace();
-//            const auto firstStart = Map::getMainPosition();
-//            const auto secondStart = race != Races::Zerg ? (Position(Map::getMainChoke()->Center()) + Map::getMainPosition()) / 2 : Map::getMainPosition();
-//
-//            const auto creepOnCorners = [&](TilePosition here, int width, int height) {
-//        return Broodwar->hasCreep(here) && Broodwar->hasCreep(here + TilePosition(width - 1, 0)) && Broodwar->hasCreep(here + TilePosition(0, height - 1)) && Broodwar->hasCreep(here + TilePosition(width - 1, height - 1));
-//    };
-//
-//            const auto searchStart = [&](Position start) {
-//        auto tileStart = TilePosition(start);
-//        auto tileBest = TilePositions::Invalid;
-//        auto distBest = DBL_MAX;
-//        vector<Piece> piecesBest;
-//
-//        for (int i = 10; i > 0; i--) {
-//            for (int j = 10; j > 0; j--) {
-//
-//                // Try to find a block near our starting location
-//                for (auto x = tileStart.x - 15; x <= tileStart.x + 15; x++) {
-//                    for (auto y = tileStart.y - 15; y <= tileStart.y + 15; y++) {
-//                                const TilePosition tile(x, y);
-//
-//                                const auto blockCenter = Position(tile) + Position(i * 16, j * 16);
-//                                const auto dist = blockCenter.getDistance(start);
-//                                const auto blockFacesLeft = (blockCenter.x < Map::getMainPosition().x);
-//                                const auto blockFacesUp = (blockCenter.y < Map::getMainPosition().y);
-//
-//                        // Check if we have pieces to use
-//                                const auto pieces = whichPieces(i, j, blockFacesUp, blockFacesLeft);
-//                        if (pieces.empty())
-//                            continue;
-//
-//                        // Check if we have creep as Zerg
-//                        if (race == Races::Zerg && !creepOnCorners(tile, i, j))
-//                            continue;
-//
-//                                const auto smallCount = countPieces(pieces, Piece::Small);
-//                                const auto mediumCount = countPieces(pieces, Piece::Medium);
-//                                const auto largeCount = countPieces(pieces, Piece::Large);
-//
-//                        if (!tile.isValid()
-//                                || mediumCount < 1
-//                                || (race == Races::Zerg && smallCount == 0 && mediumCount == 0)
-//                                || (race == Races::Protoss && largeCount < 2)
-//                                || (race == Races::Terran && largeCount < 1))
-//                            continue;
-//
-//                        if (dist < distBest && canAddBlock(tile, i, j)) {
-//                            piecesBest = pieces;
-//                            distBest = dist;
-//                            tileBest = tile;
-//                        }
-//                    }
-//                }
-//
-//                if (tileBest.isValid() && canAddBlock(tileBest, i, j)) {
-//                    if (Map::mapBWEM.GetArea(tileBest) == Map::getMainArea()) {
-//                        for (auto &piece : piecesBest)
-//                        mainPieces[piece]++;
-//                    }
-//                    insertBlock(tileBest, piecesBest);
-//                }
-//            }
-//        }
-//    };
-//
-//        searchStart(firstStart);
-//        searchStart(secondStart);
-//    }
-//
-//    void findMainDefenseBlock()
-//    {
-//        if (Broodwar->self()->getRace() == Races::Zerg)
-//        return;
-//
-//        // Added a block that allows a good shield battery placement or bunker placement
-//        auto tileBest = TilePositions::Invalid;
-//        auto start = TilePosition(Map::getMainChoke()->Center());
-//        auto distBest = DBL_MAX;
-//        for (auto x = start.x - 12; x <= start.x + 16; x++) {
-//            for (auto y = start.y - 12; y <= start.y + 16; y++) {
-//                    const TilePosition tile(x, y);
-//                    const auto blockCenter = Position(tile) + Position(80, 32);
-//                    const auto dist = (blockCenter.getDistance((Position)Map::getMainChoke()->Center()));
-//
-//                if (!tile.isValid()
-//                        || Map::mapBWEM.GetArea(tile) != Map::getMainArea()
-//                        || dist < 96.0)
-//                continue;
-//
-//                if (dist < distBest && canAddBlock(tile, 5, 2)) {
-//                    tileBest = tile;
-//                    distBest = dist;
-//                }
-//            }
-//        }
-//
-//        if (tileBest.isValid())
-//            insertDefensiveBlock(tileBest, { Piece::Small, Piece::Medium });
-//    }
-//
-//    void findProductionBlocks()
-//    {
-//        multimap<double, TilePosition> tilesByPathDist;
-//        int totalMedium = 0;
-//        int totalLarge = 0;
-//
-//        // Calculate distance for each tile to our natural choke, we want to place bigger blocks closer to the chokes
-//        for (int y = 0; y < Broodwar->mapHeight(); y++) {
-//            for (int x = 0; x < Broodwar->mapWidth(); x++) {
-//                    const TilePosition t(x, y);
-//                if (t.isValid() && Broodwar->isBuildable(t)) {
-//                        const auto p = Position(x * 32, y * 32);
-//                        const auto dist = (Map::getNaturalChoke() && Broodwar->self()->getRace() != Races::Zerg) ? p.getDistance(Position(Map::getNaturalChoke()->Center())) : p.getDistance(Map::getMainPosition());
-//                    tilesByPathDist.insert(make_pair(dist, t));
-//                }
-//            }
-//        }
-//
-//        // Iterate every tile
-//        for (int i = 20; i > 0; i--) {
-//            for (int j = 20; j > 0; j--) {
-//
-//                // Check if we have pieces to use
-//                    const auto pieces = whichPieces(i, j);
-//                if (pieces.empty())
-//                    continue;
-//
-//                    const auto smallCount = countPieces(pieces, Piece::Small);
-//                    const auto mediumCount = countPieces(pieces, Piece::Medium);
-//                    const auto largeCount = countPieces(pieces, Piece::Large);
-//
-//                for (auto &[_, tile] : tilesByPathDist) {
-//
-//                    // Protoss caps large pieces in the main at 12 if we don't have necessary medium pieces
-//                    if (Broodwar->self()->getRace() == Races::Protoss) {
-//                        if (largeCount > 0 && Map::mapBWEM.GetArea(tile) == Map::getMainArea() && mainPieces[Piece::Large] >= 12 && mainPieces[Piece::Medium] < 10)
-//                        continue;
-//                    }
-//
-//                    // Zerg only need 4 medium pieces and 2 small piece
-//                    if (Broodwar->self()->getRace() == Races::Zerg) {
-//                        if ((mediumCount > 0 && mainPieces[Piece::Medium] >= 4)
-//                                || (smallCount > 0 && mainPieces[Piece::Small] >= 2))
-//                            continue;
-//                    }
-//
-//                    // Terran only need about 20 depot spots
-//                    if (Broodwar->self()->getRace() == Races::Terran) {
-//                        if (mediumCount > 0 && mainPieces[Piece::Medium] >= 20)
-//                            continue;
-//                    }
-//
-//                    if (canAddBlock(tile, i, j)) {
-//                        insertBlock(tile, pieces);
-//
-//                        totalMedium += mediumCount;
-//                        totalLarge += largeCount;
-//
-//                        if (Map::mapBWEM.GetArea(tile) == Map::getMainArea()) {
-//                            for (auto &piece : pieces)
-//                            mainPieces[piece]++;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    void findProxyBlock()
-//    {
+    static List<Block> allBlocks;
+    HashMap<Area, Integer> typePerArea;
+    HashMap<Piece, Integer> mainPieces;
+
+
+    int countPieces(List<Piece> pieces, Piece type) {
+        int count = 0;
+        for (Piece piece : pieces) {
+        if (piece == type)
+            count++;
+        }
+        return count;
+    }
+
+    List<Piece> whichPieces(int width, int height, boolean faceUp, boolean faceLeft) {
+        List<Piece> pieces = new ArrayList<>();
+
+        // Zerg Block pieces
+        if (Map.game.self().getRace() == Race.Zerg) {
+            if (height == 2) {
+                if (width == 2) {
+                    pieces.add(Piece.Small);
+                }
+                if (width == 3) {
+                    pieces.add(Piece.Medium);
+                }
+                if (width == 5) {
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Medium);
+                }
+            } else if (height == 3) {
+                if (width == 4) {
+                    pieces.add(Piece.Large);
+                }
+            } else if (height == 4) {
+                if (width == 3) {
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Medium);
+                }
+                if (width == 5) {
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Medium);
+                }
+            } else if (height == 6) {
+                if (width == 5) {
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Medium);
+                }
+            }
+        }
+
+        // Protoss Block pieces
+        if (Map.game.self().getRace() == Race.Protoss) {
+            if (height == 2) {
+                if (width == 5) {
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Medium);
+                }
+            } else if (height == 4) {
+                if (width == 5) {
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Medium);
+                }
+            } else if (height == 5) {
+                if (width == 4) {
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Small);
+                }
+                if (width == 8) {
+                    if (faceLeft) {
+                        if (faceUp) {
+                            pieces.add(Piece.Large);
+                            pieces.add(Piece.Large);
+                            pieces.add(Piece.Row);
+                            pieces.add(Piece.Medium);
+                            pieces.add(Piece.Medium);
+                            pieces.add(Piece.Small);
+                        } else {
+                            pieces.add(Piece.Medium);
+                            pieces.add(Piece.Medium);
+                            pieces.add(Piece.Small);
+                            pieces.add(Piece.Row);
+                            pieces.add(Piece.Large);
+                            pieces.add(Piece.Large);
+                        }
+                    } else {
+                        if (faceUp) {
+                            pieces.add(Piece.Large);
+                            pieces.add(Piece.Large);
+                            pieces.add(Piece.Row);
+                            pieces.add(Piece.Small);
+                            pieces.add(Piece.Medium);
+                            pieces.add(Piece.Medium);
+                        } else {
+                            pieces.add(Piece.Small);
+                            pieces.add(Piece.Medium);
+                            pieces.add(Piece.Medium);
+                            pieces.add(Piece.Row);
+                            pieces.add(Piece.Large);
+                            pieces.add(Piece.Large);
+                        }
+                    }
+                }
+            } else if (height == 6) {
+                if (width == 10) {
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Addon);
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Large);
+                }
+                if (width == 18) {
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Addon);
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Large);
+                }
+            } else if (height == 8) {
+                if (width == 8) {
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Large);
+                }
+                if (width == 5) {
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Small);
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Large);
+                }
+            }
+        }
+
+        // Terran Block pieces
+        if (Map.game.self().getRace() == Race.Terran) {
+            if (height == 2) {
+                if (width == 3) {
+                    pieces.add(Piece.Medium);
+                }
+                if (width == 6) {
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Medium);
+                }
+            } else if (height == 4) {
+                if (width == 3) {
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Medium);
+                }
+            } else if (height == 6) {
+                if (width == 3) {
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Medium);
+                }
+            } else if (height == 3) {
+                if (width == 6) {
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Addon);
+                }
+            } else if (height == 4) {
+                if (width == 6) {
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Medium);
+                }
+                if (width == 9) {
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Medium);
+                }
+            } else if (height == 5) {
+                if (width == 6) {
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Addon);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Medium);
+                    pieces.add(Piece.Medium);
+                }
+            } else if (height == 6) {
+                if (width == 6) {
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Addon);
+                    pieces.add(Piece.Row);
+                    pieces.add(Piece.Large);
+                    pieces.add(Piece.Addon);
+                }
+            }
+        }
+        return pieces;
+    }
+
+    boolean canAddBlock(TilePosition here, int width, int height) {
+        // Check if a block of specified size would overlap any bases, resources or other blocks
+        for (int x = here.x - 1; x < here.x + width + 1; x++) {
+            for (int y = here.y - 1; y < here.y + height + 1; y++) {
+                    TilePosition t = new TilePosition(x, y);
+                if (!t.isValid(Map.game) || !Map.mapBWEM.getMap().getTile(t).isBuildable() || Map.isReserved(t, 1, 1)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    boolean canAddProxyBlock(TilePosition here, int width, int height) {
+        // Check if a proxy block of specified size is not buildable here
+        for (int x = here.x - 1; x < here.x + width + 1; x++) {
+            for (int y = here.y - 1; y < here.y + height + 1; y++) {
+                    TilePosition t = new TilePosition(x, y);
+                if (!t.isValid(Map.game) || !Map.mapBWEM.getMap().getTile(t).isBuildable() || !Map.game.isWalkable(new WalkPosition(t))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    void insertBlock(TilePosition here, List<Piece> pieces) {
+        Block newBlock = new Block(here, pieces, false, false);
+        allBlocks.add(newBlock);
+        Map.addReserve(here, newBlock.width(), newBlock.height());
+    }
+
+    void insertProxyBlock(TilePosition here, List<Piece> pieces) {
+        Block newBlock = new Block(here, pieces, true, false);
+        allBlocks.add(newBlock);
+        Map.addReserve(here, newBlock.width(), newBlock.height());
+    }
+
+    void insertDefensiveBlock(TilePosition here, List<Piece> pieces) {
+        Block newBlock = new Block(here, pieces, false, true);
+        allBlocks.add(newBlock);
+        Map.addReserve(here, newBlock.width(), newBlock.height());
+    }
+
+    private boolean creepOnCorners(TilePosition here, int width, int height) {
+        boolean b1 = Map.game.hasCreep(here);
+        boolean b2 = Map.game.hasCreep(new TilePosition(here.x + width - 1, here.y));
+        boolean b3 = Map.game.hasCreep(new TilePosition(here.x, here.y + height - 1));
+        boolean b4 = Map.game.hasCreep(new TilePosition(here.x + width - 1, here.y + height - 1));
+        return b1 && b2 && b3 && b4;
+    }
+
+    private void searchStart(Position start) {
+        TilePosition tileStart = new TilePosition(start);
+        TilePosition tileBest = TilePosition.Invalid;
+        double distBest = Double.MAX_VALUE;
+        List<Piece> piecesBest = new ArrayList<>();
+
+        for (int i = 10; i > 0; i--) {
+            for (int j = 10; j > 0; j--) {
+                // Try to find a block near our starting location
+                for (int x = tileStart.x - 15; x <= tileStart.x + 15; x++) {
+                    for (int y = tileStart.y - 15; y <= tileStart.y + 15; y++) {
+                        TilePosition tile = new TilePosition(x, y);
+                        Position blockCenter = new Position(tile.x + i*16, tile.y + j*16);
+                        double dist = blockCenter.getDistance(start);
+                        boolean blockFacesLeft = (blockCenter.x < Map.getMainPosition().x);
+                        boolean blockFacesUp = (blockCenter.y < Map.getMainPosition().y);
+
+                        // Check if we have pieces to use
+                        List<Piece> pieces = whichPieces(i, j, blockFacesUp, blockFacesLeft);
+                        if (pieces.isEmpty()) {
+                            continue;
+                        }
+
+                        // Check if we have creep as Zerg
+                        Race race = Map.game.self().getRace();
+                        if (race == Race.Zerg && !creepOnCorners(tile, i, j)) {
+                            continue;
+                        }
+
+                        int smallCount = countPieces(pieces, Piece.Small);
+                        int mediumCount = countPieces(pieces, Piece.Medium);
+                        int largeCount = countPieces(pieces, Piece.Large);
+
+                        if (!tile.isValid(Map.game)
+                                || mediumCount < 1
+                                || (race == Race.Zerg && smallCount == 0 && mediumCount == 0)
+                                || (race == Race.Protoss && largeCount < 2)
+                                || (race == Race.Terran && largeCount < 1)) {
+                            continue;
+                        }
+
+                        if (dist < distBest && canAddBlock(tile, i, j)) {
+                            piecesBest = pieces;
+                            distBest = dist;
+                            tileBest = tile;
+                        }
+                    }
+                }
+
+                if (tileBest.isValid(Map.game) && canAddBlock(tileBest, i, j)) {
+                    if (Map.mapBWEM.getMap().getArea(tileBest) == Map.getMainArea()) {
+                        for (Piece piece : piecesBest) {
+                            int tmp = mainPieces.get(piece) + 1;
+                            mainPieces.put(piece, tmp);
+                        }
+                    }
+                    insertBlock(tileBest, piecesBest);
+                }
+            }
+        }
+    };
+
+    void findMainStartBlocks() {
+        Race race = Map.game.self().getRace();
+        Position firstStart = Map.getMainPosition();
+        Position secondStart = race != Race.Zerg ? (new Position(Map.getMainChoke().getCenter().x + Map.getMainPosition().x/2,
+                Map.getMainChoke().getCenter().y + Map.getMainPosition().y/2)) : Map.getMainPosition();
+
+        searchStart(firstStart);
+        searchStart(secondStart);
+    }
+
+    void findMainDefenseBlock() {
+        if (Map.game.self().getRace() == Race.Zerg)
+        return;
+
+        // Added a block that allows a good shield battery placement or bunker placement
+        TilePosition tileBest = TilePosition.Invalid;
+        TilePosition start = new TilePosition(Map.getMainChoke().getCenter());
+        double distBest = Double.MAX_VALUE;
+        for (int x = start.x - 12; x <= start.x + 16; x++) {
+            for (int y = start.y - 12; y <= start.y + 16; y++) {
+                TilePosition tile = new TilePosition(x, y);
+                Position blockCenter = new Position(tile.toPosition().x + 80, tile.toPosition().y + 32);
+                double dist = (blockCenter.getDistance(Map.getMainChoke().getCenter().toPosition()));
+
+                if (!tile.isValid(Map.game)
+                        || Map.mapBWEM.getMap().getArea(tile) != Map.getMainArea()
+                        || dist < 96.0){
+                    continue;
+                }
+
+                if (dist < distBest && canAddBlock(tile, 5, 2)) {
+                    tileBest = tile;
+                    distBest = dist;
+                }
+            }
+        }
+
+        if (tileBest.isValid(Map.game)) {
+            List<Piece> p = new ArrayList<>();
+            p.add(Piece.Small);
+            p.add(Piece.Medium);
+            insertDefensiveBlock(tileBest, p);
+        }
+    }
+
+    void findProductionBlocks() {
+        HashMap<Double, TilePosition> tilesByPathDist;
+        int totalMedium = 0;
+        int totalLarge = 0;
+
+        // Calculate distance for each tile to our natural choke, we want to place bigger blocks closer to the chokes
+        for (int y = 0; y < Map.game.mapHeight(); y++) {
+            for (int x = 0; x < Map.game.mapWidth(); x++) {
+                TilePosition t = new TilePosition(x, y);
+                if (t.isValid(Map.game) && Map.game.isBuildable(t)) {
+                    Position p = Position(x * 32, y * 32);
+                    double dist = (Map.getNaturalChoke() && Map.game.self().getRace() != Race.Zerg) ? p.getDistance(Position(Map.getNaturalChoke().getCenter())) : p.getDistance(Map.getMainPosition());
+                    tilesByPathDist.insert(make_pair(dist, t));
+                }
+            }
+        }
+
+        // Iterate every tile
+        for (int i = 20; i > 0; i--) {
+            for (int j = 20; j > 0; j--) {
+                // Check if we have pieces to use
+                List<Piece> pieces = whichPieces(i, j, false, false);
+                if (pieces.isEmpty()) {
+                    continue;
+                }
+
+                int smallCount = countPieces(pieces, Piece.Small);
+                int mediumCount = countPieces(pieces, Piece.Medium);
+                int largeCount = countPieces(pieces, Piece.Large);
+
+                for (auto &[_, tile] : tilesByPathDist) {
+
+                    // Protoss caps large pieces in the main at 12 if we don't have necessary medium pieces
+                    if (Broodwar->self()->getRace() == Race.Protoss) {
+                        if (largeCount > 0 && Map.mapBWEM.getMap().getArea(tile) == Map.getMainArea() && mainPieces[Piece::Large] >= 12 && mainPieces[Piece::Medium] < 10)
+                        continue;
+                    }
+
+                    // Zerg only need 4 medium pieces and 2 small piece
+                    if (Broodwar->self()->getRace() == Race.Zerg) {
+                        if ((mediumCount > 0 && mainPieces[Piece.Medium] >= 4)
+                                || (smallCount > 0 && mainPieces[Piece.Small] >= 2)) {
+                            continue;
+                        }
+                    }
+
+                    // Terran only need about 20 depot spots
+                    if (Map.game.self().getRace() == Race.Terran) {
+                        if (mediumCount > 0 && mainPieces[Piece.Medium] >= 20)
+                            continue;
+                    }
+
+                    if (canAddBlock(tile, i, j)) {
+                        insertBlock(tile, pieces);
+
+                        totalMedium += mediumCount;
+                        totalLarge += largeCount;
+
+                        if (Map::mapBWEM.GetArea(tile) == Map.getMainArea()) {
+                            for (auto &piece : pieces)
+                            mainPieces[piece]++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+//    void findProxyBlock() {
 //        // For base-specific locations, avoid all areas likely to be traversed by worker scouts
 //        set<const BWEM::Area*> areasToAvoid;
 //        for (auto &first : Map::mapBWEM.StartingLocations()) {
@@ -465,38 +569,36 @@ public class Blocks {
 //            }
 //        }
 //    }
-//
-//    void findBlocks()
-//    {
-//        findMainDefenseBlock();
-//        findMainStartBlocks();
-//        findProxyBlock();
-//        findProductionBlocks();
-//    }
-//
-//    void draw()
-//    {
-//        for (auto &block : allBlocks)
-//        block.drawSingleBlock();
-//    }
-//
-//    vector<Block>& getBlocks() {
-//        return allBlocks;
-//        }
-//
-//        Block * getClosestBlock(TilePosition here)
-//        {
-//        auto distBest = DBL_MAX;
-//        Block * bestBlock = nullptr;
-//        for (auto &block : allBlocks) {
-//        const auto tile = block.getTilePosition() + TilePosition(block.width() / 2, block.height() / 2);
-//        const auto dist = here.getDistance(tile);
-//
-//        if (dist < distBest) {
-//        distBest = dist;
-//        bestBlock = &block;
-//        }
-//        }
-//        return bestBlock;
-//        }
+
+    public void findBlocks() {
+        findMainDefenseBlock();
+        findMainStartBlocks();
+        findProxyBlock();
+        findProductionBlocks();
+    }
+
+    public void draw() {
+        for (Block block : allBlocks) {
+            block.draw();
+        }
+    }
+
+    public static List<Block> getBlocks() {
+        return allBlocks;
+    }
+
+    public Block getClosestBlock(TilePosition here) {
+        double distBest = Double.MAX_VALUE;
+        Block bestBlock = null;
+        for (Block block : allBlocks) {
+            TilePosition tile = new TilePosition(block.getTilePosition().x + block.width()/2, block.getTilePosition().y + block.height()/2);
+            double dist = here.getDistance(tile);
+
+            if (dist < distBest) {
+                distBest = dist;
+                bestBlock = block;
+            }
+        }
+        return bestBlock;
+    }
 }

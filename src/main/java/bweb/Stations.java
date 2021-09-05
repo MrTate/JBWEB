@@ -2,22 +2,18 @@ package bweb;
 
 import bwapi.*;
 import bwem.*;
-import javafx.geometry.Pos;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Stations {
     static List<Station> stations;
     List<Station> mains;
     List<Station> naturals;
 
-    Set<TilePosition> stationDefenses(Base base, boolean placeRight, boolean placeBelow, boolean isMain, boolean isNatural) {
-        Set<TilePosition> defenses = new HashSet<>();
-        Set<TilePosition> basePlacements = new HashSet<>();
-        Set<TilePosition> geyserPlacements = new HashSet<>();
+    TreeSet<TilePosition> stationDefenses(Base base, boolean placeRight, boolean placeBelow, boolean isMain, boolean isNatural) {
+        TreeSet<TilePosition> defenses = new TreeSet<>();
+        TreeSet<TilePosition> basePlacements = new TreeSet<>();
+        TreeSet<TilePosition> geyserPlacements = new TreeSet<>();
         TilePosition here = base.getLocation();
 
         // Insert defenses
@@ -288,7 +284,7 @@ public class Stations {
 
                 boolean placeRight = base.getCenter().x < defenseCentroid.x;
                 boolean placeBelow = base.getCenter().y < defenseCentroid.y;
-                Set<TilePosition> defenses = stationDefenses(base, placeRight, placeBelow, isMain, isNatural);
+                TreeSet<TilePosition> defenses = stationDefenses(base, placeRight, placeBelow, isMain, isNatural);
 
                 // Add to our station lists
                 Station newStation = new Station(resourceCentroid, defenses, base, isMain, isNatural);

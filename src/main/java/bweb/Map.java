@@ -12,19 +12,19 @@ import java.util.TreeSet;
 public class Map {
     public static Game game; //TODO: SET THIS ON START
     public static BWEM mapBWEM; //TODO: SET THIS ON START
-    Position mainPosition = Position.Invalid;
+    private static Position mainPosition = Position.Invalid;
     Position naturalPosition = Position.Invalid;
     TilePosition mainTile = TilePosition.Invalid;
     TilePosition naturalTile = TilePosition.Invalid;
     Area naturalArea = null;
-    Area mainArea = null;
-    ChokePoint naturalChoke = null;
-    ChokePoint mainChoke = null;
+    private static Area mainArea = null;
+    private static ChokePoint naturalChoke = null;
+    private static ChokePoint mainChoke = null;
 
     boolean drawReserveOverlap, drawUsed, drawWalk, drawArea;
 
     HashMap<Key, Boolean> lastKeyState;
-    static HashMap<ChokePoint, Set<TilePosition>> chokeTiles;
+    static HashMap<ChokePoint, TreeSet<TilePosition>> chokeTiles;
     HashMap<ChokePoint, Pair<Position, Position>> chokeLines;
 
     static int overlapGrid[][] = new int[256][256];
@@ -663,7 +663,7 @@ public class Map {
         return posBest;
     }
 
-    private static Set<TilePosition> getChokeTiles(ChokePoint choke) {
+    private static TreeSet<TilePosition> getChokeTiles(ChokePoint choke) {
         if (choke != null) {
             return chokeTiles.get(choke);
         }
@@ -697,8 +697,8 @@ public class Map {
         TilePosition tileBest = TilePosition.Invalid;
 
         // Search through each block to find the closest block and valid position
-        for (Block block : Blocks::getBlocks()) {
-            Set<TilePosition> placements;
+        for (Block block : Blocks.getBlocks()) {
+            TreeSet<TilePosition> placements;
 
             if (type.tileWidth() == 4) {
                 placements = block.getLargeTiles();
@@ -751,15 +751,15 @@ public class Map {
         return naturalArea;
     }
 
-    public Area getMainArea() {
+    public static Area getMainArea() {
         return mainArea;
     }
 
-    public ChokePoint getNaturalChoke() {
+    public static ChokePoint getNaturalChoke() {
         return naturalChoke;
     }
 
-    public ChokePoint getMainChoke() {
+    public static ChokePoint getMainChoke() {
         return mainChoke;
     }
 
@@ -775,7 +775,7 @@ public class Map {
         return mainTile;
     }
 
-    public Position getMainPosition() {
+    public static Position getMainPosition() {
         return mainPosition;
     }
 }

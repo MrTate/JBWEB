@@ -5,14 +5,14 @@ import bwem.*;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.TreeSet;
 
 public class Wall {
     UnitType tightType;
     Position centroid;
     TilePosition opening, initialPathStart, initialPathEnd, pathStart, pathEnd, creationStart;
-    Set<TilePosition> defenses, smallTiles, mediumTiles, largeTiles;
-    Set<Position> notableLocations;
+    TreeSet<TilePosition> defenses, smallTiles, mediumTiles, largeTiles;
+    TreeSet<Position> notableLocations;
     List<UnitType> typeIterator;
     List<UnitType> rawBuildings, rawDefenses;
     List<Area> accessibleNeighbors;
