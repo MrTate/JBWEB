@@ -6,13 +6,12 @@ import bwem.*;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class Map {
-    Game game; //TODO: SET THIS ON START
-    BWEM mapBWEM; //TODO: SET THIS ON START
+    public static Game game; //TODO: SET THIS ON START
+    public static BWEM mapBWEM; //TODO: SET THIS ON START
     Position mainPosition = Position.Invalid;
     Position naturalPosition = Position.Invalid;
     TilePosition mainTile = TilePosition.Invalid;
@@ -221,7 +220,7 @@ public class Map {
                     boolean wrongArea = false;
                     for (ChokePoint choke : area.getChokePoints()) {
                         if ((!choke.isBlocked() && choke.getNodePosition(ChokePoint.Node.END1).getDistance(choke.getNodePosition(ChokePoint.Node.END2)) <= 2)
-                                || nonChokes.find(choke) != nonChokes.last()) {
+                                || findNode(nonChokes, choke) != nonChokes.last()) {
                             wrongArea = true;
                         }
                     }
@@ -350,9 +349,9 @@ public class Map {
             }
         }
 
-        Walls::draw();
-        Blocks::draw();
-        Stations::draw();
+//        Walls::draw(); TODO: ADD THIS BACK
+//        Blocks::draw(); TODO: ADD THIS BACK
+//        Stations::draw(); TODO: ADD THIS BACK
     }
 
     // TODO: Initialize game/map/etc.
@@ -508,7 +507,7 @@ public class Map {
         }
     }
 
-    UnitType isUsed(TilePosition here, int width, int height) {
+    public UnitType isUsed(TilePosition here, int width, int height) {
         for (int x = here.x; x < here.x + width; x++) {
             for (int y = here.y; y < here.y + height; y++) {
                 TilePosition t = new TilePosition(x, y);
@@ -526,7 +525,7 @@ public class Map {
         return walkGrid[here.x][here.y];
     }
 
-    boolean isPlaceable(UnitType type, TilePosition location) {
+    public boolean isPlaceable(UnitType type, TilePosition location) {
         if (type.requiresCreep()) {
             for (int x = location.x; x < location.x + type.tileWidth(); x++) {
                 TilePosition creepTile = new TilePosition(x, location.y + type.tileHeight());
@@ -546,7 +545,7 @@ public class Map {
                 if (!tile.isValid(game)
                         || !game.isBuildable(tile)
                         || !game.isWalkable(tile.toWalkPosition())
-                        || isUsed(tile, type.tileWidth(), type.tileHeight()) != UnitType.None) {
+                        || isUsed(tile, 1, 1) != UnitType.None) {
                     return false;
                 }
             }
@@ -610,7 +609,7 @@ public class Map {
     }
 
 
-    double getGroundDistance(Position s, Position e) {
+    public double getGroundDistance(Position s, Position e) {
         Position start = new Position(s);
         Position end = new Position(e);
         double dist = 0.0;
@@ -650,7 +649,7 @@ public class Map {
     }
 
 
-    Position getClosestChokeTile(ChokePoint choke, Position here) {
+    public Position getClosestChokeTile(ChokePoint choke, Position here) {
         double best = Double.MAX_VALUE;
         Position posBest = Position.Invalid;
         for (TilePosition tile : getChokeTiles(choke)) {
@@ -664,7 +663,7 @@ public class Map {
         return posBest;
     }
 
-    Set<TilePosition> getChokeTiles(ChokePoint choke) {
+    public Set<TilePosition> getChokeTiles(ChokePoint choke) {
         if (choke != null) {
             return chokeTiles.get(choke);
         }
@@ -693,7 +692,7 @@ public class Map {
         return new Pair<>(direction1, direction2);
     }
 
-    TilePosition getBuildPosition(UnitType type, TilePosition searchCenter) {
+    public TilePosition getBuildPosition(UnitType type, TilePosition searchCenter) {
         double distBest = Double.MAX_VALUE;
         TilePosition tileBest = TilePosition.Invalid;
 
@@ -720,7 +719,7 @@ public class Map {
         return tileBest;
     }
 
-    TilePosition getDefBuildPosition(UnitType type, TilePosition searchCenter) {
+    public TilePosition getDefBuildPosition(UnitType type, TilePosition searchCenter) {
         double distBest = Double.MAX_VALUE;
         TilePosition tileBest = TilePosition.Invalid;
 
@@ -756,27 +755,27 @@ public class Map {
         return mainArea;
     }
 
-    ChokePoint getNaturalChoke() {
+    public ChokePoint getNaturalChoke() {
         return naturalChoke;
     }
 
-    ChokePoint getMainChoke() {
+    public ChokePoint getMainChoke() {
         return mainChoke;
     }
 
-    TilePosition getNaturalTile() {
+    public TilePosition getNaturalTile() {
         return naturalTile;
     }
 
-    Position getNaturalPosition() {
+    public Position getNaturalPosition() {
         return naturalPosition;
     }
 
-    TilePosition getMainTile() {
+    public TilePosition getMainTile() {
         return mainTile;
     }
 
-    Position getMainPosition() {
+    public Position getMainPosition() {
         return mainPosition;
     }
 }
