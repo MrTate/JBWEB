@@ -15,12 +15,12 @@ public class Walls {
     static HashMap<ChokePoint, Wall> walls;
     boolean logInfo = true;
 
-    int failedPlacement = 0;
-    int failedAngle = 0;
-    int failedPath = 0;
-    int failedTight = 0;
-    int failedSpawn = 0;
-    int failedPower = 0;
+    static int failedPlacement = 0;
+    static int failedAngle = 0;
+    static int failedPath = 0;
+    static int failedTight = 0;
+    static int failedSpawn = 0;
+    static int failedPower = 0;
 
     Wall createWall(List<UnitType> buildings, Area area, ChokePoint choke, UnitType tightType, List<UnitType> defenses, boolean openWall, boolean requireTight) {
         FileWriter writeFile = null;

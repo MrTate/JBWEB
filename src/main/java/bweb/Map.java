@@ -6,7 +6,6 @@ import bwem.*;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.TreeSet;
 
 public class Map {
@@ -16,7 +15,7 @@ public class Map {
     Position naturalPosition = Position.Invalid;
     TilePosition mainTile = TilePosition.Invalid;
     TilePosition naturalTile = TilePosition.Invalid;
-    Area naturalArea = null;
+    private static Area naturalArea = null;
     private static Area mainArea = null;
     private static ChokePoint naturalChoke = null;
     private static ChokePoint mainChoke = null;
@@ -29,7 +28,7 @@ public class Map {
 
     static int overlapGrid[][] = new int[256][256];
     static UnitType usedGrid[][] = new UnitType[256][256];
-    boolean walkGrid[][] = new boolean[256][256];
+    static boolean walkGrid[][] = new boolean[256][256];
     boolean logInfo = true;
 
     void findLines() {
@@ -419,7 +418,7 @@ public class Map {
             }
 
             // Clear pathfinding cache
-            Pathfinding::clearCache();
+            Pathfinding.clearCache();
         }
     }
 
@@ -443,7 +442,7 @@ public class Map {
             }
 
             // Clear pathfinding cache
-            Pathfinding::clearCache();
+            Pathfinding.clearCache();
         }
     }
 
@@ -521,7 +520,7 @@ public class Map {
         return UnitType.None;
     }
 
-    boolean isWalkable(TilePosition here) {
+    public static boolean isWalkable(TilePosition here) {
         return walkGrid[here.x][here.y];
     }
 
@@ -553,7 +552,7 @@ public class Map {
         return true;
     }
 
-    int tilesWithinArea(Area area, TilePosition here, int width, int height) {
+    public static int tilesWithinArea(Area area, TilePosition here, int width, int height) {
         int cnt = 0;
         for (int x = here.x; x < here.x + width; x++) {
             for (int y = here.y; y < here.y + height; y++) {
@@ -648,8 +647,15 @@ public class Map {
         return dist + last.getDistance(end);
     }
 
+    public static double getAngle(Pair<Position, Position> p) {
+        Position left = p.getFirst().x < p.getSecond().x ? p.getFirst() : p.getSecond();
+        Position right = left == p.getFirst() ? p.getSecond() : p.getFirst();
+        double dy = left.y - right.y;
+        double dx = left.x - right.x;
+        return (Math.abs(dx) > 1.0 ? Math.atan(dy / dx) * 180.0 / 3.14 : 90.0);
+    }
 
-    private static Position getClosestChokeTile(ChokePoint choke, Position here) {
+    public static Position getClosestChokeTile(ChokePoint choke, Position here) {
         double best = Double.MAX_VALUE;
         Position posBest = Position.Invalid;
         for (TilePosition tile : getChokeTiles(choke)) {
@@ -724,7 +730,8 @@ public class Map {
         TilePosition tileBest = TilePosition.Invalid;
 
         // Search through each wall to find the closest valid TilePosition
-        for (Wall wall : Walls::getWalls()) {
+        for (ChokePoint chokePoint : Walls.getWalls().keySet()) {
+            Wall wall = Walls.getWalls().get(chokePoint);
             for (TilePosition tile : wall.getDefenses()) {
                 double dist = tile.getDistance(searchCenter);
                 if (dist < distBest && isPlaceable(type, tile)) {
@@ -747,7 +754,7 @@ public class Map {
         return tileBest;
     }
 
-    public Area getNaturalArea() {
+    public static Area getNaturalArea() {
         return naturalArea;
     }
 

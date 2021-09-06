@@ -305,7 +305,7 @@ public class Stations {
         }
     }
 
-    public Station getClosestStation(TilePosition here) {
+    public static Station getClosestStation(TilePosition here) {
         double distBest = Double.MAX_VALUE;
         Station bestStation = null;
         for (Station station : stations) {
