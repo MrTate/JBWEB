@@ -683,7 +683,7 @@ public class Map {
         return null;
     }
 
-    Pair<Position, Position> perpendicularLine(Pair<Position, Position> points, double length) {
+    public static Pair<Position, Position> perpendicularLine(Pair<Position, Position> points, double length) {
         Position n1 = points.getFirst();
         Position n2 = points.getSecond();
         double dist = n1.getDistance(n2);

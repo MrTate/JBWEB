@@ -36,6 +36,14 @@ public class Station {
         return base;
     }
 
+    public boolean isMain() {
+        return main;
+    }
+
+    public boolean isNatural() {
+        return natural;
+    }
+
     public int getGroundDefenseCount() {
         int count = 0;
         for (TilePosition defense : defenses) {

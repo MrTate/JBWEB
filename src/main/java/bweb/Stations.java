@@ -7,8 +7,8 @@ import java.util.*;
 
 public class Stations {
     static List<Station> stations;
-    List<Station> mains;
-    List<Station> naturals;
+    static List<Station> mains;
+    static List<Station> naturals;
 
     TreeSet<TilePosition> stationDefenses(Base base, boolean placeRight, boolean placeBelow, boolean isMain, boolean isNatural) {
         TreeSet<TilePosition> defenses = new TreeSet<>();
@@ -319,7 +319,7 @@ public class Stations {
         return bestStation;
     }
 
-    public Station getClosestMainStation(TilePosition here) {
+    public static Station getClosestMainStation(TilePosition here) {
         double distBest = Double.MAX_VALUE;
         Station bestStation = null;
         for (Station station : mains) {

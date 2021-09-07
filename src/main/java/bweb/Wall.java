@@ -3,9 +3,7 @@ package bweb;
 import bwapi.*;
 import bwem.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 
 public class Wall {
     UnitType tightType;
@@ -13,7 +11,7 @@ public class Wall {
     TilePosition opening, initialPathStart, initialPathEnd, pathStart, pathEnd, creationStart;
     TreeSet<TilePosition> defenses, smallTiles, mediumTiles, largeTiles;
     TreeSet<Position> notableLocations;
-    List<UnitType> typeIterator;
+    int typeIndex = 0;
     List<UnitType> rawBuildings, rawDefenses;
     List<Area> accessibleNeighbors;
     HashMap<TilePosition, UnitType> currentLayout, bestLayout;
@@ -310,204 +308,260 @@ public class Wall {
     }
 
     // Functions for each dimension check
-//        const auto gapRight = [&](UnitType parent) {
-//        return (parent.tileWidth() * 16) - parent.dimensionLeft() + dimR;
-//    };
-//        const auto gapLeft = [&](UnitType parent) {
-//        return (parent.tileWidth() * 16) - parent.dimensionRight() - 1 + dimL;
-//    };
-//        const auto gapUp = [&](UnitType parent) {
-//        return (parent.tileHeight() * 16) - parent.dimensionDown() - 1 + dimU;
-//    };
-//        const auto gapDown = [&](UnitType parent) {
-//        return (parent.tileHeight() * 16) - parent.dimensionUp() + dimD;
-//    };
+    int gapRight(UnitType parent, int dimR) {
+        return (parent.tileWidth() * 16) - parent.dimensionLeft() + dimR;
+    }
+
+    int gapLeft(UnitType parent, int dimL) {
+        return (parent.tileWidth() * 16) - parent.dimensionRight() - 1 + dimL;
+    }
+
+    int gapUp(UnitType parent, int dimU) {
+        return (parent.tileHeight() * 16) - parent.dimensionDown() - 1 + dimU;
+    }
+
+    int gapDown(UnitType parent, int dimD) {
+        return (parent.tileHeight() * 16) - parent.dimensionUp() + dimD;
+    }
 
 
     // Check if the building is terrain tight when placed here
-//        const auto terrainTightCheck = [&](WalkPosition w, bool check) {
-//            const auto t = TilePosition(w);
-//
-//        // If the walkposition is invalid or unwalkable
-//        if (tightType != UnitTypes::None && check && (!w.isValid() || !Broodwar->isWalkable(w)))
-//            return true;
-//
-//        // If we don't care about walling tight and the tile isn't walkable
-//        if (!requireTight && !Map::isWalkable(t))
-//        return true;
-//
-//        // If there's a mineral field or geyser here
-//        if (Map::isUsed(t).isResourceContainer())
-//        return true;
-//        return false;
-//    };
+    boolean terrainTightCheck(WalkPosition w, boolean check) {
+        TilePosition t = new TilePosition(w);
+
+        // If the walkposition is invalid or unwalkable
+        if (tightType != UnitType.None && check && (!w.isValid(Map.game) || !Map.game.isWalkable(w))) {
+            return true;
+        }
+
+        // If we don't care about walling tight and the tile isn't walkable
+        if (!requireTight && !Map.isWalkable(t)) {
+            return true;
+        }
+
+        // If there's a mineral field or geyser here
+        if (Map.isUsed(t, 1, 1).isResourceContainer()) {
+            return true;
+        }
+        return false;
+    };
 
 
     // Iterate vertical tiles adjacent of this placement
-//        const auto checkVerticalSide = [&](WalkPosition start, bool check, const auto gap) {
-//        for (auto x = start.x - 1; x < start.x + walkWidth + 1; x++) {
-//                const WalkPosition w(x, start.y);
-//                const auto t = TilePosition(w);
-//                const auto parent = Map::isUsed(t);
-//                const auto leftCorner = x < start.x;
-//                const auto rightCorner = x >= start.x + walkWidth;
-//
-//            // If this is a corner
-//            if (leftCorner || rightCorner) {
-//
-//                // Check if it's tight with the terrain
-//                if (!terrainTight && terrainTightCheck(w, check) && leftCorner ? terrainTightCheck(w, checkL) : terrainTightCheck(w, checkR))
-//                    terrainTight = true;
-//
-//                // Check if it's tight with a parent
-//                if (!parentTight && find(rawBuildings.begin(), rawBuildings.end(), parent) != rawBuildings.end() && (!requireTight || (gap(parent) < vertTight && (leftCorner ? gapLeft(parent) < horizTight : gapRight(parent) < horizTight))))
-//                    parentTight = true;
-//            }
-//            else {
-//
-//                // Check if it's tight with the terrain
-//                if (!terrainTight && terrainTightCheck(w, check))
-//                    terrainTight = true;
-//
-//                // Check if it's tight with a parent
-//                if (!parentTight && find(rawBuildings.begin(), rawBuildings.end(), parent) != rawBuildings.end() && (!requireTight || gap(parent) < vertTight))
-//                    parentTight = true;
-//            }
-//
-//            // Check to see which node it is closest to (0 is don't check, 1 is not tight, 2 is tight)
-//            if (!openWall && !Map::isWalkable(t) && w.getDistance(choke->Center()) < 4) {
-//                if (w.getDistance(choke->Pos(choke->end1)) < w.getDistance(choke->Pos(choke->end2))) {
-//                    if (p1Tight == 0)
-//                        p1Tight = 1;
-//                    if (terrainTight)
-//                        p1Tight = 2;
-//                }
-//                else if (p2Tight == 0) {
-//                    if (p2Tight == 0)
-//                        p2Tight = 1;
-//                    if (terrainTight)
-//                        p2Tight = 2;
-//                }
-//            }
-//        }
-//    };
+    List<Pair<Boolean, Integer>> checkVerticalSide(WalkPosition start, boolean check, String gap, int dim, int walkWidth,
+                                                   boolean terrainTight, boolean parentTight, int p1Tight, int p2Tight,
+                                                   boolean checkL, boolean checkR, int vertTight, int horizTight) {
+        for (int x = start.x - 1; x < start.x + walkWidth + 1; x++) {
+            WalkPosition w = new WalkPosition(x, start.y);
+            TilePosition t = new TilePosition(w);
+            UnitType parent = Map.isUsed(t, 1, 1);
+            boolean leftCorner = x < start.x;
+            boolean rightCorner = x >= start.x + walkWidth;
 
+            int gapValue = 0;
+            if (gap.equals("Right")) {
+                gapValue = gapRight(parent, dim);
+            } else if (gap.equals("Left")) {
+                gapValue = gapLeft(parent, dim);
+            } else if (gap.equals("Up")) {
+                gapValue = gapUp(parent, dim);
+            } else if (gap.equals("Down")) {
+                gapValue = gapDown(parent, dim);
+            }
+
+            // If this is a corner
+            if (leftCorner || rightCorner) {
+                // Check if it's tight with the terrain
+                if (!terrainTight && terrainTightCheck(w, check) && leftCorner ? terrainTightCheck(w, checkL) : terrainTightCheck(w, checkR)) {
+                    terrainTight = true;
+                }
+                // Check if it's tight with a parent
+                if (!parentTight && parent != rawBuildings.get(rawBuildings.size()-1) && (!requireTight || (gapValue < vertTight && (leftCorner ? gapValue < horizTight : gapValue < horizTight)))) {
+                    parentTight = true;
+                }
+            } else {
+                // Check if it's tight with the terrain
+                if (!terrainTight && terrainTightCheck(w, check)) {
+                    terrainTight = true;
+                }
+                // Check if it's tight with a parent
+                if (!parentTight && parent != rawBuildings.get(rawBuildings.size()-1) && (!requireTight || gapValue < vertTight)) {
+                    parentTight = true;
+                }
+            }
+
+            // Check to see which node it is closest to (0 is don't check, 1 is not tight, 2 is tight)
+            if (!openWall && !Map.isWalkable(t) && w.getDistance(choke.getCenter()) < 4) {
+                if (w.getDistance(choke.getNodePosition(ChokePoint.Node.END1)) < w.getDistance(choke.getNodePosition(ChokePoint.Node.END2))) {
+                    if (p1Tight == 0) {
+                        p1Tight = 1;
+                    }
+                    if (terrainTight) {
+                        p1Tight = 2;
+                    }
+                } else if (p2Tight == 0) {
+                    if (p2Tight == 0) {
+                        p2Tight = 1;
+                    }
+                    if (terrainTight) {
+                        p2Tight = 2;
+                    }
+                }
+            }
+        }
+
+        List<Pair<Boolean, Integer>> checkValue = new ArrayList<>();
+        checkValue.add(new Pair<>(terrainTight, p1Tight));
+        checkValue.add(new Pair<>(parentTight, p2Tight));
+        return checkValue;
+    }
 
     // Iterate horizontal tiles adjacent of this placement
-//        const auto checkHorizontalSide = [&](WalkPosition start, bool check, const auto gap) {
-//        for (auto y = start.y - 1; y < start.y + walkHeight + 1; y++) {
-//                const WalkPosition w(start.x, y);
-//                const auto t = TilePosition(w);
-//                const auto parent = Map::isUsed(t);
-//                const auto topCorner = y < start.y;
-//                const auto downCorner = y >= start.y + walkHeight;
-//
-//            // If this is a corner
-//            if (topCorner || downCorner) {
-//
-//                // Check if it's tight with the terrain
-//                if (!terrainTight && terrainTightCheck(w, check) && topCorner ? terrainTightCheck(w, checkU) : terrainTightCheck(w, checkD))
-//                    terrainTight = true;
-//
-//                // Check if it's tight with a parent
-//                if (!parentTight && find(rawBuildings.begin(), rawBuildings.end(), parent) != rawBuildings.end() && (!requireTight || (gap(parent) < horizTight && (topCorner ? gapUp(parent) < vertTight : gapDown(parent) < vertTight))))
-//                    parentTight = true;
-//            }
-//            else {
-//
-//                // Check if it's tight with the terrain
-//                if (!terrainTight && terrainTightCheck(w, check))
-//                    terrainTight = true;
-//
-//                // Check if it's tight with a parent
-//                if (!parentTight && find(rawBuildings.begin(), rawBuildings.end(), parent) != rawBuildings.end() && (!requireTight || gap(parent) < horizTight))
-//                    parentTight = true;
-//            }
-//
-//            // Check to see which node it is closest to (0 is don't check, 1 is not tight, 2 is tight)
-//            if (!openWall && !Map::isWalkable(t) && w.getDistance(choke->Center()) < 4) {
-//                if (w.getDistance(choke->Pos(choke->end1)) < w.getDistance(choke->Pos(choke->end2))) {
-//                    if (p1Tight == 0)
-//                        p1Tight = 1;
-//                    if (terrainTight)
-//                        p1Tight = 2;
-//                }
-//                else if (p2Tight == 0) {
-//                    if (p2Tight == 0)
-//                        p2Tight = 1;
-//                    if (terrainTight)
-//                        p2Tight = 2;
-//                }
-//            }
-//        }
-//    };
+    List<Pair<Boolean, Integer>> checkHorizontalSide(WalkPosition start, boolean check, String gap, int dim, int walkHeight,
+                                                     boolean terrainTight, boolean parentTight, int p1Tight, int p2Tight,
+                                                     boolean checkU, boolean checkD, int vertTight, int horizTight) {
+        for (int y = start.y - 1; y < start.y + walkHeight + 1; y++) {
+            WalkPosition w = new WalkPosition(start.x, y);
+            TilePosition t = new TilePosition(w);
+            UnitType parent = Map.isUsed(t, 1, 1);
+            boolean topCorner = y < start.y;
+            boolean downCorner = y >= start.y + walkHeight;
+
+            int gapValue = 0;
+            if (gap.equals("Right")) {
+                gapValue = gapRight(parent, dim);
+            } else if (gap.equals("Left")) {
+                gapValue = gapLeft(parent, dim);
+            } else if (gap.equals("Up")) {
+                gapValue = gapUp(parent, dim);
+            } else if (gap.equals("Down")) {
+                gapValue = gapDown(parent, dim);
+            }
+
+            // If this is a corner
+            if (topCorner || downCorner) {
+                // Check if it's tight with the terrain
+                if (!terrainTight && terrainTightCheck(w, check) && topCorner ? terrainTightCheck(w, checkU) : terrainTightCheck(w, checkD)) {
+                    terrainTight = true;
+                }
+                // Check if it's tight with a parent
+                if (!parentTight && parent != rawBuildings.get(rawBuildings.size()-1) && (!requireTight || (gapValue < horizTight && (topCorner ? gapValue < vertTight : gapValue < vertTight)))) {
+                    parentTight = true;
+                }
+            } else {
+                // Check if it's tight with the terrain
+                if (!terrainTight && terrainTightCheck(w, check)) {
+                    terrainTight = true;
+                }
+                // Check if it's tight with a parent
+                if (!parentTight && parent != rawBuildings.get(rawBuildings.size()-1) && (!requireTight || gapValue < horizTight)) {
+                    parentTight = true;
+                }
+            }
+
+            // Check to see which node it is closest to (0 is don't check, 1 is not tight, 2 is tight)
+            if (!openWall && !Map.isWalkable(t) && w.getDistance(choke.getCenter()) < 4) {
+                if (w.getDistance(choke.getNodePosition(ChokePoint.Node.END1)) < w.getDistance(choke.getNodePosition(ChokePoint.Node.END2))) {
+                    if (p1Tight == 0) {
+                        p1Tight = 1;
+                    }
+                    if (terrainTight) {
+                        p1Tight = 2;
+                    }
+                } else if (p2Tight == 0) {
+                    if (p2Tight == 0) {
+                        p2Tight = 1;
+                    }
+                    if (terrainTight) {
+                        p2Tight = 2;
+                    }
+                }
+            }
+        }
+
+        List<Pair<Boolean, Integer>> checkValue = new ArrayList<>();
+        checkValue.add(new Pair<>(terrainTight, p1Tight));
+        checkValue.add(new Pair<>(parentTight, p2Tight));
+        return checkValue;
+    }
 
 
-//    boolean tightCheck(const UnitType type, const TilePosition here) {
-//        // If this is a powering pylon and we are not making a pylon wall, we don't care if it's tight
-//        if (type == UnitTypes::Protoss_Pylon && !pylonWall && !pylonWallPiece)
-//            return true;
-//
-//        // Dimensions of current buildings UnitType
-//        const auto dimL = (type.tileWidth() * 16) - type.dimensionLeft();
-//        const auto dimR = (type.tileWidth() * 16) - type.dimensionRight() - 1;
-//        const auto dimU = (type.tileHeight() * 16) - type.dimensionUp();
-//        const auto dimD = (type.tileHeight() * 16) - type.dimensionDown() - 1;
-//        const auto walkHeight = type.tileHeight() * 4;
-//        const auto walkWidth = type.tileWidth() * 4;
-//
-//        // Dimension of UnitType to check tightness for
-//        const auto vertTight = (tightType == UnitTypes::None) ? 32 : tightType.height();
-//        const auto horizTight = (tightType == UnitTypes::None) ? 32 : tightType.width();
-//
-//        // Checks each side of the building to see if it is valid for walling purposes
-//        const auto checkL = dimL < horizTight;
-//        const auto checkR = dimR < horizTight;
-//        const auto checkU = dimU < vertTight;
-//        const auto checkD = dimD < vertTight;
-//
-//        // Figures out how many extra tiles we can check tightness for
-//        const auto extraL = pylonWall || !requireTight ? 0 : max(0, (horizTight - dimL) / 8);
-//        const auto extraR = pylonWall || !requireTight ? 0 : max(0, (horizTight - dimR) / 8);
-//        const auto extraU = pylonWall || !requireTight ? 0 : max(0, (vertTight - dimU) / 8);
-//        const auto extraD = pylonWall || !requireTight ? 0 : max(0, (vertTight - dimD) / 8);
-//
-//        // Setup boundary WalkPositions to check for tightness
-//        const auto left =  WalkPosition(here) - WalkPosition(1 + extraL, 0);
-//        const auto right = WalkPosition(here) + WalkPosition(walkWidth + extraR, 0);
-//        const auto up =  WalkPosition(here) - WalkPosition(0, 1 + extraU);
-//        const auto down =  WalkPosition(here) + WalkPosition(0, walkHeight + extraD);
-//
-//        // Used for determining if the tightness we found is suitable
-//        const auto firstBuilding = currentLayout.size() == 0;
-//        const auto lastBuilding = currentLayout.size() == (rawBuildings.size() - 1);
-//        auto terrainTight = false;
-//        auto parentTight = false;
-//        auto p1Tight = 0;
-//        auto p2Tight = 0;
-//
-//        // For each side, check if it's terrain tight or tight with any adjacent buildings
-//        checkVerticalSide(up, checkU, gapUp);
-//        checkVerticalSide(down, checkD, gapDown);
-//        checkHorizontalSide(left, checkL, gapLeft);
-//        checkHorizontalSide(right, checkR, gapRight);
-//
-//        // If we want a closed wall, we need all buildings to be tight at the tightness resolution...
-//        if (!openWall) {
-//            if (!lastBuilding && !firstBuilding)      // ...to the parent if not first building
-//                return parentTight;
-//            if (firstBuilding)                        // ...to the terrain if first building
-//                return terrainTight && p1Tight != 1 && p2Tight != 1;
-//            if (lastBuilding)                         // ...to the parent and terrain if last building
-//                return terrainTight && parentTight && p1Tight != 1 && p2Tight != 1;
-//        }
-//
-//        // If we want an open wall, we need this building to be tight at tile resolution to a parent or terrain
-//        else if (openWall)
-//            return (terrainTight || parentTight);
-//        return false;
-//    }
-//
+    boolean tightCheck(UnitType type, TilePosition here) {
+        // If this is a powering pylon and we are not making a pylon wall, we don't care if it's tight
+        if (type == UnitType.Protoss_Pylon && !pylonWall && !pylonWallPiece) {
+            return true;
+        }
+
+        // Dimensions of current buildings UnitType
+        int dimL = (type.tileWidth() * 16) - type.dimensionLeft();
+        int dimR = (type.tileWidth() * 16) - type.dimensionRight() - 1;
+        int dimU = (type.tileHeight() * 16) - type.dimensionUp();
+        int dimD = (type.tileHeight() * 16) - type.dimensionDown() - 1;
+        int walkHeight = type.tileHeight() * 4;
+        int walkWidth = type.tileWidth() * 4;
+
+        // Dimension of UnitType to check tightness for
+        int vertTight = (tightType == UnitType.None) ? 32 : tightType.height();
+        int horizTight = (tightType == UnitType.None) ? 32 : tightType.width();
+
+        // Checks each side of the building to see if it is valid for walling purposes
+        boolean checkL = dimL < horizTight;
+        boolean checkR = dimR < horizTight;
+        boolean checkU = dimU < vertTight;
+        boolean checkD = dimD < vertTight;
+
+        // Figures out how many extra tiles we can check tightness for
+        int extraL = pylonWall || !requireTight ? 0 : Math.max(0, (horizTight - dimL) / 8);
+        int extraR = pylonWall || !requireTight ? 0 : Math.max(0, (horizTight - dimR) / 8);
+        int extraU = pylonWall || !requireTight ? 0 : Math.max(0, (vertTight - dimU) / 8);
+        int extraD = pylonWall || !requireTight ? 0 : Math.max(0, (vertTight - dimD) / 8);
+
+        // Setup boundary WalkPositions to check for tightness
+        WalkPosition left =  new WalkPosition(here.x - (1 + extraL), here.y);
+        WalkPosition right = new WalkPosition(here.x + walkWidth + extraR, here.y);
+        WalkPosition up =  new WalkPosition(here.x, here.y - (1 + extraU));
+        WalkPosition down =  new WalkPosition(here.x, here.y + walkHeight + extraD);
+
+        // Used for determining if the tightness we found is suitable
+        boolean firstBuilding = currentLayout.size() == 0;
+        boolean lastBuilding = currentLayout.size() == (rawBuildings.size() - 1);
+        boolean terrainTight = false;
+        boolean parentTight = false;
+        int p1Tight = 0;
+        int p2Tight = 0;
+
+        // For each side, check if it's terrain tight or tight with any adjacent buildings
+        List<Pair<Boolean, Integer>> v;
+        v = checkVerticalSide(up, checkU, "Up", dimR, walkWidth, terrainTight, parentTight, p1Tight, p2Tight, checkL, checkR, vertTight, horizTight);
+        v = checkVerticalSide(down, checkD, "Down", dimL, walkWidth, v.get(0).getFirst(), v.get(1).getFirst(), v.get(0).getSecond(), v.get(1).getSecond(), checkL, checkR, vertTight, horizTight);
+        v = checkHorizontalSide(left, checkL, "Left", dimU, walkHeight, v.get(0).getFirst(), v.get(1).getFirst(), v.get(0).getSecond(), v.get(1).getSecond(), checkU, checkD, vertTight, horizTight);
+        v = checkHorizontalSide(right, checkR, "Right", dimD, walkHeight, v.get(0).getFirst(), v.get(1).getFirst(), v.get(0).getSecond(), v.get(1).getSecond(), checkU, checkD, vertTight, horizTight);
+
+        terrainTight = v.get(0).getFirst();
+        parentTight = v.get(1).getFirst();
+        p1Tight = v.get(0).getSecond();
+        p2Tight = v.get(1).getSecond();
+
+        // If we want a closed wall, we need all buildings to be tight at the tightness resolution...
+        if (!openWall) {
+            if (!lastBuilding && !firstBuilding) {      // ...to the parent if not first building
+                return parentTight;
+            }
+            if (firstBuilding) {                        // ...to the terrain if first building
+                return terrainTight && p1Tight != 1 && p2Tight != 1;
+            }
+            if (lastBuilding) {                         // ...to the parent and terrain if last building
+                return terrainTight && parentTight && p1Tight != 1 && p2Tight != 1;
+            }
+        }
+
+        // If we want an open wall, we need this building to be tight at tile resolution to a parent or terrain
+        else if (openWall) {
+            return (terrainTight || parentTight);
+        }
+        return false;
+    }
+
     boolean spawnCheck(UnitType type, TilePosition here) {
         // TODO: Check if units spawn in bad spots, just returns true for now
         checkPathPoints();
@@ -550,24 +604,33 @@ public class Wall {
 
         // Set important terrain features
         bestWallScore = 0;
-        accessibleNeighbors = area->AccessibleNeighbours();
-        chokeAngle = Map.getAngle(make_pair(Position(choke->Pos(choke->end1)) + Position(4, 4), Position(choke->Pos(choke->end2)) + Position(4, 4)));
-        pylonWall = count(rawBuildings.begin(), rawBuildings.end(), BWAPI::UnitTypes::Protoss_Pylon) > 1;
-        creationStart = TilePosition(choke->Center());
+        accessibleNeighbors = area.getAccessibleNeighbors();
+        chokeAngle = Map.getAngle(new Pair<>(new Position(choke.getNodePosition(ChokePoint.Node.END1).toPosition().x + 4, choke.getNodePosition(ChokePoint.Node.END1).toPosition().y + 4),
+                new Position(choke.getNodePosition(ChokePoint.Node.END2).toPosition().x + 4, choke.getNodePosition(ChokePoint.Node.END2).toPosition().y + 4)));
+
+        int count = 0;
+        for (UnitType rawBuilding : rawBuildings) {
+            if (rawBuilding == UnitType.Protoss_Pylon) {
+                count++;
+            }
+        }
+        pylonWall = count > 1;
+
+        creationStart = new TilePosition(choke.getCenter());
         base = !area.getBases().isEmpty() ? area.getBases().get(0) : null;
         flatRamp = Map.game.isBuildable(new TilePosition(choke.getCenter()));
         closestStation = Stations.getClosestStation(new TilePosition(choke.getCenter()));
 
         // Check if a Pylon should be put in the wall to help the size of the Wall or away from the wall for protection
-        Position p1 = choke->Pos(choke->end1);
-        Position p2 = choke->Pos(choke->end2);
+        Position p1 = choke.getNodePosition(ChokePoint.Node.END1).toPosition();
+        Position p2 = choke.getNodePosition(ChokePoint.Node.END2).toPosition();
         pylonWallPiece = Math.abs(p1.x - p2.x) * 8 >= 320 || Math.abs(p1.y - p2.y) * 8 >= 256 || p1.getDistance(p2) * 8 >= 288;
 
         // Create a jps path for limiting BFS exploration using the distance of the jps path
-        Path jpsPath;
+        Path jpsPath = new Path();
         initializePathPoints();
         checkPathPoints();
-        jpsPath.createUnitPath(Position(pathStart), Position(pathEnd));
+        jpsPath.createUnitPath(new Position(pathStart), new Position(pathEnd));
         jpsDist = jpsPath.getDistance();
 
         // If we can't reach the end/start points, the Wall is likely not possible and won't be attempted
@@ -576,28 +639,53 @@ public class Wall {
 
         // Create notable locations to keep Wall pieces within proxmity of
         if (base != null) {
-            notableLocations = {base -> Center(), Position(initialPathStart) + Position(16, 16), (base -> Center() + Position(initialPathStart)) / 2};
+            notableLocations.add(base.getCenter());
+            notableLocations.add(new Position(initialPathStart.toPosition().x + 16, initialPathStart.toPosition().y + 16));
+            notableLocations.add(new Position((base.getCenter().x + initialPathStart.toPosition().x)/2, (base.getCenter().y + initialPathStart.toPosition().y)/2));
         } else {
-            notableLocations = {Position(initialPathStart) + Position(16, 16), Position(initialPathEnd) + Position(16, 16)};
+            notableLocations.add(new Position(initialPathStart.toPosition().x + 16, initialPathStart.toPosition().y + 16));
+            notableLocations.add(new Position(initialPathEnd.toPosition().x + 16, initialPathEnd.toPosition().y + 16));
         }
 
         // Sort all the pieces and iterate over them to find the best wall - by Hannes
-        if (find(rawBuildings.begin(), rawBuildings.end(), UnitType.Protoss_Pylon) != rawBuildings.end()) {
-            sort(rawBuildings.begin(), rawBuildings.end(), [](UnitType l, UnitType r) { return (l == UnitType.Protoss_Pylon) < (r == UnitType.Protoss_Pylon); }); // Moves pylons to end
-            sort(rawBuildings.begin(), find(rawBuildings.begin(), rawBuildings.end(), UnitTypes::Protoss_Pylon)); // Sorts everything before pylons
+        if (UnitType.Protoss_Pylon != rawBuildings.get(rawBuildings.size()-1)) {
+            List<UnitType> tmpList = new ArrayList<>();
+            List<Integer> indexes = new ArrayList<>();
+            for (UnitType rawBuilding : rawBuildings) {
+                if (rawBuilding == UnitType.Protoss_Pylon) {
+                    tmpList.add(rawBuilding);
+                    indexes.add(rawBuildings.indexOf(rawBuilding));
+                }
+            }
+            for (Integer i : indexes) {
+                rawBuildings.remove(i);
+            }
+            Collections.sort(rawBuildings);
+            rawBuildings.addAll(tmpList);
+        } else if (UnitType.Zerg_Hatchery != rawBuildings.get(rawBuildings.size()-1)) {
+            List<UnitType> tmpList = new ArrayList<>();
+            List<Integer> indexes = new ArrayList<>();
+            for (UnitType rawBuilding : rawBuildings) {
+                if (rawBuilding == UnitType.Zerg_Hatchery) {
+                    tmpList.add(rawBuilding);
+                    indexes.add(rawBuildings.indexOf(rawBuilding));
+                }
+            }
+            for (Integer i : indexes) {
+                rawBuildings.remove(i);
+            }
+            Collections.sort(rawBuildings);
+            tmpList.addAll(rawBuildings);
+            rawBuildings = tmpList;
+        } else {
+            Collections.sort(rawBuildings);
         }
-        else if (find(rawBuildings.begin(), rawBuildings.end(), UnitType.Zerg_Hatchery) != rawBuildings.end()) {
-            sort(rawBuildings.begin(), rawBuildings.end(), [](UnitType l, UnitType r) { return (l == UnitType.Zerg_Hatchery) > (r == UnitType.Zerg_Hatchery); }); // Moves hatchery to start
-            sort(find(rawBuildings.begin(), rawBuildings.end(), UnitType.Zerg_Hatchery), rawBuildings.begin()); // Sorts everything after hatchery
-        }
-        else
-            sort(rawBuildings.begin(), rawBuildings.end());
 
         // If there is a base in this area and we're creating an open wall, move creation start within 10 tiles of it
-        if (openWall && base) {
-            Position startCenter = Position(creationStart) + Position(16, 16);
+        if (openWall && base != null) {
+            Position startCenter = new Position(creationStart.toPosition().x + 16, creationStart.toPosition().y + 16);
             double distBest = Double.MAX_VALUE;
-            Position moveTowards = (Position(initialPathStart) + base->Center()) / 2;
+            Position moveTowards = new Position((initialPathStart.toPosition().x + base.getCenter().x)/2, (initialPathStart.toPosition().y + base.getCenter().x)/2);
 
             // Iterate 3x3 around the current TilePosition and try to get within 5 tiles
             while (startCenter.getDistance(moveTowards) > 320.0) {
@@ -648,102 +736,102 @@ public class Wall {
         }
     }
 
-//    void initializePathPoints() {
-//        auto line = make_pair(Position(choke->Pos(choke->end1)) + Position(4, 4), Position(choke->Pos(choke->end2)) + Position(4, 4));
-//        auto perpLine = openWall ? Map::perpendicularLine(line, 160.0) : Map::perpendicularLine(line, 96.0);
-//        auto lineStart = perpLine.first.getDistance(Position(area->Top())) > perpLine.second.getDistance(Position(area->Top())) ? perpLine.second : perpLine.first;
-//        auto lineEnd = perpLine.first.getDistance(Position(area->Top())) > perpLine.second.getDistance(Position(area->Top())) ? perpLine.first : perpLine.second;
-//        auto isMain = closestStation && closestStation->isMain();
-//        auto isNatural = closestStation && closestStation->isNatural();
-//
-//        // If it's a natural wall, path between the closest main and end of the perpendicular line
-//        if (isNatural) {
-//            Station * closestMain = Stations::getClosestMainStation(TilePosition(choke->Center()));
-//            initialPathStart = closestMain ? TilePosition(Map::mapBWEM.GetPath(closestStation->getBWEMBase()->Center(), closestMain->getBWEMBase()->Center()).front()->Center()) : TilePosition(lineStart);
-//            initialPathEnd = TilePosition(lineEnd);
-//        }
-//
-//        // If it's a main wall, path between a point between the roughly the choke and the area top
-//        else if (isMain) {
-//            initialPathEnd = (TilePosition(choke->Center()) + TilePosition(lineEnd)) / 2;
-//            initialPathStart = (TilePosition(area->Top()) + TilePosition(lineStart)) / 2;
-//        }
-//
-//        // Other walls
-//        else {
-//            initialPathStart = TilePosition(lineStart);
-//            initialPathEnd = TilePosition(lineEnd);
-//        }
-//
-//        pathStart = initialPathStart;
-//        pathEnd = initialPathEnd;
-//    }
+    void initializePathPoints() {
+        Pair<Position, Position> line = new Pair<>(new Position(choke.getNodePosition(ChokePoint.Node.END1).toPosition().x + 4, choke.getNodePosition(ChokePoint.Node.END1).toPosition().y + 4),
+                new Position(choke.getNodePosition(ChokePoint.Node.END2).toPosition().y + 4, choke.getNodePosition(ChokePoint.Node.END2).toPosition().y + 4));
+        Pair<Position, Position> perpLine = openWall ? Map.perpendicularLine(line, 160.0) : Map.perpendicularLine(line, 96.0);
+        Position lineStart = perpLine.getFirst().getDistance(new Position(area.getTop())) > perpLine.getSecond().getDistance(new Position(area.getTop())) ? perpLine.getSecond() : perpLine.getFirst();
+        Position lineEnd = perpLine.getFirst().getDistance(new Position(area.getTop())) > perpLine.getSecond().getDistance(new Position(area.getTop())) ? perpLine.getFirst() : perpLine.getSecond();
+        boolean isMain = closestStation != null && closestStation.isMain();
+        boolean isNatural = closestStation != null && closestStation.isNatural();
 
+        // If it's a natural wall, path between the closest main and end of the perpendicular line
+        if (isNatural) {
+            Station closestMain = Stations.getClosestMainStation(new TilePosition(choke.getCenter()));
+            initialPathStart = closestMain != null ? new TilePosition(Map.mapBWEM.getMap().getPath(closestStation.getBWEMBase().getCenter(), closestMain.getBWEMBase().getCenter()).get(0).getCenter()) : new TilePosition(lineStart);
+            initialPathEnd = new TilePosition(lineEnd);
+        }
 
-//        const auto neighbourArea = [&](const BWEM::Area * area) {
-//        for (auto subArea : area->AccessibleNeighbours()) {
-//            if (area == subArea)
-//                return true;
-//        }
-//        return false;
-//    };
+        // If it's a main wall, path between a point between the roughly the choke and the area top
+        else if (isMain) {
+            initialPathEnd = new TilePosition((choke.getCenter().toPosition().x + lineEnd.x)/2, (choke.getCenter().toPosition().y + lineEnd.y)/2);
+            initialPathStart = new TilePosition((area.getTop().toPosition().x + lineStart.x)/2, (area.getTop().toPosition().y + lineStart.y)/2);
+        }
 
+        // Other walls
+        else {
+            initialPathStart = new TilePosition(lineStart);
+            initialPathEnd = new TilePosition(lineEnd);
+        }
 
-//        const auto notValidPathPoint = [&](const TilePosition testTile) {
-//        return !testTile.isValid()
-//                || !Map::isWalkable(testTile)
-//                || Map::isReserved(testTile)
-//                || Map::isUsed(testTile) != UnitTypes::None;
-//    };
+        pathStart = initialPathStart;
+        pathEnd = initialPathEnd;
+    }
 
+    boolean neighbourArea(Area area) {
+        for (Area subArea : area.getAccessibleNeighbors()) {
+            if (area == subArea) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-//    void Wall::checkPathPoints()
-//    {
-//        // Push the path start as far from the path end if it's not in a valid location
-//        auto distBest = 0.0;
-//        if (notValidPathPoint(pathStart)) {
-//            for (auto x = initialPathStart.x - 4; x < initialPathStart.x + 4; x++) {
-//                for (auto y = initialPathStart.y - 4; y < initialPathStart.y + 4; y++) {
-//                    const TilePosition t(x, y);
-//                    const auto dist = t.getDistance(initialPathEnd);
-//                    if (notValidPathPoint(t))
-//                        continue;
-//
-//                    if (dist > distBest) {
-//                        pathStart = t;
-//                        distBest = dist;
-//                    }
-//                }
-//            }
-//        }
-//
-//        // Push the path end as far from the path start if it's not in a valid location
-//        distBest = 0.0;
-//        if (notValidPathPoint(pathEnd)) {
-//            for (auto x = initialPathEnd.x - 4; x < initialPathEnd.x + 4; x++) {
-//                for (auto y = initialPathEnd.y - 4; y < initialPathEnd.y + 4; y++) {
-//                    const TilePosition t(x, y);
-//                    const auto dist = t.getDistance(initialPathStart);
-//                    if (notValidPathPoint(t))
-//                        continue;
-//
-//                    if (dist > distBest) {
-//                        pathEnd = t;
-//                        distBest = dist;
-//                    }
-//                }
-//            }
-//        }
-//    }
+    boolean notValidPathPoint(TilePosition testTile) {
+        return !testTile.isValid(Map.game)
+                || !Map.isWalkable(testTile)
+                || Map.isReserved(testTile, 1, 1)
+                || Map.isUsed(testTile, 1, 1) != UnitType.None;
+    };
+
+    void checkPathPoints()
+    {
+        // Push the path start as far from the path end if it's not in a valid location
+        double distBest = 0.0;
+        if (notValidPathPoint(pathStart)) {
+            for (int x = initialPathStart.x - 4; x < initialPathStart.x + 4; x++) {
+                for (int y = initialPathStart.y - 4; y < initialPathStart.y + 4; y++) {
+                    TilePosition t = new TilePosition(x, y);
+                    double dist = t.getDistance(initialPathEnd);
+                    if (notValidPathPoint(t))
+                        continue;
+
+                    if (dist > distBest) {
+                        pathStart = t;
+                        distBest = dist;
+                    }
+                }
+            }
+        }
+
+        // Push the path end as far from the path start if it's not in a valid location
+        distBest = 0.0;
+        if (notValidPathPoint(pathEnd)) {
+            for (int x = initialPathEnd.x - 4; x < initialPathEnd.x + 4; x++) {
+                for (int y = initialPathEnd.y - 4; y < initialPathEnd.y + 4; y++) {
+                    TilePosition t = new TilePosition(x, y);
+                    double dist = t.getDistance(initialPathStart);
+                    if (notValidPathPoint(t))
+                        continue;
+
+                    if (dist > distBest) {
+                        pathEnd = t;
+                        distBest = dist;
+                    }
+                }
+            }
+        }
+    }
 
     void addPieces() {
         // For each permutation, try to make a wall combination that is better than the current best
-        do {
-            currentLayout.clear();
-            typeIterator = rawBuildings.begin();
-            addNextPiece(creationStart);
-        } while (Map.game.self().getRace() == Race.Zerg ? next_permutation(find(rawBuildings.begin(), rawBuildings.end(), UnitType.Zerg_Hatchery), rawBuildings.end())
-            : next_permutation(rawBuildings.begin(), find(rawBuildings.begin(), rawBuildings.end(), UnitType.Protoss_Pylon)));
+        // TODO: Implement next_permutation for Java
+//        do {
+//            currentLayout.clear();
+//            typeIndex = 0;
+//            addNextPiece(creationStart);
+//        } while (Map.game.self().getRace() == Race.Zerg ? nextPermutation(find(rawBuildings.begin(), rawBuildings.end(), UnitType.Zerg_Hatchery), rawBuildings.end())
+//            : nextPermutation(rawBuildings.begin(), find(rawBuildings.begin(), rawBuildings.end(), UnitType.Protoss_Pylon)));
 
         for (TilePosition tile : bestLayout.keySet()) {
             UnitType type = bestLayout.get(tile);
@@ -753,180 +841,196 @@ public class Wall {
         }
     }
 
-//    void addNextPiece(TilePosition start) {
-//        const auto type = *typeIterator;
-//        const auto radius = (openWall || typeIterator == rawBuildings.begin()) ? 8 : 4;
-//
-//        for (auto x = start.x - radius; x < start.x + radius; x++) {
-//            for (auto y = start.y - radius; y < start.y + radius; y++) {
-//                const TilePosition tile(x, y);
-//
-//                if (!tile.isValid())
-//                    continue;
-//
-//                const auto center = Position(tile) + Position(type.tileWidth() * 16, type.tileHeight() * 16);
-//                const auto closestGeo = Map::getClosestChokeTile(choke, center);
-//
-//                // Open walls need to be placed within proximity of notable features
-//                if (openWall) {
-//                    auto closestNotable = Positions::Invalid;
-//                    auto closestNotableDist = DBL_MAX;
-//                    for (auto & pos : notableLocations) {
-//                        auto dist = pos.getDistance(center);
-//                        if (dist < closestNotableDist) {
-//                            closestNotable = pos;
-//                            closestNotableDist = dist;
-//                        }
-//                    }
-//                    if (center.getDistance(closestNotable) >= 256.0 || center.getDistance(closestNotable) >= closestGeo.getDistance(closestNotable) + 48.0) {
-//
-//                        continue;
-//                    }
-//                }
-//
-//                // Try not to seal the wall poorly
-//                if (!openWall && flatRamp) {
-//                    auto dist = min({ Position(tile).getDistance(Position(choke->Center())),
-//                            Position(tile + TilePosition(type.tileWidth(), 0)).getDistance(Position(choke->Center())),
-//                            Position(tile + TilePosition(type.tileWidth(), type.tileHeight())).getDistance(Position(choke->Center())),
-//                            Position(tile + TilePosition(0, type.tileHeight())).getDistance(Position(choke->Center())) });
-//                    if (dist < 64.0)
-//                        continue;
-//                }
-//
-//                // Required checks for this wall to be valid
-//                if (!powerCheck(type, tile)) {
-//                    failedPower++;
-//                    continue;
-//                }
-//                if (!angleCheck(type, tile)) {
-//                    failedAngle++;
-//                    continue;
-//                }
-//                if (!placeCheck(type, tile)) {
-//                    failedPlacement++;
-//                    continue;
-//                }
-//                if (!tightCheck(type, tile)) {
-//                    failedTight++;
-//                    continue;
-//                }
-//                if (!spawnCheck(type, tile)) {
-//                    failedSpawn++;
-//                    continue;
-//                }
-//
-//                // 1) Store the current type, increase the iterator
-//                currentLayout[tile] = type;
-//                Map::addUsed(tile, type);
-//                typeIterator++;
-//
-//                // 2) If at the end, score wall
-//                if (typeIterator == rawBuildings.end())
-//                    scoreWall();
-//                else
-//                    openWall ? addNextPiece(start) : addNextPiece(tile);
-//
-//                // 3) Erase this current placement and repeat
-//                if (typeIterator != rawBuildings.begin())
-//                    typeIterator--;
-//
-//                currentLayout.erase(tile);
-//                Map::removeUsed(tile, type.tileWidth(), type.tileHeight());
-//            }
-//        }
-//    }
-//
-//    void addDefenses() {
-//        // Prevent adding defenses if we don't have a wall
-//        if (bestLayout.empty())
-//            return;
-//
-//        // Find the furthest non Pylon building to the chokepoint
-//        auto furthest = 0.0;
-//        for (auto &tile : largeTiles) {
-//            const auto center = Position(tile) + Position(64, 48);
-//            const auto closestGeo = Map::getClosestChokeTile(choke, center);
-//            const auto dist = center.getDistance(closestGeo);
-//        if (dist > furthest)
-//            furthest = dist;
-//    }
-//        for (auto &tile : mediumTiles) {
-//            const auto center = Position(tile) + Position(48, 32);
-//            const auto closestGeo = Map::getClosestChokeTile(choke, center);
-//            const auto dist = center.getDistance(closestGeo);
-//        if (dist > furthest)
-//            furthest = dist;
-//    }
-//
-//        // Find the furthest Pylon building to the chokepoint if it's a Pylon wall
-//        if (pylonWall) {
-//            for (auto &tile : smallTiles) {
-//                const auto center = Position(tile) + Position(32, 32);
-//                const auto closestGeo = Map::getClosestChokeTile(choke, center);
-//                const auto dist = center.getDistance(closestGeo);
-//                if (dist > furthest)
-//                    furthest = dist;
-//            }
-//        }
-//
-//        auto closestStation = Stations::getClosestStation(TilePosition(choke->Center()));
-//        for (auto &building : rawDefenses) {
-//
-//            const auto start = TilePosition(centroid);
-//            const auto width = building.tileWidth() * 32;
-//            const auto height = building.tileHeight() * 32;
-//            const auto openingCenter = Position(opening) + Position(16, 16);
-//            const auto arbitraryCloseMetric = Broodwar->self()->getRace() == Races::Zerg ? 32.0 : 160.0;
-//
-//        // Iterate around wall centroid to find a suitable position
-//        auto scoreBest = DBL_MAX;
-//        auto tileBest = TilePositions::Invalid;
-//        for (auto x = start.x - 12; x <= start.x + 12; x++) {
-//            for (auto y = start.y - 12; y <= start.y + 12; y++) {
-//                    const TilePosition t(x, y);
-//                    const auto center = Position(t) + Position(width / 2, height / 2);
-//                    const auto closestGeo = Map::getClosestChokeTile(choke, center);
-//                    const auto overlapsDefense = closestStation && closestStation->getDefenseLocations().find(t) != closestStation->getDefenseLocations().end() && defenses.find(t) == defenses.end();
-//
-//                    const auto dist = center.getDistance(closestGeo);
-//                    const auto tooClose = dist < furthest || center.getDistance(openingCenter) < arbitraryCloseMetric;
-//                    const auto tooFar = center.getDistance(centroid) > 200.0;
-//
-//                if (!overlapsDefense) {
-//                    if (!t.isValid()
-//                            || Map::isReserved(t, building.tileWidth(), building.tileHeight())
-//                            || !Map::isPlaceable(building, t)
-//                            || Map::tilesWithinArea(area, t, building.tileWidth(), building.tileHeight()) == 0
-//                            || tooClose
-//                            || tooFar)
-//                    continue;
-//                }
-//                    const auto score = dist + center.getDistance(openingCenter);
-//
-//                if (score < scoreBest) {
-//                    Map::addUsed(t, building);
-//                    auto &pathOut = findPathOut();
-//                    if ((openWall && pathOut.isReachable()) || !openWall) {
-//                        tileBest = t;
-//                        scoreBest = score;
-//                    }
-//                    Map::removeUsed(t, building.tileWidth(), building.tileHeight());
-//                }
-//            }
-//        }
-//
-//        // If tile is valid, add to wall
-//        if (tileBest.isValid()) {
-//            defenses.insert(tileBest);
-//            Map::addReserve(tileBest, building.tileWidth(), building.tileHeight());
-//        }
-//
-//        // Otherwise we can't place anymore
-//        else
-//            break;
-//    }
-//    }
+    void addNextPiece(TilePosition start) {
+        UnitType type = rawBuildings.get(typeIndex);
+        int radius = (openWall || rawBuildings.get(0) == rawBuildings.get(0)) ? 8 : 4;
+
+        for (int x = start.x - radius; x < start.x + radius; x++) {
+            for (int y = start.y - radius; y < start.y + radius; y++) {
+                TilePosition tile = new TilePosition(x, y);
+
+                if (!tile.isValid(Map.game)) {
+                    continue;
+                }
+
+                Position center = new Position(tile.toPosition().x + type.tileWidth()*16, tile.toPosition().y + type.tileHeight()*16);
+                Position closestGeo = Map.getClosestChokeTile(choke, center);
+
+                // Open walls need to be placed within proximity of notable features
+                if (openWall) {
+                    Position closestNotable = Position.Invalid;
+                    double closestNotableDist = Double.MAX_VALUE;
+                    for (Position pos : notableLocations) {
+                        double dist = pos.getDistance(center);
+                        if (dist < closestNotableDist) {
+                            closestNotable = pos;
+                            closestNotableDist = dist;
+                        }
+                    }
+                    if (center.getDistance(closestNotable) >= 256.0 || center.getDistance(closestNotable) >= closestGeo.getDistance(closestNotable) + 48.0) {
+
+                        continue;
+                    }
+                }
+
+                // Try not to seal the wall poorly
+                if (!openWall && flatRamp) {
+                    double m1 = Math.min(new Position(tile).getDistance(new Position(choke.getCenter())),
+                            new Position(new TilePosition(tile.toPosition().x + type.tileWidth(), tile.toPosition().y)).getDistance(new Position(choke.getCenter())));
+                    double m2 = Math.min(new Position(new TilePosition(tile.toPosition().x, tile.toPosition().y + type.tileHeight())).getDistance(new Position(choke.getCenter())),
+                            new Position(new TilePosition(tile.toPosition().x + type.tileWidth(), tile.toPosition().y + type.tileHeight())).getDistance(new Position(choke.getCenter())));
+                    double dist = Math.min(m1, m2);
+                    if (dist < 64.0) {
+                        continue;
+                    }
+                }
+
+                // Required checks for this wall to be valid
+                if (!powerCheck(type, tile)) {
+                    Walls.failedPower++;
+                    continue;
+                }
+                if (!angleCheck(type, tile)) {
+                    Walls.failedAngle++;
+                    continue;
+                }
+                if (!placeCheck(type, tile)) {
+                    Walls.failedPlacement++;
+                    continue;
+                }
+                if (!tightCheck(type, tile)) {
+                    Walls.failedTight++;
+                    continue;
+                }
+                if (!spawnCheck(type, tile)) {
+                    Walls.failedSpawn++;
+                    continue;
+                }
+
+                // 1) Store the current type, increase the iterator
+                currentLayout.put(tile, type);
+                Map.addUsed(tile, type);
+                typeIndex++;
+
+                // 2) If at the end, score wall
+                if (rawBuildings.get(typeIndex) == rawBuildings.get(rawBuildings.size()-1)) {
+                    scoreWall();
+                } else {
+                    if (openWall) {
+                        addNextPiece(start);
+                    } else {
+                        addNextPiece(tile);
+                    }
+                }
+
+
+                // 3) Erase this current placement and repeat
+                if (rawBuildings.get(typeIndex) != rawBuildings.get(0)) {
+                    typeIndex--;
+                }
+
+                currentLayout.remove(tile);
+                Map.removeUsed(tile, type.tileWidth(), type.tileHeight());
+            }
+        }
+    }
+
+    void addDefenses() {
+        // Prevent adding defenses if we don't have a wall
+        if (bestLayout.isEmpty()) {
+            return;
+        }
+
+        // Find the furthest non Pylon building to the chokepoint
+        double furthest = 0.0;
+        for (TilePosition tile : largeTiles) {
+            Position center = new Position(tile.toPosition().x + 64, tile.toPosition().y + 48);
+            Position closestGeo = Map.getClosestChokeTile(choke, center);
+            double dist = center.getDistance(closestGeo);
+            if (dist > furthest) {
+                furthest = dist;
+            }
+        }
+
+        for (TilePosition tile : mediumTiles) {
+            Position center = new Position(tile.toPosition().x + 48, tile.toPosition().y + 32);
+            Position closestGeo = Map.getClosestChokeTile(choke, center);
+            double dist = center.getDistance(closestGeo);
+            if (dist > furthest) {
+                furthest = dist;
+            }
+        }
+
+        // Find the furthest Pylon building to the chokepoint if it's a Pylon wall
+        if (pylonWall) {
+            for (TilePosition tile : smallTiles) {
+                Position center = new Position(tile.toPosition().x + 32, tile.toPosition().y + 32);
+                Position closestGeo = Map.getClosestChokeTile(choke, center);
+                double dist = center.getDistance(closestGeo);
+                if (dist > furthest)
+                    furthest = dist;
+            }
+        }
+
+        Station closestStation = Stations.getClosestStation(new TilePosition(choke.getCenter()));
+        for (UnitType building : rawDefenses) {
+            TilePosition start = new TilePosition(centroid);
+            int width = building.tileWidth() * 32;
+            int height = building.tileHeight() * 32;
+            Position openingCenter = new Position(opening.toPosition().x + 16, opening.toPosition().y + 16);
+            double arbitraryCloseMetric = Map.game.self().getRace() == Race.Zerg ? 32.0 : 160.0;
+
+            // Iterate around wall centroid to find a suitable position
+            double scoreBest = Double.MAX_VALUE;
+            TilePosition tileBest = TilePosition.Invalid;
+            for (int x = start.x - 12; x <= start.x + 12; x++) {
+                for (int y = start.y - 12; y <= start.y + 12; y++) {
+                    TilePosition t = new TilePosition(x, y);
+                    Position center = new Position(t.toPosition().x + width/2, t.toPosition().y + height/2);
+                    Position closestGeo = Map.getClosestChokeTile(choke, center);
+                    boolean overlapsDefense = closestStation != null && t != closestStation.getDefenseLocations().last() && t == defenses.last();
+
+                    double dist = center.getDistance(closestGeo);
+                    boolean tooClose = dist < furthest || center.getDistance(openingCenter) < arbitraryCloseMetric;
+                    boolean tooFar = center.getDistance(centroid) > 200.0;
+
+                    if (!overlapsDefense) {
+                        if (!t.isValid(Map.game)
+                            || Map.isReserved(t, building.tileWidth(), building.tileHeight())
+                            || !Map.isPlaceable(building, t)
+                            || Map.tilesWithinArea(area, t, building.tileWidth(), building.tileHeight()) == 0
+                            || tooClose
+                            || tooFar){
+                            continue;
+                        }
+                    }
+
+                    double score = dist + center.getDistance(openingCenter);
+
+                    if (score < scoreBest) {
+                        Map.addUsed(t, building);
+                        Path pathOut = findPathOut();
+                        if ((openWall && pathOut.isReachable()) || !openWall) {
+                            tileBest = t;
+                            scoreBest = score;
+                        }
+                        Map.removeUsed(t, building.tileWidth(), building.tileHeight());
+                    }
+                }
+            }
+
+            // If tile is valid, add to wall
+            if (tileBest.isValid(Map.game)) {
+                defenses.add(tileBest);
+                Map.addReserve(tileBest, building.tileWidth(), building.tileHeight());
+            }
+
+            // Otherwise we can't place anymore
+            else {
+                break;
+            }
+        }
+    }
 
     void scoreWall() {
         // Create a path searching for an opening
@@ -945,7 +1049,7 @@ public class Wall {
                 new Position(choke.getNodePosition(ChokePoint.Node.END1)) : new Position(choke.getNodePosition(ChokePoint.Node.END2));
         for (TilePosition tile : currentLayout.keySet()) {
             UnitType type = currentLayout.get(tile);
-            Position center = Position(tile) + Position(type.tileWidth() * 16, type.tileHeight() * 16);
+            Position center = new Position(tile.toPosition().x + type.tileWidth()*16, tile.toPosition().y + type.tileHeight()*16);
             double chokeDist = optimalChokeTile.getDistance(center);
             if (type == UnitType.Protoss_Pylon && !pylonWall && !pylonWallPiece) {
                 dist += -chokeDist;
@@ -1020,7 +1124,7 @@ public class Wall {
     }
 
     void draw() {
-        TreeSet<Position> anglePositions;
+        TreeSet<Position> anglePositions = new TreeSet<>();
         Color color = Map.game.self().getColor();
         Text textColor = color.id == 185 ? textColor = Text.DarkGreen : Map.game.self().getTextColor();
 
@@ -1028,23 +1132,23 @@ public class Wall {
         boolean drawBoxes = true;
         if (drawBoxes) {
             for (TilePosition tile : smallTiles) {
-                Map.game.drawBoxMap(new Position(tile), Position(tile) + Position(65, 65), color);
-                Map.game.drawTextMap(Position(tile) + Position(4, 4), "%cW", Map.game.self().getTextColor());
-                anglePositions.add(Position(tile) + Position(32, 32));
+                Map.game.drawBoxMap(new Position(tile), new Position(tile.toPosition().x + 65, tile.toPosition().y + 65), color);
+                Map.game.drawTextMap(new Position(tile.toPosition().x + 4, tile.toPosition().y + 4), "%cW", Map.game.self().getTextColor());
+                anglePositions.add(new Position(tile.toPosition().x + 32, tile.toPosition().y + 32));
             }
             for (TilePosition tile : mediumTiles) {
-                Map.game.drawBoxMap(new Position(tile), Position(tile) + Position(97, 65), color);
-                Map.game.drawTextMap(Position(tile) + Position(4, 4), "%cW", Map.game.self().getTextColor());
-                anglePositions.add(Position(tile) + Position(48, 32));
+                Map.game.drawBoxMap(new Position(tile), new Position(tile.toPosition().x + 97, tile.toPosition().y + 65), color);
+                Map.game.drawTextMap(new Position(tile.toPosition().x + 4, tile.toPosition().y + 4), "%cW", Map.game.self().getTextColor());
+                anglePositions.add(new Position(tile.toPosition().x + 48, tile.toPosition().y + 32));
             }
             for (TilePosition tile : largeTiles) {
-                Map.game.drawBoxMap(new Position(tile), Position(tile) + Position(129, 97), color);
-                Map.game.drawTextMap(Position(tile) + Position(4, 4), "%cW", Map.game.self().getTextColor());
-                anglePositions.add(Position(tile) + Position(64, 48));
+                Map.game.drawBoxMap(new Position(tile), new Position(tile.toPosition().x + 129, tile.toPosition().y + 97), color);
+                Map.game.drawTextMap(new Position(tile.toPosition().x + 4, tile.toPosition().y + 4), "%cW", Map.game.self().getTextColor());
+                anglePositions.add(new Position(tile.toPosition().x + 64, tile.toPosition().y + 48));
             }
             for (TilePosition tile : defenses) {
-                Map.game.drawBoxMap(new Position(tile), Position(tile) + Position(65, 65), color);
-                Map.game.drawTextMap(Position(tile) + Position(4, 4), "%cW", Map.game.self().getTextColor());
+                Map.game.drawBoxMap(new Position(tile), new Position(tile.toPosition().x + 65, tile.toPosition().y + 65), color);
+                Map.game.drawTextMap(new Position(tile.toPosition().x + 4, tile.toPosition().y + 4), "%cW", Map.game.self().getTextColor());
             }
         }
 
@@ -1064,7 +1168,7 @@ public class Wall {
         }
 
         // Draw opening
-        Map.game.drawBoxMap(Position(opening), Position(opening) + Position(33, 33), color, true);
+        Map.game.drawBoxMap(new Position(opening), new Position(opening.toPosition().x + 33, opening.toPosition().y + 33), color, true);
 
         // Draw the line and angle of the ChokePoint
         Position p1 = choke.getNodePosition(ChokePoint.Node.END1).toPosition();

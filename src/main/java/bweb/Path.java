@@ -232,9 +232,9 @@ public class Path {
 //            return;
 //        }
 //
-//        vector<TilePosition> newJPSPath;
-//        const auto width = Broodwar->mapWidth();
-//        const auto height = Broodwar->mapHeight();
+//        List<TilePosition> newJPSPath = new ArrayList<>();
+//        int width = Broodwar->mapWidth();
+//        int height = Broodwar->mapHeight();
 //
 //        // If not reachable based on previous paths to this area
 //        if (target.isValid() && Map::mapBWEM.GetArea(target) && isWalkable(source.x, source.y)) {
