@@ -206,7 +206,7 @@ public class Stations {
             double distBest = Double.MAX_VALUE;
             for (Area area : Map.mapBWEM.getMap().getAreas()) {
                 for (Base base : area.getBases()) {
-                    // Must have gas, be accesible and at least 5 mineral patches
+                    // Must have gas, be accessible and at least 5 mineral patches
                     if (base.isStartingLocation()
                             || base.getGeysers().isEmpty()
                             || base.getArea().getAccessibleNeighbors().isEmpty()

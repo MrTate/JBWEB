@@ -514,9 +514,7 @@ public class Blocks {
 
             // Also add any areas that neighbour each start location
             Area baseArea = Map.mapBWEM.getMap().getNearestArea(first);
-            for (Area area : baseArea.getAccessibleNeighbors()) {
-                areasToAvoid.add(area);
-            }
+            areasToAvoid.addAll(baseArea.getAccessibleNeighbors());
         }
 
         // Gather the possible enemy start locations

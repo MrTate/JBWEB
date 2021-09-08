@@ -195,7 +195,7 @@ public class Wall {
         // Get a new path
         Path newPath = new Path();
         allowLifted = false;
-        newPath.bfsPath(endCenter, startCenter, this, false);
+        newPath.bfsPath(endCenter, startCenter, this);
         return newPath;
     }
 
@@ -784,8 +784,7 @@ public class Wall {
                 || Map.isUsed(testTile, 1, 1) != UnitType.None;
     };
 
-    void checkPathPoints()
-    {
+    void checkPathPoints() {
         // Push the path start as far from the path end if it's not in a valid location
         double distBest = 0.0;
         if (notValidPathPoint(pathStart)) {
@@ -988,7 +987,7 @@ public class Wall {
                     TilePosition t = new TilePosition(x, y);
                     Position center = new Position(t.toPosition().x + width/2, t.toPosition().y + height/2);
                     Position closestGeo = Map.getClosestChokeTile(choke, center);
-                    boolean overlapsDefense = closestStation != null && t != closestStation.getDefenseLocations().last() && t == defenses.last();
+                    boolean overlapsDefense = closestStation != null && t != closestStation.getDefenseLocations().last() && t.equals(defenses.last());
 
                     double dist = center.getDistance(closestGeo);
                     boolean tooClose = dist < furthest || center.getDistance(openingCenter) < arbitraryCloseMetric;
@@ -1126,7 +1125,7 @@ public class Wall {
     void draw() {
         TreeSet<Position> anglePositions = new TreeSet<>();
         Color color = Map.game.self().getColor();
-        Text textColor = color.id == 185 ? textColor = Text.DarkGreen : Map.game.self().getTextColor();
+        Text textColor = color.id == 185 ? Text.DarkGreen : Map.game.self().getTextColor();
 
         // Draw boxes around each feature
         boolean drawBoxes = true;

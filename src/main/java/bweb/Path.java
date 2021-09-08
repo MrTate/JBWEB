@@ -41,31 +41,6 @@ public class Path {
         return reachable;
     }
 
-
-//        const auto isBfsPathWalkable = [&](const int x, const int y) {
-//            const TilePosition tile(x, y);
-//        if (x > width || y > height || x < 0 || y < 0)
-//            return false;
-//        if (tile == source || tile == target)
-//            return true;
-//        if (Map::isWalkable(tile) && Map::isUsed(tile) == UnitTypes::None)
-//        return true;
-//        return false;
-//    };
-
-
-//        const auto isJspPathWalkable = [&](const int x, const int y) {
-//            const TilePosition tile(x, y);
-//        if (x > width || y > height || x < 0 || y < 0)
-//            return false;
-//        if (tile == source || tile == target)
-//            return true;
-//        if (passedWalkable(tile))
-//            return true;
-//        return false;
-//    };
-
-
     // This function requires that parentGrid has been filled in for a path from source to target
     void createPath(TilePosition s, TilePosition t, TilePosition[][] parentGrid) {
         tiles.add(target);
@@ -153,19 +128,16 @@ public class Path {
 //    }
 //
     // P3 = function <bool(const TilePosition&)> isWalkable
-    void bfsPath(Position s, Position t, Wall wall , boolean diagonal) {
+    void bfsPath(Position s, Position t, Wall wall) {
         TilePosition source = new TilePosition(s);
         TilePosition target = new TilePosition(t);
-        double maxDist = source.getDistance(target);
-        int width = Map.game.mapWidth();
-        int height = Map.game.mapHeight();
         List<TilePosition> direction = new ArrayList<>();
         direction.add(new TilePosition(0, 1));
         direction.add(new TilePosition(1, 0));
         direction.add(new TilePosition(-1, 0));
         direction.add(new TilePosition(0, -1));
 
-        if (source == target
+        if (source.equals(target)
                 || source.equals(new TilePosition(0, 0))
                 || target.equals(new TilePosition(0, 0)))
             return;
@@ -197,7 +169,7 @@ public class Path {
                     parentGrid[next.x][next.y] = tile;
 
                     // If at target, return path
-                    if (next == target) {
+                    if (next.equals(target)) {
                         createPath(s.toTilePosition(), t.toTilePosition(), parentGrid);
                         return;
                     }
