@@ -65,27 +65,26 @@ public class Path {
 
 
     // This function requires that parentGrid has been filled in for a path from source to target
-//        const auto createPath = [&]() {
-//        tiles.push_back(target);
-//        reachable = true;
-//        TilePosition check = parentGrid[target.x][target.y];
-//        dist += Position(target).getDistance(Position(check));
-//
-//        do {
-//            tiles.push_back(check);
-//            TilePosition prev = check;
-//            check = parentGrid[check.x][check.y];
-//            dist += Position(prev).getDistance(Position(check));
-//        } while (check != source);
-//
-//        // HACK: Try to make it more accurate to positions instead of tiles
-//        auto correctionSource = Position(*(tiles.end() - 1));
-//        auto correctionTarget = Position(*(tiles.begin() + 1));
-//        dist += s.getDistance(correctionSource);
-//        dist += t.getDistance(correctionTarget);
-//        dist -= 64.0;
-//    };
+    void createPath(TilePosition s, TilePosition t, TilePosition[][] parentGrid) {
+        tiles.add(target);
+        reachable = true;
+        TilePosition check = parentGrid[target.x][target.y];
+        dist += new Position(target).getDistance(new Position(check));
 
+        do {
+            tiles.add(check);
+            TilePosition prev = check;
+            check = parentGrid[check.x][check.y];
+            dist += new Position(prev).getDistance(new Position(check));
+        } while (check != source);
+
+        // HACK: Try to make it more accurate to positions instead of tiles
+        Position correctionSource = new Position(tiles.get(tiles.size()-2)); // Second to last tile
+        Position correctionTarget = new Position(tiles.get(1)); // Second tile
+        dist += s.getDistance(correctionSource.toTilePosition());
+        dist += t.getDistance(correctionTarget.toTilePosition());
+        dist -= 64.0;
+    }
 
 //    void createUnitPath(Position s, Position t) {
 //        target = TilePosition(t);
