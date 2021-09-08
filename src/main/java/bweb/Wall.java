@@ -193,9 +193,9 @@ public class Wall {
         Position endCenter = new Position(pathEnd.toPosition().x + 16, pathEnd.toPosition().y + 16);
 
         // Get a new path
-        Path newPath;
+        Path newPath = new Path();
         allowLifted = false;
-        newPath.bfsPath(endCenter, startCenter, [&](auto &t) { return this.wallWalkable(t); }, false);
+        newPath.bfsPath(endCenter, startCenter, this, false);
         return newPath;
     }
 

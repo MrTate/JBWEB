@@ -3,7 +3,9 @@ package bweb;
 import bwapi.*;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class Path {
     List<TilePosition> tiles;
@@ -150,57 +152,63 @@ public class Path {
 //    }
 //    }
 //
-//    void bfsPath(const Position s, const Position t, function <bool(const TilePosition&)> isWalkable, bool diagonal) {
-//        TilePosition source = TilePosition(s);
-//        TilePosition target = TilePosition(t);
-//        auto maxDist = source.getDistance(target);
-//        const auto width = Broodwar->mapWidth();
-//        const auto height = Broodwar->mapHeight();
-//        vector<TilePosition> direction{ { 0, 1 },{ 1, 0 },{ -1, 0 },{ 0, -1 } };
-//
-//        if (source == target
-//                || source == TilePosition(0, 0)
-//                || target == TilePosition(0, 0))
-//            return;
-//
-//        TilePosition parentGrid[256][256];
-//        queue<TilePosition> nodeQueue;
-//        nodeQueue.emplace(source);
-//        parentGrid[source.x][source.y] = source;
-//
-//        // While not empty, pop off top the closest TilePosition to target
-//        while (!nodeQueue.empty()) {
-//            auto const tile = nodeQueue.front();
-//            nodeQueue.pop();
-//
-//            for (auto const &d : direction) {
-//                auto const next = tile + d;
-//
-//                if (next.isValid()) {
-//                    // If next has parent or is a collision, continue
-//                    if (parentGrid[next.x][next.y] != TilePosition(0, 0) || !isWalkable(next))
-//                        continue;
-//
-//                    // Check diagonal collisions where necessary
-//                    if ((d.x == 1 || d.x == -1) && (d.y == 1 || d.y == -1) && (!isWalkable(tile + TilePosition(d.x, 0)) || !isWalkable(tile + TilePosition(0, d.y))))
-//                        continue;
-//
-//                    // Set parent here
-//                    parentGrid[next.x][next.y] = tile;
-//
-//                    // If at target, return path
-//                    if (next == target) {
-//                        createPath();
-//                        return;
-//                    }
-//
-//                    nodeQueue.emplace(next);
-//                }
-//            }
-//        }
-//        reachable = false;
-//        dist = DBL_MAX;
-//    }
+    // P3 = function <bool(const TilePosition&)> isWalkable
+    void bfsPath(Position s, Position t, Wall wall , boolean diagonal) {
+        TilePosition source = new TilePosition(s);
+        TilePosition target = new TilePosition(t);
+        double maxDist = source.getDistance(target);
+        int width = Map.game.mapWidth();
+        int height = Map.game.mapHeight();
+        List<TilePosition> direction = new ArrayList<>();
+        direction.add(new TilePosition(0, 1));
+        direction.add(new TilePosition(1, 0));
+        direction.add(new TilePosition(-1, 0));
+        direction.add(new TilePosition(0, -1));
+
+        if (source == target
+                || source.equals(new TilePosition(0, 0))
+                || target.equals(new TilePosition(0, 0)))
+            return;
+
+        TilePosition[][] parentGrid = new TilePosition[256][256];
+        Queue<TilePosition> nodeQueue = new LinkedList<>();
+        nodeQueue.add(source);
+        parentGrid[source.x][source.y] = source;
+
+        // While not empty, pop off top the closest TilePosition to target
+        while (!nodeQueue.isEmpty()) {
+            TilePosition tile = nodeQueue.peek();
+            nodeQueue.remove();
+
+            for (TilePosition d : direction) {
+                TilePosition next = new TilePosition(tile.x + d.x, tile.y + d.y);
+
+                if (next.isValid(Map.game)) {
+                    // If next has parent or is a collision, continue
+                    if (!parentGrid[next.x][next.y].equals(new TilePosition(0, 0)) || !wall.wallWalkable(next))
+                        continue;
+
+                    // Check diagonal collisions where necessary
+                    if ((d.x == 1 || d.x == -1) && (d.y == 1 || d.y == -1) && (!wall.wallWalkable(new TilePosition(tile.x + d.x, tile.y))
+                            || !wall.wallWalkable(new TilePosition(tile.x, tile.y + d.y))))
+                        continue;
+
+                    // Set parent here
+                    parentGrid[next.x][next.y] = tile;
+
+                    // If at target, return path
+                    if (next == target) {
+                        createPath(s.toTilePosition(), t.toTilePosition(), parentGrid);
+                        return;
+                    }
+
+                    nodeQueue.add(next);
+                }
+            }
+        }
+        reachable = false;
+        dist = Double.MAX_VALUE;
+    }
 //
 //    void jpsPath(const Position s, const Position t, function <bool(const TilePosition&)> passedWalkable, bool diagonal) {
 //        target = TilePosition(t);
