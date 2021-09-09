@@ -1,4 +1,4 @@
-package bweb;
+package jbweb;
 
 import java.io.FileWriter;
 import java.io.IOException;

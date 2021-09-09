@@ -1,4 +1,4 @@
-package bweb;
+package jbweb;
 
 import bwapi.*;
 import bwem.*;

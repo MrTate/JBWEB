@@ -1,4 +1,4 @@
-package bweb;
+package jbweb;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package bweb;
+package jbweb;
 
 import bwapi.*;
 
@@ -7,8 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import static bweb.Pathfinding.maxCacheSize;
-import static bweb.Pathfinding.unitPathCache;
+import static jbweb.Pathfinding.maxCacheSize;
+import static jbweb.Pathfinding.unitPathCache;
 
 public class Path {
     List<TilePosition> tiles;
@@ -107,7 +107,7 @@ public class Path {
         }
 
         // If we found a path, store what was found
-        List<TilePosition> newJPSPath = JSP.findPath(newJPSPath, wall.wallWalkable(t.toTilePosition()), source.x, source.y, target.x, target.y);
+        List<TilePosition> newJPSPath = JPS.findPath(newJPSPath, wall.wallWalkable(t.toTilePosition()), source.x, source.y, target.x, target.y);
         if (!newJPSPath.isEmpty()) {
             Position current = s;
             for (TilePosition tile : newJPSPath) {
