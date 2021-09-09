@@ -72,24 +72,27 @@ public class Path {
 
         // If this path does not exist in cache, remove last reference and erase reference
         Pair<TilePosition, TilePosition> pathPoints = new Pair<>(source, target);
-        if (unitPathCache.iteratorList.find(pathPoints) == unitPathCache.iteratorList.end()) {
+        if (unitPathCache.indexList.get(pathPoints) == null) {
             if (unitPathCache.pathCache.size() == maxCacheSize) {
                 Path last = unitPathCache.pathCache.get(unitPathCache.pathCache.size()-1);
                 unitPathCache.pathCache.remove(unitPathCache.pathCache.size()-1);
-                unitPathCache.iteratorList.erase(new Pair<>(last.getSource(), last.getTarget()));
+                unitPathCache.indexList.remove(new Pair<>(last.getSource(), last.getTarget()));
             }
         }
 
         // If it does exist, set this path as cached version, update reference and push cached path to the front
         else {
-            Path oldPath = unitPathCache.iteratorList[pathPoints];
+            Path oldPath = unitPathCache.indexList.get(pathPoints).get(unitPathCache.pathCacheIndex);
             dist = oldPath.getDistance();
             tiles = oldPath.getTiles();
             reachable = oldPath.isReachable();
 
-            unitPathCache.pathCache.erase(unitPathCache.iteratorList[pathPoints]);
-            unitPathCache.pathCache.push_front(this);
-            unitPathCache.iteratorList[pathPoints] = unitPathCache.pathCache.begin();
+            unitPathCache.pathCache.remove(unitPathCache.indexList.get(pathPoints).get(unitPathCache.pathCacheIndex));
+            List<Path> tmpCache = new ArrayList<>();
+            tmpCache.add(this);
+            tmpCache.addAll(unitPathCache.pathCache);
+            unitPathCache.pathCache = tmpCache;
+            unitPathCache.pathCacheIndex = 0;
             return;
         }
 
@@ -104,7 +107,7 @@ public class Path {
         }
 
         // If we found a path, store what was found
-        List<TilePosition> newJPSPath = JSP.findPath(newJPSPath, wall.wallWalkable(t.toTilePosition()) source.x, source.y, target.x, target.y);
+        List<TilePosition> newJPSPath = JSP.findPath(newJPSPath, wall.wallWalkable(t.toTilePosition()), source.x, source.y, target.x, target.y);
         if (!newJPSPath.isEmpty()) {
             Position current = s;
             for (TilePosition tile : newJPSPath) {
@@ -115,8 +118,11 @@ public class Path {
             reachable = true;
 
             // Update cache
-            unitPathCache.pathCache.push_front(this);
-            unitPathCache.iteratorList[pathPoints] = unitPathCache.pathCache.begin();
+            List<Path> tmpCache = new ArrayList<>();
+            tmpCache.add(this);
+            tmpCache.addAll(unitPathCache.pathCache);
+            unitPathCache.pathCache = tmpCache;
+            unitPathCache.pathCacheIndex = 0;
         }
 
         // If not found, set destination area as unreachable for this frame
@@ -181,68 +187,4 @@ public class Path {
         reachable = false;
         dist = Double.MAX_VALUE;
     }
-//
-//    void jpsPath(const Position s, const Position t, function <bool(const TilePosition&)> passedWalkable, bool diagonal) {
-//        target = TilePosition(t);
-//        source = TilePosition(s);
-//
-//        // If this path does not exist in cache, remove last reference and erase reference
-//        auto &pathPoints = make_pair(source, target);
-//        auto &thisCached = customPathCache[&passedWalkable];
-//
-//        if (thisCached.iteratorList.find(pathPoints) == thisCached.iteratorList.end()) {
-//            if (thisCached.pathCache.size() == maxCacheSize) {
-//                auto last = thisCached.pathCache.back();
-//                thisCached.pathCache.pop_back();
-//                thisCached.iteratorList.erase(make_pair(last.getSource(), last.getTarget()));
-//            }
-//        }
-//
-//        // If it does exist, set this path as cached version, update reference and push cached path to the front
-//        else {
-//            auto &oldPath = thisCached.iteratorList[pathPoints];
-//            dist = oldPath->getDistance();
-//            tiles = oldPath->getTiles();
-//            reachable = oldPath->isReachable();
-//
-//            thisCached.pathCache.erase(thisCached.iteratorList[pathPoints]);
-//            thisCached.pathCache.push_front(*this);
-//            thisCached.iteratorList[pathPoints] = thisCached.pathCache.begin();
-//            return;
-//        }
-//
-//        List<TilePosition> newJPSPath = new ArrayList<>();
-//
-//        // If not reachable based on previous paths to this area
-//        if (target.isValid() && Map::mapBWEM.GetArea(target) && isWalkable(source.x, source.y)) {
-//        auto checkReachable = thisCached.notReachableThisFrame[Map::mapBWEM.GetArea(target)];
-//        if (checkReachable >= Broodwar->getFrameCount() && Broodwar->getFrameCount() > 0) {
-//            reachable = false;
-//            dist = DBL_MAX;
-//            return;
-//        }
-//    }
-//
-//        // If we found a path, store what was found
-//        if (JPS::findPath(newJPSPath, isWalkable, source.x, source.y, target.x, target.y)) {
-//        Position current = s;
-//        for (auto &t : newJPSPath) {
-//            dist += Position(t).getDistance(current);
-//            current = Position(t);
-//            tiles.push_back(t);
-//        }
-//        reachable = true;
-//
-//        // Update cache
-//        thisCached.pathCache.push_front(*this);
-//        thisCached.iteratorList[pathPoints] = thisCached.pathCache.begin();
-//    }
-//
-//        // If not found, set destination area as unreachable for this frame
-//        else if (target.isValid() && Map::mapBWEM.GetArea(target)) {
-//        dist = DBL_MAX;
-//        thisCached.notReachableThisFrame[Map::mapBWEM.GetArea(target)] = Broodwar->getFrameCount();
-//        reachable = false;
-//    }
-//    }
 }
