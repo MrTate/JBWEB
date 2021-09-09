@@ -134,7 +134,7 @@ public class Wall {
             return TilePosition.Invalid;
         }
 
-        // Set any tiles on the path as reserved so we don't build on them
+        // Set any tiles on the path as reserved, so we don't build on them
         Path currentPath = findPathOut();
         TilePosition currentOpening = TilePosition.Invalid;
 
@@ -171,7 +171,7 @@ public class Wall {
             }
         }
 
-        // If we don't have an opening, assign closest path tile to wall centroid as opening
+        // If we don't have an opening, assign the closest path tile to wall centroid as opening
         if (!currentOpening.isValid(Map.game)) {
             for (TilePosition pathTile : currentPath.getTiles()) {
                 Position p = new Position(pathTile);
@@ -329,7 +329,7 @@ public class Wall {
     boolean terrainTightCheck(WalkPosition w, boolean check) {
         TilePosition t = new TilePosition(w);
 
-        // If the walkposition is invalid or unwalkable
+        // If the walk position is invalid or un-walkable
         if (tightType != UnitType.None && check && (!w.isValid(Map.game) || !Map.game.isWalkable(w))) {
             return true;
         }
@@ -630,14 +630,14 @@ public class Wall {
         Path jpsPath = new Path();
         initializePathPoints();
         checkPathPoints();
-        jpsPath.createUnitPath(new Position(pathStart), new Position(pathEnd));
+        jpsPath.createUnitPath(new Position(pathStart), new Position(pathEnd), this);
         jpsDist = jpsPath.getDistance();
 
         // If we can't reach the end/start points, the Wall is likely not possible and won't be attempted
         if (!jpsPath.isReachable())
             return;
 
-        // Create notable locations to keep Wall pieces within proxmity of
+        // Create notable locations to keep Wall pieces within proximity of
         if (base != null) {
             notableLocations.add(base.getCenter());
             notableLocations.add(new Position(initialPathStart.toPosition().x + 16, initialPathStart.toPosition().y + 16));
@@ -681,7 +681,7 @@ public class Wall {
             Collections.sort(rawBuildings);
         }
 
-        // If there is a base in this area and we're creating an open wall, move creation start within 10 tiles of it
+        // If there is a base in this area, and we're creating an open wall, move creation start within 10 tiles of it
         if (openWall && base != null) {
             Position startCenter = new Position(creationStart.toPosition().x + 16, creationStart.toPosition().y + 16);
             double distBest = Double.MAX_VALUE;
