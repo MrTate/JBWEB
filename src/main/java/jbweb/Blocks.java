@@ -599,7 +599,7 @@ public class Blocks {
         findProductionBlocks();
     }
 
-    public void draw() {
+    public static void draw() {
         for (Block block : allBlocks) {
             block.draw();
         }

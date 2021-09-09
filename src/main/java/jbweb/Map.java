@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.TreeSet;
 
 public class Map {
-    public static Game game; //TODO: SET THIS ON START
-    public static BWEM mapBWEM; //TODO: SET THIS ON START
+    public static Game game;
+    public static BWEM mapBWEM;
     private static Position mainPosition = Position.Invalid;
     Position naturalPosition = Position.Invalid;
     TilePosition mainTile = TilePosition.Invalid;
@@ -348,13 +348,14 @@ public class Map {
             }
         }
 
-//        Walls::draw(); TODO: ADD THIS BACK
-//        Blocks::draw(); TODO: ADD THIS BACK
-//        Stations::draw(); TODO: ADD THIS BACK
+        Walls.draw();
+        Blocks.draw();
+        Stations.draw();
     }
 
-    // TODO: Initialize game/map/etc.
-    void onStart() {
+    void onStart(Game _game, BWEM _mapBWEM) {
+        game = _game;
+        mapBWEM = _mapBWEM;
         // Initializes usedGrid and walkGrid
         for (int x = 0; x < game.mapWidth(); x++) {
             for (int y = 0; y < game.mapHeight(); y++) {

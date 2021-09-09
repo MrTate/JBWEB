@@ -226,7 +226,7 @@ public class Walls {
         return walls;
     }
 
-    void draw() {
+    public static void draw() {
         for (ChokePoint chokePoint : walls.keySet()) {
             Wall wall = walls.get(chokePoint);
             wall.draw();

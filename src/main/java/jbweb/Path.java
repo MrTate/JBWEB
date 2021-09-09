@@ -6,6 +6,10 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
+import jps.*;
 
 import static jbweb.Pathfinding.maxCacheSize;
 import static jbweb.Pathfinding.unitPathCache;
@@ -42,6 +46,24 @@ public class Path {
 
     boolean isReachable() {
         return reachable;
+    }
+
+    private List<List<jps.Tile>> arrayToTileList(boolean[][] walkGrid) {
+        List<List<Tile>> tiles = new ArrayList<>();
+        for (int y = 0; y < walkGrid.length; y++) {
+            List<Tile> tileRow = new ArrayList<>();
+            for (int x = 0; x < walkGrid[y].length; x++) {
+                Tile tile = new Tile(x, y);
+                if (Map.walkGrid[y][x]) {
+                    tile.setWalkable(true);
+                } else {
+                    tile.setWalkable(false);
+                }
+                tileRow.add(tile);
+            }
+            tiles.add(tileRow);
+        }
+        return tiles;
     }
 
     // This function requires that parentGrid has been filled in for a path from source to target
@@ -107,10 +129,20 @@ public class Path {
         }
 
         // If we found a path, store what was found
-        List<TilePosition> newJPSPath = JPS.findPath(newJPSPath, wall.wallWalkable(t.toTilePosition()), source.x, source.y, target.x, target.y);
-        if (!newJPSPath.isEmpty()) {
+        List<List<Tile>> grid = arrayToTileList(Map.walkGrid);
+        JPS<jps.Tile> jps = JPS.JPSFactory.getJPS(new Graph<>(grid), Graph.Diagonal.NO_OBSTACLES);
+        Future<Queue<jps.Tile>> futurePath = jps.findPath(new jps.Tile(source.x, source.y), new jps.Tile(target.x, target.y));
+        Queue<jps.Tile> path = new LinkedList<>();
+        try {
+            path = futurePath.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        if (!path.isEmpty()) {
             Position current = s;
-            for (TilePosition tile : newJPSPath) {
+            for (jps.Tile jpsTile : path) {
+                TilePosition tile = new TilePosition(jpsTile.getX(), jpsTile.getY());
                 dist += new Position(tile).getDistance(current);
                 current = new Position(tile);
                 tiles.add(tile);

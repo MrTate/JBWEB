@@ -299,7 +299,7 @@ public class Stations {
     }
 
 
-    void draw() {
+    public static void draw() {
         for (Station station : stations){
             station.draw();
         }

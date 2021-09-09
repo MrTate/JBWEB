@@ -824,7 +824,7 @@ public class Wall {
 
     void addPieces() {
         // For each permutation, try to make a wall combination that is better than the current best
-        // TODO: Implement next_permutation for Java
+        // TODO: (C++ to Java) Implement next_permutation for Java
 //        do {
 //            currentLayout.clear();
 //            typeIndex = 0;
