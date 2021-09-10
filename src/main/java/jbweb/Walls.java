@@ -36,8 +36,8 @@ public class Walls {
         String timeNow = formatter.format(date);
 
         // Print the clock position of this Wall
-        double clock = Math.round((Map.getAngle(new Pair<>(Map.mapBWEM.getMap().getCenter(), new Position(area.getTop()))) + 90) / 30);
-        if (new Position(area.getTop()).x < Map.mapBWEM.getMap().getCenter().x) {
+        double clock = Math.round((JBWEB.getAngle(new Pair<>(JBWEB.mapBWEM.getMap().getCenter(), new Position(area.getTop()))) + 90) / 30);
+        if (new Position(area.getTop()).x < JBWEB.mapBWEM.getMap().getCenter().x) {
             clock += 6;
         }
 
@@ -45,7 +45,7 @@ public class Walls {
         if (logInfo) {
             try {
                 writeFile.write(timeNow);
-                writeFile.write(Map.game.mapFileName());
+                writeFile.write(JBWEB.game.mapFileName());
                 writeFile.write("At: " + clock + " o'clock.");
                 writeFile.write("\n");
                 writeFile.write("Buildings:");
@@ -161,7 +161,7 @@ public class Walls {
         defenses.add(UnitType.Protoss_Photon_Cannon);
         defenses.add(UnitType.Protoss_Photon_Cannon);
         defenses.add(UnitType.Protoss_Photon_Cannon);
-        return createWall(buildings, Map.getNaturalArea(), Map.getNaturalChoke(), UnitType.None, defenses, true, false);
+        return createWall(buildings, JBWEB.getNaturalArea(), JBWEB.getNaturalChoke(), UnitType.None, defenses, true, false);
     }
 
     Wall createZSimCity() {
@@ -179,7 +179,7 @@ public class Walls {
         defenses.add(UnitType.Zerg_Sunken_Colony);
         defenses.add(UnitType.Zerg_Sunken_Colony);
         defenses.add(UnitType.Zerg_Sunken_Colony);
-        return createWall(buildings, Map.getNaturalArea(), Map.getNaturalChoke(), UnitType.None, defenses, true, false);
+        return createWall(buildings, JBWEB.getNaturalArea(), JBWEB.getNaturalChoke(), UnitType.None, defenses, true, false);
     }
 
     Wall createTWall() {
@@ -188,9 +188,9 @@ public class Walls {
         buildings.add(UnitType.Terran_Supply_Depot);
         buildings.add(UnitType.Terran_Barracks);
         List<UnitType> defenses = new ArrayList<>();
-        UnitType type = Map.game.enemy() != null && Map.game.enemy().getRace() == Race.Protoss ? UnitType.Protoss_Zealot : UnitType.Zerg_Zergling;
+        UnitType type = JBWEB.game.enemy() != null && JBWEB.game.enemy().getRace() == Race.Protoss ? UnitType.Protoss_Zealot : UnitType.Zerg_Zergling;
 
-        return createWall(buildings, Map.getMainArea(), Map.getMainChoke(), type, defenses, false, true);
+        return createWall(buildings, JBWEB.getMainArea(), JBWEB.getMainChoke(), type, defenses, false, true);
     }
 
     Wall getClosestWall(TilePosition here) {

@@ -14,10 +14,10 @@ public class Pathfinding {
     }
 
     boolean terrainWalkable(TilePosition tile) {
-        return Map.isWalkable(tile);
+        return JBWEB.isWalkable(tile);
     }
 
     boolean unitWalkable(TilePosition tile) {
-        return Map.isWalkable(tile) && Map.isUsed(tile, 1, 1) == UnitType.None;
+        return JBWEB.isWalkable(tile) && JBWEB.isUsed(tile, 1, 1) == UnitType.None;
     }
 }

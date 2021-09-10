@@ -47,7 +47,7 @@ public class Station {
     public int getGroundDefenseCount() {
         int count = 0;
         for (TilePosition defense : defenses) {
-            UnitType type = Map.isUsed(defense, 1, 1);
+            UnitType type = JBWEB.isUsed(defense, 1, 1);
             if (type == UnitType.Protoss_Photon_Cannon
                     || type == UnitType.Zerg_Sunken_Colony
                     || type == UnitType.Terran_Bunker) {
@@ -60,7 +60,7 @@ public class Station {
     public int getAirDefenseCount() {
         int count = 0;
         for (TilePosition defense : defenses) {
-            UnitType type = Map.isUsed(defense, 1, 1);
+            UnitType type = JBWEB.isUsed(defense, 1, 1);
             if (type == UnitType.Protoss_Photon_Cannon
                     || type == UnitType.Zerg_Spore_Colony
                     || type == UnitType.Terran_Missile_Turret) {
@@ -71,15 +71,15 @@ public class Station {
     }
 
     public void draw() {
-        Color color = Map.game.self().getColor();
-        Text textColor = color.id == 185 ? Text.DarkGreen : Map.game.self().getTextColor();
+        Color color = JBWEB.game.self().getColor();
+        Text textColor = color.id == 185 ? Text.DarkGreen : JBWEB.game.self().getTextColor();
 
         // Draw boxes around each feature
         for (TilePosition tile : defenses) {
-            Map.game.drawBoxMap(new Position(tile), new Position(tile.toPosition().x + 65, tile.toPosition().y + 65), color);
-            Map.game.drawTextMap(new Position(tile.toPosition().x + 4, tile.toPosition().y + 52), "%cS", textColor);
+            JBWEB.game.drawBoxMap(new Position(tile), new Position(tile.toPosition().x + 65, tile.toPosition().y + 65), color);
+            JBWEB.game.drawTextMap(new Position(tile.toPosition().x + 4, tile.toPosition().y + 52), "%cS", textColor);
         }
-        Map.game.drawBoxMap(new Position(base.getLocation()), new Position(base.getLocation().toPosition().x + 129,
+        JBWEB.game.drawBoxMap(new Position(base.getLocation()), new Position(base.getLocation().toPosition().x + 129,
                 base.getLocation().toPosition().y + 97), color);
     }
 }

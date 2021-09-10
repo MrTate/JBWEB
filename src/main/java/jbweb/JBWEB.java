@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-public class Map {
+public class JBWEB {
     public static Game game;
     public static BWEM mapBWEM;
     private static Position mainPosition = Position.Invalid;

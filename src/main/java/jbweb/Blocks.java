@@ -26,7 +26,7 @@ public class Blocks {
         List<Piece> pieces = new ArrayList<>();
 
         // Zerg Block pieces
-        if (Map.game.self().getRace() == Race.Zerg) {
+        if (JBWEB.game.self().getRace() == Race.Zerg) {
             if (height == 2) {
                 if (width == 2) {
                     pieces.add(Piece.Small);
@@ -70,7 +70,7 @@ public class Blocks {
         }
 
         // Protoss Block pieces
-        if (Map.game.self().getRace() == Race.Protoss) {
+        if (JBWEB.game.self().getRace() == Race.Protoss) {
             if (height == 2) {
                 if (width == 5) {
                     pieces.add(Piece.Small);
@@ -174,7 +174,7 @@ public class Blocks {
         }
 
         // Terran Block pieces
-        if (Map.game.self().getRace() == Race.Terran) {
+        if (JBWEB.game.self().getRace() == Race.Terran) {
             if (height == 2) {
                 if (width == 3) {
                     pieces.add(Piece.Medium);
@@ -245,7 +245,7 @@ public class Blocks {
         for (int x = here.x - 1; x < here.x + width + 1; x++) {
             for (int y = here.y - 1; y < here.y + height + 1; y++) {
                     TilePosition t = new TilePosition(x, y);
-                if (!t.isValid(Map.game) || !Map.mapBWEM.getMap().getTile(t).isBuildable() || Map.isReserved(t, 1, 1)) {
+                if (!t.isValid(JBWEB.game) || !JBWEB.mapBWEM.getMap().getTile(t).isBuildable() || JBWEB.isReserved(t, 1, 1)) {
                     return false;
                 }
             }
@@ -258,7 +258,7 @@ public class Blocks {
         for (int x = here.x - 1; x < here.x + width + 1; x++) {
             for (int y = here.y - 1; y < here.y + height + 1; y++) {
                     TilePosition t = new TilePosition(x, y);
-                if (!t.isValid(Map.game) || !Map.mapBWEM.getMap().getTile(t).isBuildable() || !Map.game.isWalkable(new WalkPosition(t))) {
+                if (!t.isValid(JBWEB.game) || !JBWEB.mapBWEM.getMap().getTile(t).isBuildable() || !JBWEB.game.isWalkable(new WalkPosition(t))) {
                     return false;
                 }
             }
@@ -269,26 +269,26 @@ public class Blocks {
     void insertBlock(TilePosition here, List<Piece> pieces) {
         Block newBlock = new Block(here, pieces, false, false);
         allBlocks.add(newBlock);
-        Map.addReserve(here, newBlock.width(), newBlock.height());
+        JBWEB.addReserve(here, newBlock.width(), newBlock.height());
     }
 
     void insertProxyBlock(TilePosition here, List<Piece> pieces) {
         Block newBlock = new Block(here, pieces, true, false);
         allBlocks.add(newBlock);
-        Map.addReserve(here, newBlock.width(), newBlock.height());
+        JBWEB.addReserve(here, newBlock.width(), newBlock.height());
     }
 
     void insertDefensiveBlock(TilePosition here, List<Piece> pieces) {
         Block newBlock = new Block(here, pieces, false, true);
         allBlocks.add(newBlock);
-        Map.addReserve(here, newBlock.width(), newBlock.height());
+        JBWEB.addReserve(here, newBlock.width(), newBlock.height());
     }
 
     private boolean creepOnCorners(TilePosition here, int width, int height) {
-        boolean b1 = Map.game.hasCreep(here);
-        boolean b2 = Map.game.hasCreep(new TilePosition(here.x + width - 1, here.y));
-        boolean b3 = Map.game.hasCreep(new TilePosition(here.x, here.y + height - 1));
-        boolean b4 = Map.game.hasCreep(new TilePosition(here.x + width - 1, here.y + height - 1));
+        boolean b1 = JBWEB.game.hasCreep(here);
+        boolean b2 = JBWEB.game.hasCreep(new TilePosition(here.x + width - 1, here.y));
+        boolean b3 = JBWEB.game.hasCreep(new TilePosition(here.x, here.y + height - 1));
+        boolean b4 = JBWEB.game.hasCreep(new TilePosition(here.x + width - 1, here.y + height - 1));
         return b1 && b2 && b3 && b4;
     }
 
@@ -306,8 +306,8 @@ public class Blocks {
                         TilePosition tile = new TilePosition(x, y);
                         Position blockCenter = new Position(tile.x + i*16, tile.y + j*16);
                         double dist = blockCenter.getDistance(start);
-                        boolean blockFacesLeft = (blockCenter.x < Map.getMainPosition().x);
-                        boolean blockFacesUp = (blockCenter.y < Map.getMainPosition().y);
+                        boolean blockFacesLeft = (blockCenter.x < JBWEB.getMainPosition().x);
+                        boolean blockFacesUp = (blockCenter.y < JBWEB.getMainPosition().y);
 
                         // Check if we have pieces to use
                         List<Piece> pieces = whichPieces(i, j, blockFacesUp, blockFacesLeft);
@@ -316,7 +316,7 @@ public class Blocks {
                         }
 
                         // Check if we have creep as Zerg
-                        Race race = Map.game.self().getRace();
+                        Race race = JBWEB.game.self().getRace();
                         if (race == Race.Zerg && !creepOnCorners(tile, i, j)) {
                             continue;
                         }
@@ -325,7 +325,7 @@ public class Blocks {
                         int mediumCount = countPieces(pieces, Piece.Medium);
                         int largeCount = countPieces(pieces, Piece.Large);
 
-                        if (!tile.isValid(Map.game)
+                        if (!tile.isValid(JBWEB.game)
                                 || mediumCount < 1
                                 || (race == Race.Zerg && smallCount == 0 && mediumCount == 0)
                                 || (race == Race.Protoss && largeCount < 2)
@@ -341,8 +341,8 @@ public class Blocks {
                     }
                 }
 
-                if (tileBest.isValid(Map.game) && canAddBlock(tileBest, i, j)) {
-                    if (Map.mapBWEM.getMap().getArea(tileBest) == Map.getMainArea()) {
+                if (tileBest.isValid(JBWEB.game) && canAddBlock(tileBest, i, j)) {
+                    if (JBWEB.mapBWEM.getMap().getArea(tileBest) == JBWEB.getMainArea()) {
                         for (Piece piece : piecesBest) {
                             int tmp = mainPieces.get(piece) + 1;
                             mainPieces.put(piece, tmp);
@@ -355,31 +355,31 @@ public class Blocks {
     };
 
     void findMainStartBlocks() {
-        Race race = Map.game.self().getRace();
-        Position firstStart = Map.getMainPosition();
-        Position secondStart = race != Race.Zerg ? (new Position(Map.getMainChoke().getCenter().x + Map.getMainPosition().x/2,
-                Map.getMainChoke().getCenter().y + Map.getMainPosition().y/2)) : Map.getMainPosition();
+        Race race = JBWEB.game.self().getRace();
+        Position firstStart = JBWEB.getMainPosition();
+        Position secondStart = race != Race.Zerg ? (new Position(JBWEB.getMainChoke().getCenter().x + JBWEB.getMainPosition().x/2,
+                JBWEB.getMainChoke().getCenter().y + JBWEB.getMainPosition().y/2)) : JBWEB.getMainPosition();
 
         searchStart(firstStart);
         searchStart(secondStart);
     }
 
     void findMainDefenseBlock() {
-        if (Map.game.self().getRace() == Race.Zerg)
+        if (JBWEB.game.self().getRace() == Race.Zerg)
         return;
 
         // Added a block that allows a good shield battery placement or bunker placement
         TilePosition tileBest = TilePosition.Invalid;
-        TilePosition start = new TilePosition(Map.getMainChoke().getCenter());
+        TilePosition start = new TilePosition(JBWEB.getMainChoke().getCenter());
         double distBest = Double.MAX_VALUE;
         for (int x = start.x - 12; x <= start.x + 16; x++) {
             for (int y = start.y - 12; y <= start.y + 16; y++) {
                 TilePosition tile = new TilePosition(x, y);
                 Position blockCenter = new Position(tile.toPosition().x + 80, tile.toPosition().y + 32);
-                double dist = (blockCenter.getDistance(Map.getMainChoke().getCenter().toPosition()));
+                double dist = (blockCenter.getDistance(JBWEB.getMainChoke().getCenter().toPosition()));
 
-                if (!tile.isValid(Map.game)
-                        || Map.mapBWEM.getMap().getArea(tile) != Map.getMainArea()
+                if (!tile.isValid(JBWEB.game)
+                        || JBWEB.mapBWEM.getMap().getArea(tile) != JBWEB.getMainArea()
                         || dist < 96.0){
                     continue;
                 }
@@ -391,7 +391,7 @@ public class Blocks {
             }
         }
 
-        if (tileBest.isValid(Map.game)) {
+        if (tileBest.isValid(JBWEB.game)) {
             List<Piece> p = new ArrayList<>();
             p.add(Piece.Small);
             p.add(Piece.Medium);
@@ -405,13 +405,13 @@ public class Blocks {
         int totalLarge = 0;
 
         // Calculate distance for each tile to our natural choke, we want to place bigger blocks closer to the chokes
-        for (int y = 0; y < Map.game.mapHeight(); y++) {
-            for (int x = 0; x < Map.game.mapWidth(); x++) {
+        for (int y = 0; y < JBWEB.game.mapHeight(); y++) {
+            for (int x = 0; x < JBWEB.game.mapWidth(); x++) {
                 TilePosition t = new TilePosition(x, y);
-                if (t.isValid(Map.game) && Map.game.isBuildable(t)) {
+                if (t.isValid(JBWEB.game) && JBWEB.game.isBuildable(t)) {
                     Position p = new Position(x * 32, y * 32);
-                    double dist = (Map.getNaturalChoke() != null && Map.game.self().getRace() != Race.Zerg) ?
-                            p.getDistance(new Position(Map.getNaturalChoke().getCenter())) : p.getDistance(Map.getMainPosition());
+                    double dist = (JBWEB.getNaturalChoke() != null && JBWEB.game.self().getRace() != Race.Zerg) ?
+                            p.getDistance(new Position(JBWEB.getNaturalChoke().getCenter())) : p.getDistance(JBWEB.getMainPosition());
                     tilesByPathDist.put(dist, t);
                 }
             }
@@ -434,14 +434,14 @@ public class Blocks {
                     TilePosition tile = tilesByPathDist.get(key);
 
                     // Protoss caps large pieces in the main at 12 if we don't have necessary medium pieces
-                    if (Map.game.self().getRace() == Race.Protoss) {
-                        if (largeCount > 0 && Map.mapBWEM.getMap().getArea(tile) == Map.getMainArea() && mainPieces.get(Piece.Large) >= 12 && mainPieces.get(Piece.Medium) < 10) {
+                    if (JBWEB.game.self().getRace() == Race.Protoss) {
+                        if (largeCount > 0 && JBWEB.mapBWEM.getMap().getArea(tile) == JBWEB.getMainArea() && mainPieces.get(Piece.Large) >= 12 && mainPieces.get(Piece.Medium) < 10) {
                             continue;
                         }
                     }
 
                     // Zerg only need 4 medium pieces and 2 small piece
-                    if (Map.game.self().getRace() == Race.Zerg) {
+                    if (JBWEB.game.self().getRace() == Race.Zerg) {
                         if ((mediumCount > 0 && mainPieces.get(Piece.Medium) >= 4)
                                 || (smallCount > 0 && mainPieces.get(Piece.Small) >= 2)) {
                             continue;
@@ -449,7 +449,7 @@ public class Blocks {
                     }
 
                     // Terran only need about 20 depot spots
-                    if (Map.game.self().getRace() == Race.Terran) {
+                    if (JBWEB.game.self().getRace() == Race.Terran) {
                         if (mediumCount > 0 && mainPieces.get(Piece.Medium) >= 20) {
                             continue;
                         }
@@ -460,7 +460,7 @@ public class Blocks {
                         totalMedium += mediumCount;
                         totalLarge += largeCount;
 
-                        if (Map.mapBWEM.getMap().getArea(tile) == Map.getMainArea()) {
+                        if (JBWEB.mapBWEM.getMap().getArea(tile) == JBWEB.getMainArea()) {
                             for (Piece piece : pieces) {
                                 int tmp = mainPieces.get(piece) + 1;
                                 mainPieces.put(piece, tmp);
@@ -475,12 +475,12 @@ public class Blocks {
     // Check if this block is in a good area
     private boolean goodArea(TilePosition t, List<TilePosition> enemyStartLocations, HashSet<Area> areasToAvoid) {
         for (TilePosition start : enemyStartLocations) {
-            if (Map.mapBWEM.getMap().getArea(t) == Map.mapBWEM.getMap().getArea(start)) {
+            if (JBWEB.mapBWEM.getMap().getArea(t) == JBWEB.mapBWEM.getMap().getArea(start)) {
                 return false;
             }
         }
         for (Area area : areasToAvoid) {
-            if (Map.mapBWEM.getMap().getArea(t) == area) {
+            if (JBWEB.mapBWEM.getMap().getArea(t) == area) {
                 return false;
             }
         }
@@ -489,8 +489,8 @@ public class Blocks {
 
     // Check if there's a blocking neutral between the positions to prevent bad pathing
     private boolean blockedPath(Position source, Position target) {
-        for (ChokePoint choke : Map.mapBWEM.getMap().getPath(source, target)) {
-            if (Map.isUsed(new TilePosition(choke.getCenter()), 1, 1) != UnitType.None){
+        for (ChokePoint choke : JBWEB.mapBWEM.getMap().getPath(source, target)) {
+            if (JBWEB.isUsed(new TilePosition(choke.getCenter()), 1, 1) != UnitType.None){
                 return true;
             }
         }
@@ -500,27 +500,27 @@ public class Blocks {
     void findProxyBlock() {
         // For base-specific locations, avoid all areas likely to be traversed by worker scouts
         HashSet<Area> areasToAvoid = new HashSet<>();
-        for (TilePosition first : Map.mapBWEM.getMap().getStartingLocations()) {
-            for (TilePosition second : Map.mapBWEM.getMap().getStartingLocations()) {
+        for (TilePosition first : JBWEB.mapBWEM.getMap().getStartingLocations()) {
+            for (TilePosition second : JBWEB.mapBWEM.getMap().getStartingLocations()) {
                 if (first == second) {
                     continue;
                 }
 
-                for (ChokePoint choke : Map.mapBWEM.getMap().getPath(new Position(first), new Position(second))) {
+                for (ChokePoint choke : JBWEB.mapBWEM.getMap().getPath(new Position(first), new Position(second))) {
                     areasToAvoid.add(choke.getAreas().getFirst());
                     areasToAvoid.add(choke.getAreas().getSecond());
                 }
             }
 
             // Also add any areas that neighbour each start location
-            Area baseArea = Map.mapBWEM.getMap().getNearestArea(first);
+            Area baseArea = JBWEB.mapBWEM.getMap().getNearestArea(first);
             areasToAvoid.addAll(baseArea.getAccessibleNeighbors());
         }
 
         // Gather the possible enemy start locations
         List<TilePosition> enemyStartLocations = new ArrayList<>();
-        for (TilePosition start : Map.mapBWEM.getMap().getStartingLocations()) {
-            if (Map.mapBWEM.getMap().getArea(start) != Map.getMainArea()){
+        for (TilePosition start : JBWEB.mapBWEM.getMap().getStartingLocations()) {
+            if (JBWEB.mapBWEM.getMap().getArea(start) != JBWEB.getMainArea()){
                 enemyStartLocations.add(start);
             }
         }
@@ -528,13 +528,13 @@ public class Blocks {
         // Find the best locations
         TilePosition tileBest = TilePosition.Invalid;
         double distBest = Double.MAX_VALUE;
-        for (int x = 0; x < Map.game.mapWidth(); x++) {
-            for (int y = 0; y < Map.game.mapHeight(); y++) {
+        for (int x = 0; x < JBWEB.game.mapWidth(); x++) {
+            for (int y = 0; y < JBWEB.game.mapHeight(); y++) {
                 TilePosition topLeft = new TilePosition(x, y);
                 TilePosition botRight = new TilePosition(x + 8, y + 5);
 
-                if (!topLeft.isValid(Map.game)
-                        || !botRight.isValid(Map.game)
+                if (!topLeft.isValid(JBWEB.game)
+                        || !botRight.isValid(JBWEB.game)
                         || !canAddProxyBlock(topLeft, 8, 5)) {
                     continue;
                 }
@@ -545,7 +545,7 @@ public class Blocks {
                 double dist = 0.0;
                 for (TilePosition base : enemyStartLocations) {
                     Position baseCenter = new Position(base.toPosition().x + 64, base.toPosition().y + 48);
-                    dist += Map.getGroundDistance(blockCenter, baseCenter);
+                    dist += JBWEB.getGroundDistance(blockCenter, baseCenter);
                     if (blockedPath(blockCenter, baseCenter)) {
                         dist = Double.MAX_VALUE;
                         break;

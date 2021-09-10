@@ -141,7 +141,7 @@ public class Wall {
         // Check which tile is closest to each part on the path, set as opening
         double distBest = Double.MAX_VALUE;
         for (TilePosition pathTile : currentPath.getTiles()){
-            Position closestChokeGeo = Map.getClosestChokeTile (choke, new Position(pathTile));
+            Position closestChokeGeo = JBWEB.getClosestChokeTile (choke, new Position(pathTile));
             double dist = closestChokeGeo.getDistance(new Position(pathTile));
             Position centerPath = new Position(pathTile.x + 16, pathTile.y + 16);
 
@@ -157,7 +157,7 @@ public class Wall {
 
                 Position centerPiece = new Position(tileLayout.toPosition().x + typeLayout.tileWidth() * 16,
                         tileLayout.toPosition().y + typeLayout.tileHeight() * 16);
-                double openingAngle = Map.getAngle(new Pair<>(centerPiece, centerPath));
+                double openingAngle = JBWEB.getAngle(new Pair<>(centerPiece, centerPath));
                 double openingDist = centerPiece.getDistance(centerPath);
 
                 if (Math.abs(chokeAngle - openingAngle) > 35.0)
@@ -172,7 +172,7 @@ public class Wall {
         }
 
         // If we don't have an opening, assign the closest path tile to wall centroid as opening
-        if (!currentOpening.isValid(Map.game)) {
+        if (!currentOpening.isValid(JBWEB.game)) {
             for (TilePosition pathTile : currentPath.getTiles()) {
                 Position p = new Position(pathTile);
                 double dist = centroid.getDistance(p);
@@ -277,7 +277,7 @@ public class Wall {
 
             Position centerPiece = new Position(tileLayout.toPosition().x + typeLayout.tileWidth()*16,
                     tileLayout.toPosition().y + typeLayout.tileHeight()*16);
-            double wallAngle = Map.getAngle(new Pair<>(centerPiece, centerHere));
+            double wallAngle = JBWEB.getAngle(new Pair<>(centerPiece, centerHere));
 
             if (Math.abs(chokeAngle - wallAngle) > 20.0) {
                 return false;
@@ -295,13 +295,13 @@ public class Wall {
         }
 
         // Check if placement is valid
-        if (Map.isReserved(here, type.tileWidth(), type.tileHeight())
-            || !Map.isPlaceable(type, here)
-            || (!openWall && Map.tilesWithinArea(area, here, type.tileWidth(), type.tileHeight()) == 0)
-            || (openWall && Map.tilesWithinArea(area, here, type.tileWidth(), type.tileHeight()) == 0 &&
-                (type == UnitType.Protoss_Pylon || (Map.mapBWEM.getMap().getArea(here) != null &&
-                        choke.getAreas().getFirst() != Map.mapBWEM.getMap().getArea(here) &&
-                        choke.getAreas().getSecond() != Map.mapBWEM.getMap().getArea(here))))) {
+        if (JBWEB.isReserved(here, type.tileWidth(), type.tileHeight())
+            || !JBWEB.isPlaceable(type, here)
+            || (!openWall && JBWEB.tilesWithinArea(area, here, type.tileWidth(), type.tileHeight()) == 0)
+            || (openWall && JBWEB.tilesWithinArea(area, here, type.tileWidth(), type.tileHeight()) == 0 &&
+                (type == UnitType.Protoss_Pylon || (JBWEB.mapBWEM.getMap().getArea(here) != null &&
+                        choke.getAreas().getFirst() != JBWEB.mapBWEM.getMap().getArea(here) &&
+                        choke.getAreas().getSecond() != JBWEB.mapBWEM.getMap().getArea(here))))) {
             return false;
         }
         return true;
@@ -330,17 +330,17 @@ public class Wall {
         TilePosition t = new TilePosition(w);
 
         // If the walk position is invalid or un-walkable
-        if (tightType != UnitType.None && check && (!w.isValid(Map.game) || !Map.game.isWalkable(w))) {
+        if (tightType != UnitType.None && check && (!w.isValid(JBWEB.game) || !JBWEB.game.isWalkable(w))) {
             return true;
         }
 
         // If we don't care about walling tight and the tile isn't walkable
-        if (!requireTight && !Map.isWalkable(t)) {
+        if (!requireTight && !JBWEB.isWalkable(t)) {
             return true;
         }
 
         // If there's a mineral field or geyser here
-        if (Map.isUsed(t, 1, 1).isResourceContainer()) {
+        if (JBWEB.isUsed(t, 1, 1).isResourceContainer()) {
             return true;
         }
         return false;
@@ -354,7 +354,7 @@ public class Wall {
         for (int x = start.x - 1; x < start.x + walkWidth + 1; x++) {
             WalkPosition w = new WalkPosition(x, start.y);
             TilePosition t = new TilePosition(w);
-            UnitType parent = Map.isUsed(t, 1, 1);
+            UnitType parent = JBWEB.isUsed(t, 1, 1);
             boolean leftCorner = x < start.x;
             boolean rightCorner = x >= start.x + walkWidth;
 
@@ -391,7 +391,7 @@ public class Wall {
             }
 
             // Check to see which node it is closest to (0 is don't check, 1 is not tight, 2 is tight)
-            if (!openWall && !Map.isWalkable(t) && w.getDistance(choke.getCenter()) < 4) {
+            if (!openWall && !JBWEB.isWalkable(t) && w.getDistance(choke.getCenter()) < 4) {
                 if (w.getDistance(choke.getNodePosition(ChokePoint.Node.END1)) < w.getDistance(choke.getNodePosition(ChokePoint.Node.END2))) {
                     if (p1Tight == 0) {
                         p1Tight = 1;
@@ -423,7 +423,7 @@ public class Wall {
         for (int y = start.y - 1; y < start.y + walkHeight + 1; y++) {
             WalkPosition w = new WalkPosition(start.x, y);
             TilePosition t = new TilePosition(w);
-            UnitType parent = Map.isUsed(t, 1, 1);
+            UnitType parent = JBWEB.isUsed(t, 1, 1);
             boolean topCorner = y < start.y;
             boolean downCorner = y >= start.y + walkHeight;
 
@@ -460,7 +460,7 @@ public class Wall {
             }
 
             // Check to see which node it is closest to (0 is don't check, 1 is not tight, 2 is tight)
-            if (!openWall && !Map.isWalkable(t) && w.getDistance(choke.getCenter()) < 4) {
+            if (!openWall && !JBWEB.isWalkable(t) && w.getDistance(choke.getCenter()) < 4) {
                 if (w.getDistance(choke.getNodePosition(ChokePoint.Node.END1)) < w.getDistance(choke.getNodePosition(ChokePoint.Node.END2))) {
                     if (p1Tight == 0) {
                         p1Tight = 1;
@@ -573,12 +573,12 @@ public class Wall {
 
     boolean wallWalkable(TilePosition tile) {
         // Checks for any collision and inverts the return value
-        if (!tile.isValid(Map.game)
-                || (Map.mapBWEM.getMap().getArea(tile) != null && Map.mapBWEM.getMap().getArea(tile) != area
-                && Map.mapBWEM.getMap().getArea(tile) == accessibleNeighbors.get(accessibleNeighbors.size()-1))
-            || Map.isReserved(tile, 1, 1) || !Map.isWalkable(tile)
-            || (allowLifted && Map.isUsed(tile, 1, 1) != UnitType.Terran_Barracks && Map.isUsed(tile, 1, 1) != UnitType.None)
-            || (!allowLifted && Map.isUsed(tile, 1, 1) != UnitType.None && Map.isUsed(tile, 1, 1) != UnitType.Zerg_Larva)
+        if (!tile.isValid(JBWEB.game)
+                || (JBWEB.mapBWEM.getMap().getArea(tile) != null && JBWEB.mapBWEM.getMap().getArea(tile) != area
+                && JBWEB.mapBWEM.getMap().getArea(tile) == accessibleNeighbors.get(accessibleNeighbors.size()-1))
+            || JBWEB.isReserved(tile, 1, 1) || !JBWEB.isWalkable(tile)
+            || (allowLifted && JBWEB.isUsed(tile, 1, 1) != UnitType.Terran_Barracks && JBWEB.isUsed(tile, 1, 1) != UnitType.None)
+            || (!allowLifted && JBWEB.isUsed(tile, 1, 1) != UnitType.None && JBWEB.isUsed(tile, 1, 1) != UnitType.Zerg_Larva)
             || (openWall && (tile).getDistance(pathEnd) - 64.0 > jpsDist / 32)){
             return false;
         }
@@ -605,7 +605,7 @@ public class Wall {
         // Set important terrain features
         bestWallScore = 0;
         accessibleNeighbors = area.getAccessibleNeighbors();
-        chokeAngle = Map.getAngle(new Pair<>(new Position(choke.getNodePosition(ChokePoint.Node.END1).toPosition().x + 4, choke.getNodePosition(ChokePoint.Node.END1).toPosition().y + 4),
+        chokeAngle = JBWEB.getAngle(new Pair<>(new Position(choke.getNodePosition(ChokePoint.Node.END1).toPosition().x + 4, choke.getNodePosition(ChokePoint.Node.END1).toPosition().y + 4),
                 new Position(choke.getNodePosition(ChokePoint.Node.END2).toPosition().x + 4, choke.getNodePosition(ChokePoint.Node.END2).toPosition().y + 4)));
 
         int count = 0;
@@ -618,7 +618,7 @@ public class Wall {
 
         creationStart = new TilePosition(choke.getCenter());
         base = !area.getBases().isEmpty() ? area.getBases().get(0) : null;
-        flatRamp = Map.game.isBuildable(new TilePosition(choke.getCenter()));
+        flatRamp = JBWEB.game.isBuildable(new TilePosition(choke.getCenter()));
         closestStation = Stations.getClosestStation(new TilePosition(choke.getCenter()));
 
         // Check if a Pylon should be put in the wall to help the size of the Wall or away from the wall for protection
@@ -693,7 +693,7 @@ public class Wall {
                 for (int x = initialStart.x - 1; x <= initialStart.x + 1; x++) {
                     for (int y = initialStart.y - 1; y <= initialStart.y + 1; y++) {
                         TilePosition t = new TilePosition(x, y);
-                        if (!t.isValid(Map.game)) {
+                        if (!t.isValid(JBWEB.game)) {
                             continue;
                         }
 
@@ -713,13 +713,13 @@ public class Wall {
         }
 
         // If the creation start position isn't buildable, move towards the top of this area to find a buildable location
-        while (openWall && !Map.game.isBuildable(creationStart)) {
+        while (openWall && !JBWEB.game.isBuildable(creationStart)) {
             double distBest = Double.MAX_VALUE;
             TilePosition initialStart = creationStart;
             for (int x = initialStart.x - 1; x <= initialStart.x + 1; x++) {
                 for (int y = initialStart.y - 1; y <= initialStart.y + 1; y++) {
                     TilePosition t = new TilePosition(x, y);
-                    if (!t.isValid(Map.game)) {
+                    if (!t.isValid(JBWEB.game)) {
                         continue;
                     }
 
@@ -739,7 +739,7 @@ public class Wall {
     void initializePathPoints() {
         Pair<Position, Position> line = new Pair<>(new Position(choke.getNodePosition(ChokePoint.Node.END1).toPosition().x + 4, choke.getNodePosition(ChokePoint.Node.END1).toPosition().y + 4),
                 new Position(choke.getNodePosition(ChokePoint.Node.END2).toPosition().y + 4, choke.getNodePosition(ChokePoint.Node.END2).toPosition().y + 4));
-        Pair<Position, Position> perpLine = openWall ? Map.perpendicularLine(line, 160.0) : Map.perpendicularLine(line, 96.0);
+        Pair<Position, Position> perpLine = openWall ? JBWEB.perpendicularLine(line, 160.0) : JBWEB.perpendicularLine(line, 96.0);
         Position lineStart = perpLine.getFirst().getDistance(new Position(area.getTop())) > perpLine.getSecond().getDistance(new Position(area.getTop())) ? perpLine.getSecond() : perpLine.getFirst();
         Position lineEnd = perpLine.getFirst().getDistance(new Position(area.getTop())) > perpLine.getSecond().getDistance(new Position(area.getTop())) ? perpLine.getFirst() : perpLine.getSecond();
         boolean isMain = closestStation != null && closestStation.isMain();
@@ -748,7 +748,7 @@ public class Wall {
         // If it's a natural wall, path between the closest main and end of the perpendicular line
         if (isNatural) {
             Station closestMain = Stations.getClosestMainStation(new TilePosition(choke.getCenter()));
-            initialPathStart = closestMain != null ? new TilePosition(Map.mapBWEM.getMap().getPath(closestStation.getBWEMBase().getCenter(), closestMain.getBWEMBase().getCenter()).get(0).getCenter()) : new TilePosition(lineStart);
+            initialPathStart = closestMain != null ? new TilePosition(JBWEB.mapBWEM.getMap().getPath(closestStation.getBWEMBase().getCenter(), closestMain.getBWEMBase().getCenter()).get(0).getCenter()) : new TilePosition(lineStart);
             initialPathEnd = new TilePosition(lineEnd);
         }
 
@@ -778,10 +778,10 @@ public class Wall {
     }
 
     boolean notValidPathPoint(TilePosition testTile) {
-        return !testTile.isValid(Map.game)
-                || !Map.isWalkable(testTile)
-                || Map.isReserved(testTile, 1, 1)
-                || Map.isUsed(testTile, 1, 1) != UnitType.None;
+        return !testTile.isValid(JBWEB.game)
+                || !JBWEB.isWalkable(testTile)
+                || JBWEB.isReserved(testTile, 1, 1)
+                || JBWEB.isUsed(testTile, 1, 1) != UnitType.None;
     };
 
     void checkPathPoints() {
@@ -835,8 +835,8 @@ public class Wall {
         for (TilePosition tile : bestLayout.keySet()) {
             UnitType type = bestLayout.get(tile);
             addToWallPieces(tile, type);
-            Map.addReserve(tile, type.tileWidth(), type.tileHeight());
-            Map.addUsed(tile, type);
+            JBWEB.addReserve(tile, type.tileWidth(), type.tileHeight());
+            JBWEB.addUsed(tile, type);
         }
     }
 
@@ -848,12 +848,12 @@ public class Wall {
             for (int y = start.y - radius; y < start.y + radius; y++) {
                 TilePosition tile = new TilePosition(x, y);
 
-                if (!tile.isValid(Map.game)) {
+                if (!tile.isValid(JBWEB.game)) {
                     continue;
                 }
 
                 Position center = new Position(tile.toPosition().x + type.tileWidth()*16, tile.toPosition().y + type.tileHeight()*16);
-                Position closestGeo = Map.getClosestChokeTile(choke, center);
+                Position closestGeo = JBWEB.getClosestChokeTile(choke, center);
 
                 // Open walls need to be placed within proximity of notable features
                 if (openWall) {
@@ -908,7 +908,7 @@ public class Wall {
 
                 // 1) Store the current type, increase the iterator
                 currentLayout.put(tile, type);
-                Map.addUsed(tile, type);
+                JBWEB.addUsed(tile, type);
                 typeIndex++;
 
                 // 2) If at the end, score wall
@@ -929,7 +929,7 @@ public class Wall {
                 }
 
                 currentLayout.remove(tile);
-                Map.removeUsed(tile, type.tileWidth(), type.tileHeight());
+                JBWEB.removeUsed(tile, type.tileWidth(), type.tileHeight());
             }
         }
     }
@@ -944,7 +944,7 @@ public class Wall {
         double furthest = 0.0;
         for (TilePosition tile : largeTiles) {
             Position center = new Position(tile.toPosition().x + 64, tile.toPosition().y + 48);
-            Position closestGeo = Map.getClosestChokeTile(choke, center);
+            Position closestGeo = JBWEB.getClosestChokeTile(choke, center);
             double dist = center.getDistance(closestGeo);
             if (dist > furthest) {
                 furthest = dist;
@@ -953,7 +953,7 @@ public class Wall {
 
         for (TilePosition tile : mediumTiles) {
             Position center = new Position(tile.toPosition().x + 48, tile.toPosition().y + 32);
-            Position closestGeo = Map.getClosestChokeTile(choke, center);
+            Position closestGeo = JBWEB.getClosestChokeTile(choke, center);
             double dist = center.getDistance(closestGeo);
             if (dist > furthest) {
                 furthest = dist;
@@ -964,7 +964,7 @@ public class Wall {
         if (pylonWall) {
             for (TilePosition tile : smallTiles) {
                 Position center = new Position(tile.toPosition().x + 32, tile.toPosition().y + 32);
-                Position closestGeo = Map.getClosestChokeTile(choke, center);
+                Position closestGeo = JBWEB.getClosestChokeTile(choke, center);
                 double dist = center.getDistance(closestGeo);
                 if (dist > furthest)
                     furthest = dist;
@@ -977,7 +977,7 @@ public class Wall {
             int width = building.tileWidth() * 32;
             int height = building.tileHeight() * 32;
             Position openingCenter = new Position(opening.toPosition().x + 16, opening.toPosition().y + 16);
-            double arbitraryCloseMetric = Map.game.self().getRace() == Race.Zerg ? 32.0 : 160.0;
+            double arbitraryCloseMetric = JBWEB.game.self().getRace() == Race.Zerg ? 32.0 : 160.0;
 
             // Iterate around wall centroid to find a suitable position
             double scoreBest = Double.MAX_VALUE;
@@ -986,7 +986,7 @@ public class Wall {
                 for (int y = start.y - 12; y <= start.y + 12; y++) {
                     TilePosition t = new TilePosition(x, y);
                     Position center = new Position(t.toPosition().x + width/2, t.toPosition().y + height/2);
-                    Position closestGeo = Map.getClosestChokeTile(choke, center);
+                    Position closestGeo = JBWEB.getClosestChokeTile(choke, center);
                     boolean overlapsDefense = closestStation != null && t != closestStation.getDefenseLocations().last() && t.equals(defenses.last());
 
                     double dist = center.getDistance(closestGeo);
@@ -994,10 +994,10 @@ public class Wall {
                     boolean tooFar = center.getDistance(centroid) > 200.0;
 
                     if (!overlapsDefense) {
-                        if (!t.isValid(Map.game)
-                            || Map.isReserved(t, building.tileWidth(), building.tileHeight())
-                            || !Map.isPlaceable(building, t)
-                            || Map.tilesWithinArea(area, t, building.tileWidth(), building.tileHeight()) == 0
+                        if (!t.isValid(JBWEB.game)
+                            || JBWEB.isReserved(t, building.tileWidth(), building.tileHeight())
+                            || !JBWEB.isPlaceable(building, t)
+                            || JBWEB.tilesWithinArea(area, t, building.tileWidth(), building.tileHeight()) == 0
                             || tooClose
                             || tooFar){
                             continue;
@@ -1007,21 +1007,21 @@ public class Wall {
                     double score = dist + center.getDistance(openingCenter);
 
                     if (score < scoreBest) {
-                        Map.addUsed(t, building);
+                        JBWEB.addUsed(t, building);
                         Path pathOut = findPathOut();
                         if ((openWall && pathOut.isReachable()) || !openWall) {
                             tileBest = t;
                             scoreBest = score;
                         }
-                        Map.removeUsed(t, building.tileWidth(), building.tileHeight());
+                        JBWEB.removeUsed(t, building.tileWidth(), building.tileHeight());
                     }
                 }
             }
 
             // If tile is valid, add to wall
-            if (tileBest.isValid(Map.game)) {
+            if (tileBest.isValid(JBWEB.game)) {
                 defenses.add(tileBest);
-                Map.addReserve(tileBest, building.tileWidth(), building.tileHeight());
+                JBWEB.addReserve(tileBest, building.tileWidth(), building.tileHeight());
             }
 
             // Otherwise we can't place anymore
@@ -1074,22 +1074,22 @@ public class Wall {
         if (openWall && !bestLayout.isEmpty()) {
             Path currentPath = findPathOut();
             for (TilePosition tile : currentPath.getTiles()) {
-                Map.addReserve (tile, 1, 1);
+                JBWEB.addReserve (tile, 1, 1);
             }
         }
 
         // Remove used from tiles
         for (TilePosition tile : smallTiles){
-            Map.removeUsed (tile, 2, 2);
+            JBWEB.removeUsed (tile, 2, 2);
         }
         for (TilePosition tile : mediumTiles){
-            Map.removeUsed (tile, 3, 2);
+            JBWEB.removeUsed (tile, 3, 2);
         }
         for (TilePosition tile : largeTiles){
-            Map.removeUsed (tile, 4, 3);
+            JBWEB.removeUsed (tile, 4, 3);
         }
         for (TilePosition tile : defenses){
-            Map.removeUsed (tile, 2, 2);
+            JBWEB.removeUsed (tile, 2, 2);
         }
     }
 
@@ -1098,7 +1098,7 @@ public class Wall {
         // Returns how many visible ground defensive structures exist in this Walls defense locations
         int count = 0;
         for (TilePosition defense : defenses) {
-            UnitType type = Map.isUsed(defense, 1, 1);
+            UnitType type = JBWEB.isUsed(defense, 1, 1);
             if (type == UnitType.Protoss_Photon_Cannon
                     || type == UnitType.Zerg_Sunken_Colony
                     || type == UnitType.Terran_Bunker) {
@@ -1112,7 +1112,7 @@ public class Wall {
         // Returns how many visible air defensive structures exist in this Walls defense locations
         int count = 0;
         for (TilePosition defense : defenses) {
-            UnitType type = Map.isUsed(defense, 1, 1);
+            UnitType type = JBWEB.isUsed(defense, 1, 1);
             if (type == UnitType.Protoss_Photon_Cannon
                     || type == UnitType.Zerg_Spore_Colony
                     || type == UnitType.Terran_Missile_Turret) {
@@ -1124,30 +1124,30 @@ public class Wall {
 
     void draw() {
         TreeSet<Position> anglePositions = new TreeSet<>();
-        Color color = Map.game.self().getColor();
-        Text textColor = color.id == 185 ? Text.DarkGreen : Map.game.self().getTextColor();
+        Color color = JBWEB.game.self().getColor();
+        Text textColor = color.id == 185 ? Text.DarkGreen : JBWEB.game.self().getTextColor();
 
         // Draw boxes around each feature
         boolean drawBoxes = true;
         if (drawBoxes) {
             for (TilePosition tile : smallTiles) {
-                Map.game.drawBoxMap(new Position(tile), new Position(tile.toPosition().x + 65, tile.toPosition().y + 65), color);
-                Map.game.drawTextMap(new Position(tile.toPosition().x + 4, tile.toPosition().y + 4), "%cW", Map.game.self().getTextColor());
+                JBWEB.game.drawBoxMap(new Position(tile), new Position(tile.toPosition().x + 65, tile.toPosition().y + 65), color);
+                JBWEB.game.drawTextMap(new Position(tile.toPosition().x + 4, tile.toPosition().y + 4), "%cW", JBWEB.game.self().getTextColor());
                 anglePositions.add(new Position(tile.toPosition().x + 32, tile.toPosition().y + 32));
             }
             for (TilePosition tile : mediumTiles) {
-                Map.game.drawBoxMap(new Position(tile), new Position(tile.toPosition().x + 97, tile.toPosition().y + 65), color);
-                Map.game.drawTextMap(new Position(tile.toPosition().x + 4, tile.toPosition().y + 4), "%cW", Map.game.self().getTextColor());
+                JBWEB.game.drawBoxMap(new Position(tile), new Position(tile.toPosition().x + 97, tile.toPosition().y + 65), color);
+                JBWEB.game.drawTextMap(new Position(tile.toPosition().x + 4, tile.toPosition().y + 4), "%cW", JBWEB.game.self().getTextColor());
                 anglePositions.add(new Position(tile.toPosition().x + 48, tile.toPosition().y + 32));
             }
             for (TilePosition tile : largeTiles) {
-                Map.game.drawBoxMap(new Position(tile), new Position(tile.toPosition().x + 129, tile.toPosition().y + 97), color);
-                Map.game.drawTextMap(new Position(tile.toPosition().x + 4, tile.toPosition().y + 4), "%cW", Map.game.self().getTextColor());
+                JBWEB.game.drawBoxMap(new Position(tile), new Position(tile.toPosition().x + 129, tile.toPosition().y + 97), color);
+                JBWEB.game.drawTextMap(new Position(tile.toPosition().x + 4, tile.toPosition().y + 4), "%cW", JBWEB.game.self().getTextColor());
                 anglePositions.add(new Position(tile.toPosition().x + 64, tile.toPosition().y + 48));
             }
             for (TilePosition tile : defenses) {
-                Map.game.drawBoxMap(new Position(tile), new Position(tile.toPosition().x + 65, tile.toPosition().y + 65), color);
-                Map.game.drawTextMap(new Position(tile.toPosition().x + 4, tile.toPosition().y + 4), "%cW", Map.game.self().getTextColor());
+                JBWEB.game.drawBoxMap(new Position(tile), new Position(tile.toPosition().x + 65, tile.toPosition().y + 65), color);
+                JBWEB.game.drawTextMap(new Position(tile.toPosition().x + 4, tile.toPosition().y + 4), "%cW", JBWEB.game.self().getTextColor());
             }
         }
 
@@ -1160,23 +1160,23 @@ public class Wall {
                         continue;
                     }
 
-                    Map.game.drawLineMap(pos1, pos2, color);
-                    Map.game.drawTextMap(new Position((pos1.x + pos2.x)/ 2, (pos1.y + pos2.y)/ 2), "%c%.2f", textColor);
+                    JBWEB.game.drawLineMap(pos1, pos2, color);
+                    JBWEB.game.drawTextMap(new Position((pos1.x + pos2.x)/ 2, (pos1.y + pos2.y)/ 2), "%c%.2f", textColor);
                 }
             }
         }
 
         // Draw opening
-        Map.game.drawBoxMap(new Position(opening), new Position(opening.toPosition().x + 33, opening.toPosition().y + 33), color, true);
+        JBWEB.game.drawBoxMap(new Position(opening), new Position(opening.toPosition().x + 33, opening.toPosition().y + 33), color, true);
 
         // Draw the line and angle of the ChokePoint
         Position p1 = choke.getNodePosition(ChokePoint.Node.END1).toPosition();
         Position p2 = choke.getNodePosition(ChokePoint.Node.END2).toPosition();
-        Map.game.drawTextMap(new Position(choke.getCenter()), "%c%.2f", Text.Grey);
-        Map.game.drawLineMap(new Position(p1), new Position(p2), Color.Grey);
+        JBWEB.game.drawTextMap(new Position(choke.getCenter()), "%c%.2f", Text.Grey);
+        JBWEB.game.drawLineMap(new Position(p1), new Position(p2), Color.Grey);
 
         // Draw the path points
-        Map.game.drawCircleMap(new Position(pathStart), 6, Color.Black, true);
-        Map.game.drawCircleMap(new Position(pathEnd), 6, Color.White, true);
+        JBWEB.game.drawCircleMap(new Position(pathStart), 6, Color.Black, true);
+        JBWEB.game.drawCircleMap(new Position(pathEnd), 6, Color.White, true);
     }
 }

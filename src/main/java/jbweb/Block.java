@@ -40,7 +40,7 @@ public class Block {
                 rowHeight = Math.max(rowHeight, 2);
             }
             if (p == Piece.Large) {
-                if (Map.game.self().getRace() == Race.Zerg && !Map.game.canBuildHere(here, UnitType.Zerg_Hatchery)) {
+                if (JBWEB.game.self().getRace() == Race.Zerg && !JBWEB.game.canBuildHere(here, UnitType.Zerg_Hatchery)) {
                     continue;
                 }
                 largeTiles.add(here);
@@ -106,27 +106,27 @@ public class Block {
     }
 
     void draw() {
-        Color color = Map.game.self().getColor();
-        Text textColor = color.id == 185 ? textColor = Text.DarkGreen : Map.game.self().getTextColor();
+        Color color = JBWEB.game.self().getColor();
+        Text textColor = color.id == 185 ? textColor = Text.DarkGreen : JBWEB.game.self().getTextColor();
 
         // Draw boxes around each feature
         for (TilePosition tile : smallTiles) {
             Position p1 = new Position(tile.toPosition().x + 65, tile.toPosition().x + 65);
             Position p2 = new Position(tile.toPosition().x + 52, tile.toPosition().x + 52);
-            Map.game.drawBoxMap(new Position(tile), p1, color);
-            Map.game.drawTextMap(p2, "%cB", textColor);
+            JBWEB.game.drawBoxMap(new Position(tile), p1, color);
+            JBWEB.game.drawTextMap(p2, "%cB", textColor);
         }
         for (TilePosition tile : mediumTiles) {
             Position p1 = new Position(tile.toPosition().x + 97, tile.toPosition().x + 65);
             Position p2 = new Position(tile.toPosition().x + 84, tile.toPosition().x + 52);
-            Map.game.drawBoxMap(new Position(tile), p1, color);
-            Map.game.drawTextMap(p2, "%cB", textColor);
+            JBWEB.game.drawBoxMap(new Position(tile), p1, color);
+            JBWEB.game.drawTextMap(p2, "%cB", textColor);
         }
         for (TilePosition tile : largeTiles) {
             Position p1 = new Position(tile.toPosition().x + 129, tile.toPosition().x + 97);
             Position p2 = new Position(tile.toPosition().x + 116, tile.toPosition().x + 84);
-            Map.game.drawBoxMap(new Position(tile), p1, color);
-            Map.game.drawTextMap(p2, "%cB", textColor);
+            JBWEB.game.drawBoxMap(new Position(tile), p1, color);
+            JBWEB.game.drawTextMap(p2, "%cB", textColor);
         }
     }
 }

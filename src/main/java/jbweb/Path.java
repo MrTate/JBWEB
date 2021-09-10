@@ -54,7 +54,7 @@ public class Path {
             List<Tile> tileRow = new ArrayList<>();
             for (int x = 0; x < walkGrid[y].length; x++) {
                 Tile tile = new Tile(x, y);
-                if (Map.walkGrid[y][x]) {
+                if (JBWEB.walkGrid[y][x]) {
                     tile.setWalkable(true);
                 } else {
                     tile.setWalkable(false);
@@ -119,9 +119,9 @@ public class Path {
         }
 
         // If not reachable based on previous paths to this area
-        if (target.isValid(Map.game) && Map.mapBWEM.getMap().getArea(target) != null && wall.wallWalkable(new TilePosition(source.x, source.y))) {
-            int checkReachable = unitPathCache.notReachableThisFrame.get(Map.mapBWEM.getMap().getArea(target));
-            if (checkReachable >= Map.game.getFrameCount() && Map.game.getFrameCount() > 0) {
+        if (target.isValid(JBWEB.game) && JBWEB.mapBWEM.getMap().getArea(target) != null && wall.wallWalkable(new TilePosition(source.x, source.y))) {
+            int checkReachable = unitPathCache.notReachableThisFrame.get(JBWEB.mapBWEM.getMap().getArea(target));
+            if (checkReachable >= JBWEB.game.getFrameCount() && JBWEB.game.getFrameCount() > 0) {
                 reachable = false;
                 dist = Double.MAX_VALUE;
                 return;
@@ -129,7 +129,7 @@ public class Path {
         }
 
         // If we found a path, store what was found
-        List<List<Tile>> grid = arrayToTileList(Map.walkGrid);
+        List<List<Tile>> grid = arrayToTileList(JBWEB.walkGrid);
         JPS<jps.Tile> jps = JPS.JPSFactory.getJPS(new Graph<>(grid), Graph.Diagonal.NO_OBSTACLES);
         Future<Queue<jps.Tile>> futurePath = jps.findPath(new jps.Tile(source.x, source.y), new jps.Tile(target.x, target.y));
         Queue<jps.Tile> path = new LinkedList<>();
@@ -158,9 +158,9 @@ public class Path {
         }
 
         // If not found, set destination area as unreachable for this frame
-        else if (target.isValid(Map.game) && Map.mapBWEM.getMap().getArea(target) != null) {
+        else if (target.isValid(JBWEB.game) && JBWEB.mapBWEM.getMap().getArea(target) != null) {
             dist = Double.MAX_VALUE;
-            unitPathCache.notReachableThisFrame.put(Map.mapBWEM.getMap().getArea(target), Map.game.getFrameCount());
+            unitPathCache.notReachableThisFrame.put(JBWEB.mapBWEM.getMap().getArea(target), JBWEB.game.getFrameCount());
             reachable = false;
         }
     }
@@ -193,7 +193,7 @@ public class Path {
             for (TilePosition d : direction) {
                 TilePosition next = new TilePosition(tile.x + d.x, tile.y + d.y);
 
-                if (next.isValid(Map.game)) {
+                if (next.isValid(JBWEB.game)) {
                     // If next has a parent or is a collision, continue
                     if (!parentGrid[next.x][next.y].equals(new TilePosition(0, 0)) || !wall.wallWalkable(next))
                         continue;

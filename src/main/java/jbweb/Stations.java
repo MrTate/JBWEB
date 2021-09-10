@@ -116,28 +116,28 @@ public class Stations {
         }
 
         UnitType defenseType = UnitType.None;
-        if (Map.game.self().getRace() == Race.Protoss)
+        if (JBWEB.game.self().getRace() == Race.Protoss)
             defenseType = UnitType.Protoss_Photon_Cannon;
-        if (Map.game.self().getRace() == Race.Terran)
+        if (JBWEB.game.self().getRace() == Race.Terran)
             defenseType = UnitType.Terran_Missile_Turret;
-        if (Map.game.self().getRace() == Race.Zerg)
+        if (JBWEB.game.self().getRace() == Race.Zerg)
             defenseType = UnitType.Zerg_Creep_Colony;
 
         // Add scanner addon for Terran
-        if (Map.game.self().getRace() == Race.Terran) {
+        if (JBWEB.game.self().getRace() == Race.Terran) {
             TilePosition scannerTile = new TilePosition(here.x + 4, here.y + 1);
             defenses.add(scannerTile);
-            Map.addReserve(scannerTile, 2, 2);
-            Map.addUsed(scannerTile, defenseType);
+            JBWEB.addReserve(scannerTile, 2, 2);
+            JBWEB.addUsed(scannerTile, defenseType);
         }
 
         // Add a defense near each base placement if possible
         for (TilePosition placement : basePlacements) {
             TilePosition tile = new TilePosition(base.getLocation().x + placement.x, base.getLocation().y + placement.y);
-            if (Map.isPlaceable(defenseType, tile)) {
+            if (JBWEB.isPlaceable(defenseType, tile)) {
                 defenses.add(tile);
-                Map.addReserve(tile, 2, 2);
-                Map.addUsed(tile, defenseType);
+                JBWEB.addReserve(tile, 2, 2);
+                JBWEB.addUsed(tile, defenseType);
             }
         }
 
@@ -145,17 +145,17 @@ public class Stations {
         for (Geyser geyser : base.getGeysers()) {
             for (TilePosition placement : geyserPlacements) {
                 TilePosition tile = new TilePosition(geyser.getTopLeft().x + placement.x, geyser.getTopLeft().y + placement.y);
-                if (Map.isPlaceable(defenseType, tile)) {
+                if (JBWEB.isPlaceable(defenseType, tile)) {
                     defenses.add(tile);
-                    Map.addReserve(tile, 2, 2);
-                    Map.addUsed(tile, defenseType);
+                    JBWEB.addReserve(tile, 2, 2);
+                    JBWEB.addUsed(tile, defenseType);
                 }
             }
         }
 
         // Remove used
         for (TilePosition tile : defenses){
-            Map.removeUsed (tile, 2, 2);
+            JBWEB.removeUsed (tile, 2, 2);
         }
 
         return defenses;
@@ -173,10 +173,10 @@ public class Stations {
                     TilePosition t = new TilePosition(x, y);
                     Position p = new Position(t.toPosition().x + 16, t.toPosition().y + 16);
 
-                    if (!t.isValid(Map.game))
+                    if (!t.isValid(JBWEB.game))
                         continue;
 
-                    double dist = Map.isReserved(t, 1, 1) ? p.getDistance(stationCenter) + 16 : p.getDistance(stationCenter);
+                    double dist = JBWEB.isReserved(t, 1, 1) ? p.getDistance(stationCenter) + 16 : p.getDistance(stationCenter);
                     if (dist <= distBest) {
                         test = t;
                         distBest = dist;
@@ -184,8 +184,8 @@ public class Stations {
                 }
             }
 
-            if (test.isValid(Map.game))
-                Map.addReserve(test, 1, 1);
+            if (test.isValid(JBWEB.game))
+                JBWEB.addReserve(test, 1, 1);
         }
     }
 
@@ -193,7 +193,7 @@ public class Stations {
         // Find all main bases
         List<Base> mainBases = new ArrayList<>();
         List<Base> natBases = new ArrayList<>();
-        for (Area area : Map.mapBWEM.getMap().getAreas()) {
+        for (Area area : JBWEB.mapBWEM.getMap().getAreas()) {
             for (Base base : area.getBases()) {
                 if (base.isStartingLocation())
                     mainBases.add(base);
@@ -204,7 +204,7 @@ public class Stations {
         for (Base main : mainBases) {
             Base baseBest = null;
             double distBest = Double.MAX_VALUE;
-            for (Area area : Map.mapBWEM.getMap().getAreas()) {
+            for (Area area : JBWEB.mapBWEM.getMap().getAreas()) {
                 for (Base base : area.getBases()) {
                     // Must have gas, be accessible and at least 5 mineral patches
                     if (base.isStartingLocation()
@@ -213,7 +213,7 @@ public class Stations {
                             || base.getMinerals().size() < 5)
                         continue;
 
-                    double dist = Map.getGroundDistance(base.getCenter(), main.getCenter());
+                    double dist = JBWEB.getGroundDistance(base.getCenter(), main.getCenter());
                     if (dist < distBest) {
                         distBest = dist;
                         baseBest = base;
@@ -227,7 +227,7 @@ public class Stations {
             }
         }
 
-        for (Area area : Map.mapBWEM.getMap().getAreas()) {
+        for (Area area : JBWEB.mapBWEM.getMap().getAreas()) {
             for (Base base : area.getBases()) {
                 Position resourceCentroid = new Position(0, 0);
                 Position defenseCentroid = new Position(0, 0);
@@ -254,15 +254,15 @@ public class Stations {
 
                 // Add reserved tiles
                 for (Mineral m : base.getMinerals()) {
-                    Map.addReserve(m.getTopLeft(), 2, 1);
+                    JBWEB.addReserve(m.getTopLeft(), 2, 1);
                     addResourceOverlap(resourceCentroid, m.getCenter(), base.getCenter());
                 }
 
                 for (Geyser g : base.getGeysers()) {
-                    Map.addReserve(g.getTopLeft(), 4, 2);
+                    JBWEB.addReserve(g.getTopLeft(), 4, 2);
                     addResourceOverlap(resourceCentroid, g.getCenter(), base.getCenter());
                 }
-                Map.addReserve(base.getLocation(), 4, 3);
+                JBWEB.addReserve(base.getLocation(), 4, 3);
 
 
                 // Station info
