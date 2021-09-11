@@ -11,7 +11,7 @@ public class Wall {
     TilePosition opening, initialPathStart, initialPathEnd, pathStart, pathEnd, creationStart;
     TreeSet<TilePosition> defenses, smallTiles, mediumTiles, largeTiles;
     TreeSet<Position> notableLocations;
-    int typeIndex = 0;
+    ListIterator<UnitType> typeIterator;
     List<UnitType> rawBuildings, rawDefenses;
     List<Area> accessibleNeighbors;
     HashMap<TilePosition, UnitType> currentLayout, bestLayout;
@@ -822,15 +822,67 @@ public class Wall {
         }
     }
 
+    private boolean nextPermutationRawBuildings(int start, int end) {
+        int length = end - start + 1;
+
+        if (length <= 1) {
+            return false;
+        }
+
+        // Find the longest non-increasing suffix and find the pivot
+        int last = length - 2;
+        while (last >= 0) {
+            // Compare UnitType string lexicographically
+            if (rawBuildings.get(last).toString().compareTo(rawBuildings.get(last + 1).toString()) < 0) {
+                break;
+            }
+            last--;
+        }
+
+        // If there is no increasing pair there is no higher order permutation
+        if (last < 0) {
+            return false;
+        }
+
+        int nextGreater = length - 1;
+
+        // Find the rightmost successor to the pivot
+        for (int i = length - 1; i > last; i--) {
+            // Compare UnitType string lexicographically
+            if (rawBuildings.get(i).toString().compareTo(rawBuildings.get(last).toString()) > 0) {
+                nextGreater = i;
+                break;
+            }
+        }
+
+        // Swap the successor and the pivot
+        int left = nextGreater;
+        int right = last;
+        UnitType temp = rawBuildings.get(left);
+        rawBuildings.add(left, rawBuildings.get(right));
+        rawBuildings.add(right, temp);
+
+        // Reverse the sub-array starting from left to the right, both inclusive
+        left = last + 1;
+        right = length - 1;
+        while (left < right) {
+            temp = rawBuildings.get(left);
+            rawBuildings.add(left++, rawBuildings.get(right));
+            rawBuildings.add(right--, temp);
+        }
+
+        // Return true as the next_permutation is done
+        return true;
+    }
+
     void addPieces() {
         // For each permutation, try to make a wall combination that is better than the current best
-        // TODO: (C++ to Java) Implement next_permutation for Java
-//        do {
-//            currentLayout.clear();
-//            typeIndex = 0;
-//            addNextPiece(creationStart);
-//        } while (Map.game.self().getRace() == Race.Zerg ? nextPermutation(find(rawBuildings.begin(), rawBuildings.end(), UnitType.Zerg_Hatchery), rawBuildings.end())
-//            : nextPermutation(rawBuildings.begin(), find(rawBuildings.begin(), rawBuildings.end(), UnitType.Protoss_Pylon)));
+        do {
+            currentLayout.clear();
+            typeIterator = rawBuildings.listIterator();
+            addNextPiece(creationStart);
+        } while (JBWEB.game.self().getRace() == Race.Zerg ? nextPermutationRawBuildings(rawBuildings.indexOf(UnitType.Zerg_Hatchery), rawBuildings.size()-1)
+            : nextPermutationRawBuildings(0, rawBuildings.indexOf(UnitType.Protoss_Pylon)));
 
         for (TilePosition tile : bestLayout.keySet()) {
             UnitType type = bestLayout.get(tile);
@@ -841,8 +893,10 @@ public class Wall {
     }
 
     void addNextPiece(TilePosition start) {
-        UnitType type = rawBuildings.get(typeIndex);
-        int radius = (openWall || rawBuildings.get(0) == rawBuildings.get(0)) ? 8 : 4;
+        // Get the value without incrementing
+        UnitType type = typeIterator.next();
+        typeIterator.previous();
+        int radius = (openWall || typeIterator == rawBuildings.iterator()) ? 8 : 4;
 
         for (int x = start.x - radius; x < start.x + radius; x++) {
             for (int y = start.y - radius; y < start.y + radius; y++) {
@@ -909,10 +963,10 @@ public class Wall {
                 // 1) Store the current type, increase the iterator
                 currentLayout.put(tile, type);
                 JBWEB.addUsed(tile, type);
-                typeIndex++;
+                typeIterator.next();
 
                 // 2) If at the end, score wall
-                if (rawBuildings.get(typeIndex) == rawBuildings.get(rawBuildings.size()-1)) {
+                if (!typeIterator.hasNext()) {
                     scoreWall();
                 } else {
                     if (openWall) {
@@ -924,8 +978,8 @@ public class Wall {
 
 
                 // 3) Erase this current placement and repeat
-                if (rawBuildings.get(typeIndex) != rawBuildings.get(0)) {
-                    typeIndex--;
+                if (typeIterator != rawBuildings.listIterator()) {
+                    typeIterator.previous();
                 }
 
                 currentLayout.remove(tile);
