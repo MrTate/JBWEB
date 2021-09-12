@@ -133,14 +133,21 @@ public class JBWEB {
 
     private static void findMainChoke() {
         // Add all main chokes to a set
-        TreeSet<ChokePoint> mainChokes = new TreeSet<>(mainArea.getChokePoints());
+        TreeSet<ChokePoint> mainChokes = new TreeSet<>();
+        for (ChokePoint chokePoint : mainArea.getChokePoints()) {
+            mainChokes.add(chokePoint);
+        }
+
         if (mainChokes.size() == 1) {
             mainChoke = mainChokes.iterator().next();
             return;
         }
 
         // Add all natural chokes to a set
-        TreeSet<ChokePoint> naturalChokes = new TreeSet<>(naturalArea.getChokePoints());
+        TreeSet<ChokePoint> naturalChokes = new TreeSet<>();
+        for (ChokePoint chokePoint : naturalArea.getChokePoints()) {
+            naturalChokes.add(chokePoint);
+        }
 
         // If the natural area has only one chokepoint, then our main choke leads out of our base, find a choke that doesn't belong to the natural as well
         if (naturalArea != null && naturalArea.getChokePoints().size() == 1) {
