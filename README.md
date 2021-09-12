@@ -24,28 +24,27 @@ Add JitPack as a repository:
 ```
 Add JBWEB to your dependencies in `<dependencies></dependencies>`:
 ```
-TBD
+<dependency>
+    <groupId>com.github.MrTate</groupId>
+    <artifactId>JBWEB</artifactId>
+    <version>v1.0.0</version>
+</dependency>
 ```
 
 **Gradle**
 
 Add JitPack as a repository:
 ```
-TBD
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
 ```
 Add JBWEB as a dependency:
 ```
-TBD
+dependencies {
+        implementation 'com.github.MrTate:JBWEB:v1.0.0'
+}
 ```
-
-## Example
-
-A simple `Hello World` bot is as easy as
-
-```Java
-TBD
-```
-
-## Tutorial
-
-TBD - Add this to Build section of the JBWAPI tutorial [here](https://github.com/JavaBWAPI/Java-BWAPI-Tutorial/wiki)

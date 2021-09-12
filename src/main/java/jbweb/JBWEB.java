@@ -455,7 +455,7 @@ public class JBWEB {
     }
 
     ///  Calls JBWEB::onUnitDiscover.
-    public void onUnitMorph(Unit unit) {
+    public static void onUnitMorph(Unit unit) {
         onUnitDiscover(unit);
     }
 
@@ -736,7 +736,7 @@ public class JBWEB {
     /// Returns the closest buildable BWAPI::TilePosition for any type of structure.
     /// <param name="type"> The BWAPI::UnitType of the structure you want to build.
     /// <param name="tile"> The BWAPI::TilePosition you want to build closest to.
-    public TilePosition getBuildPosition(UnitType type, TilePosition searchCenter) {
+    public static TilePosition getBuildPosition(UnitType type, TilePosition searchCenter) {
         double distBest = Double.MAX_VALUE;
         TilePosition tileBest = TilePosition.Invalid;
 
@@ -766,7 +766,7 @@ public class JBWEB {
     /// Returns the closest buildable BWAPI::TilePosition for a defensive structure.
     /// <param name="type"> The BWAPI::UnitType of the structure you want to build.
     /// <param name="tile"> The BWAPI::TilePosition you want to build closest to.
-    public TilePosition getDefBuildPosition(UnitType type, TilePosition searchCenter) {
+    public static TilePosition getDefBuildPosition(UnitType type, TilePosition searchCenter) {
         double distBest = Double.MAX_VALUE;
         TilePosition tileBest = TilePosition.Invalid;
 
