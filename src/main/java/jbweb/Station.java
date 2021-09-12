@@ -6,11 +6,11 @@ import bwem.*;
 import java.util.TreeSet;
 
 public class Station {
-    Base base;
-    TreeSet<TilePosition> defenses;
-    Position resourceCentroid;
-    boolean main;
-    boolean natural;
+    private final Base base;
+    private final TreeSet<TilePosition> defenses;
+    private final Position resourceCentroid;
+    private final boolean main;
+    private final boolean natural;
 
     Station(Position _resourceCentroid, TreeSet<TilePosition> _defenses, Base _base, boolean _main, boolean _natural) {
         resourceCentroid = _resourceCentroid;

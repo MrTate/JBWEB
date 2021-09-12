@@ -6,18 +6,22 @@ import java.util.List;
 import java.util.TreeSet;
 
 public class Block {
-    int w = 0;
-    int h = 0;
-    TilePosition tile;
-    TreeSet<TilePosition> smallTiles;
-    TreeSet<TilePosition> mediumTiles;
-    TreeSet<TilePosition> largeTiles;
-    boolean proxy = false;
-    boolean defensive = false;
+    private int w = 0;
+    private int h = 0;
+    private final TilePosition tile;
+    private TreeSet<TilePosition> smallTiles = new TreeSet<>();
+    private TreeSet<TilePosition> mediumTiles = new TreeSet<>();
+    private TreeSet<TilePosition> largeTiles = new TreeSet<>();
+    private final boolean proxy;
+    private final boolean defensive;
 
-    Block() {}
+    public Block() {
+        tile = null;
+        proxy = false;
+        defensive = false;
+    }
 
-    Block(TilePosition _tile, List<Piece> _pieces, boolean _proxy, boolean _defensive) {
+    public Block(TilePosition _tile, List<Piece> _pieces, boolean _proxy, boolean _defensive) {
         tile = _tile;
         proxy = _proxy;
         defensive = _defensive;
@@ -69,45 +73,65 @@ public class Block {
         h += rowHeight;
     }
 
+    /// Returns the top left TilePosition of this Block.
     public TilePosition getTilePosition() {
         return tile;
     }
 
+    /// Returns the set of TilePositions that belong to 2x2 (small) buildings.
     public TreeSet<TilePosition> getSmallTiles() {
         return smallTiles;
     }
 
+    /// Returns the set of TilePositions that belong to 3x2 (medium) buildings.
     public TreeSet<TilePosition> getMediumTiles() {
         return mediumTiles;
     }
 
+    /// Returns the set of TilePositions that belong to 4x3 (large) buildings.
     public TreeSet<TilePosition> getLargeTiles() {
         return largeTiles;
     }
 
+    /// Inserts a 2x2 (small) building at this location.
     public void insertSmall(TilePosition here) {
         smallTiles.add(here);
     }
 
+    /// Inserts a 3x2 (medium) building at this location.
     public void insertMedium(TilePosition here) {
         mediumTiles.add(here);
     }
 
+    /// Inserts a 4x3 (large) building at this location.
     public void insertLarge(TilePosition here) {
         largeTiles.add(here);
     }
 
+    /// Returns the width of the Block in TilePositions.
     public int width() {
         return w;
     }
 
+    /// Returns the height of the Block in TilePositions.
     public int height() {
         return h;
     }
 
-    void draw() {
+    /// Returns true if this Block was generated for proxy usage.
+    public boolean isProxy() {
+        return proxy;
+    }
+
+    /// Returns true if this Block was generated for defensive usage.
+    public boolean isDefensive() {
+        return defensive;
+    }
+
+    /// Draws all the features of the Block.
+    public void draw() {
         Color color = JBWEB.game.self().getColor();
-        Text textColor = color.id == 185 ? textColor = Text.DarkGreen : JBWEB.game.self().getTextColor();
+        Text textColor = color.id == 185 ? Text.DarkGreen : JBWEB.game.self().getTextColor();
 
         // Draw boxes around each feature
         for (TilePosition tile : smallTiles) {

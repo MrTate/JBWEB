@@ -6,11 +6,11 @@ import bwem.*;
 import java.util.*;
 
 public class Stations {
-    static List<Station> stations;
-    static List<Station> mains;
-    static List<Station> naturals;
+    private static List<Station> stations = new ArrayList<>();
+    private static List<Station> mains = new ArrayList<>();
+    private static List<Station> naturals = new ArrayList<>();
 
-    TreeSet<TilePosition> stationDefenses(Base base, boolean placeRight, boolean placeBelow, boolean isMain, boolean isNatural) {
+    private TreeSet<TilePosition> stationDefenses(Base base, boolean placeRight, boolean placeBelow, boolean isMain, boolean isNatural) {
         TreeSet<TilePosition> defenses = new TreeSet<>();
         TreeSet<TilePosition> basePlacements = new TreeSet<>();
         TreeSet<TilePosition> geyserPlacements = new TreeSet<>();
@@ -189,7 +189,8 @@ public class Stations {
         }
     }
 
-    void findStations() {
+    /// Initializes the building of every BWEB::Station on the map, call it only once per game.
+    public void findStations() {
         // Find all main bases
         List<Base> mainBases = new ArrayList<>();
         List<Base> natBases = new ArrayList<>();
@@ -298,13 +299,14 @@ public class Stations {
         }
     }
 
-
+    /// Calls the draw function for each Station that exists.
     public static void draw() {
         for (Station station : stations){
             station.draw();
         }
     }
 
+    /// Returns the closest BWEB::Station to the given TilePosition.
     public static Station getClosestStation(TilePosition here) {
         double distBest = Double.MAX_VALUE;
         Station bestStation = null;
@@ -319,6 +321,7 @@ public class Stations {
         return bestStation;
     }
 
+    /// Returns the closest main BWEB::Station to the given TilePosition.
     public static Station getClosestMainStation(TilePosition here) {
         double distBest = Double.MAX_VALUE;
         Station bestStation = null;
@@ -333,6 +336,7 @@ public class Stations {
         return bestStation;
     }
 
+    /// Returns the closest natural BWEB::Station to the given TilePosition.
     public Station getClosestNaturalStation(TilePosition here) {
         double distBest = Double.MAX_VALUE;
         Station bestStation = null;
@@ -347,14 +351,17 @@ public class Stations {
         return bestStation;
     }
 
+    /// Returns a vector containing every BWEB::Station.
     public static List<Station> getStations() {
         return stations;
     }
 
+    /// Returns a vector containing every main BWEB::Station.
     public List<Station> getMainStations() {
         return mains;
     }
 
+    /// Returns a vector containing every natural BWEB::Station.
     public List<Station> getNaturalStations() {
         return naturals;
     }

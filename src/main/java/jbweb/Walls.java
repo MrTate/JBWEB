@@ -12,8 +12,8 @@ import bwapi.*;
 import bwem.*;
 
 public class Walls {
-    static HashMap<ChokePoint, Wall> walls;
-    boolean logInfo = true;
+    private static HashMap<ChokePoint, Wall> walls = new HashMap<>();
+    private boolean logInfo = true;
 
     static int failedPlacement = 0;
     static int failedAngle = 0;
@@ -22,7 +22,17 @@ public class Walls {
     static int failedSpawn = 0;
     static int failedPower = 0;
 
-    Wall createWall(List<UnitType> buildings, Area area, ChokePoint choke, UnitType tightType, List<UnitType> defenses, boolean openWall, boolean requireTight) {
+    /// Given a vector of UnitTypes, an Area and a Chokepoint, finds an optimal wall placement, returns a valid pointer if a Wall was created.
+    /// Note: Highly recommend that only Terran walls attempt to be walled tight, as most Protoss and Zerg wall-ins have gaps to allow your units through.
+    /// BWEB makes tight walls very differently from non-tight walls and will only create a tight wall if it is completely tight.
+    /// <param name="buildings"> A Vector of UnitTypes that you want the Wall to consist of.
+    /// <param name="area"> The Area that you want the Wall to be contained within.
+    /// <param name="choke"> The Chokepoint that you want the Wall to block.
+    /// <param name="tight"> (Optional) Decides whether this Wall intends to be walled around a specific UnitType.
+    /// <param name="defenses"> (Optional) A Vector of UnitTypes that you want the Wall to have defenses consisting of.
+    /// <param name="openWall"> (Optional) Set as true if you want an opening in the wall for unit movement.
+    /// <param name="requireTight"> (Optional) Set as true if you want pixel perfect placement.
+    public Wall createWall(List<UnitType> buildings, Area area, ChokePoint choke, UnitType tightType, List<UnitType> defenses, boolean openWall, boolean requireTight) {
         FileWriter writeFile = null;
         try {
             writeFile = new FileWriter("bwapi-data/write/BWEB_Wall.txt");
@@ -145,7 +155,9 @@ public class Walls {
         return null;
     }
 
-    Wall createFFE() {
+    /// Creates a Forge Fast Expand at the natural.
+    /// Places 1 Forge, 1 Gateway, 1 Pylon and 10 Cannons.
+    public Wall createFFE() {
         List<UnitType> buildings = new ArrayList<>();
         buildings.add(UnitType.Protoss_Forge);
         buildings.add(UnitType.Protoss_Gateway);
@@ -164,7 +176,9 @@ public class Walls {
         return createWall(buildings, JBWEB.getNaturalArea(), JBWEB.getNaturalChoke(), UnitType.None, defenses, true, false);
     }
 
-    Wall createZSimCity() {
+    /// Creates a "Sim City" of Zerg buildings at the natural.
+    /// Places 10 Sunkens, 1 Evolution Chamber and 1 Hatchery.
+    public Wall createZSimCity() {
         List<UnitType> buildings = new ArrayList<>();
         buildings.add(UnitType.Zerg_Hatchery);
         buildings.add(UnitType.Zerg_Evolution_Chamber);
@@ -182,7 +196,9 @@ public class Walls {
         return createWall(buildings, JBWEB.getNaturalArea(), JBWEB.getNaturalChoke(), UnitType.None, defenses, true, false);
     }
 
-    Wall createTWall() {
+    /// Creates a full wall of Terran buildings at the main choke.
+    /// Places 2 Depots and 1 Barracks.
+    public Wall createTWall() {
         List<UnitType> buildings = new ArrayList<>();
         buildings.add(UnitType.Terran_Supply_Depot);
         buildings.add(UnitType.Terran_Supply_Depot);
@@ -193,7 +209,8 @@ public class Walls {
         return createWall(buildings, JBWEB.getMainArea(), JBWEB.getMainChoke(), type, defenses, false, true);
     }
 
-    Wall getClosestWall(TilePosition here) {
+    /// Returns the closest Wall to the given TilePosition.
+    public Wall getClosestWall(TilePosition here) {
         double distBest = Double.MAX_VALUE;
         Wall bestWall = null;
         for (ChokePoint chokePoint : walls.keySet()) {
@@ -208,7 +225,11 @@ public class Walls {
         return bestWall;
     }
 
-    Wall getWall(ChokePoint choke) {
+    /// Returns a pointer to a Wall if it has been created in the given Area and ChokePoint.
+    /// Note: If you only pass an Area or a ChokePoint (not both), it will imply and pick a Wall that exists within that Area or blocks that ChokePoint.
+    /// <param name="area"> The Area that the Wall resides in.
+    /// <param name="choke"> The Chokepoint that the Wall blocks.
+    public Wall getWall(ChokePoint choke) {
         if (choke == null) {
             return null;
         }
@@ -222,10 +243,12 @@ public class Walls {
         return null;
     }
 
+    /// Returns a map containing every Wall keyed by Chokepoint.
     public static HashMap<ChokePoint, Wall> getWalls() {
         return walls;
     }
 
+    /// Calls the draw function for each Wall that exists.
     public static void draw() {
         for (ChokePoint chokePoint : walls.keySet()) {
             Wall wall = walls.get(chokePoint);

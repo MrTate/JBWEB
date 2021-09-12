@@ -6,23 +6,28 @@ import bwem.*;
 import java.util.*;
 
 public class Wall {
-    UnitType tightType;
-    Position centroid;
-    TilePosition opening, initialPathStart, initialPathEnd, pathStart, pathEnd, creationStart;
-    TreeSet<TilePosition> defenses, smallTiles, mediumTiles, largeTiles;
-    TreeSet<Position> notableLocations;
-    ListIterator<UnitType> typeIterator;
-    List<UnitType> rawBuildings, rawDefenses;
-    List<Area> accessibleNeighbors;
-    HashMap<TilePosition, UnitType> currentLayout, bestLayout;
-    Area area;
-    ChokePoint choke;
-    Base base;
-    double chokeAngle, bestWallScore, jpsDist;
-    boolean pylonWall, openWall, requireTight, movedStart, pylonWallPiece, allowLifted, flatRamp;
-    Station closestStation;
+    private UnitType tightType;
+    private Position centroid;
+    private TilePosition opening, initialPathStart, initialPathEnd, pathStart, pathEnd, creationStart;
+    private TreeSet<TilePosition> defenses = new TreeSet<>();
+    private TreeSet<TilePosition> smallTiles = new TreeSet<>();
+    private TreeSet<TilePosition> mediumTiles = new TreeSet<>();
+    private TreeSet<TilePosition> largeTiles = new TreeSet<>();
+    private TreeSet<Position> notableLocations = new TreeSet<>();
+    private ListIterator<UnitType> typeIterator;
+    private List<UnitType> rawBuildings;
+    private List<UnitType> rawDefenses;
+    private List<Area> accessibleNeighbors;
+    private HashMap<TilePosition, UnitType> currentLayout;
+    private HashMap<TilePosition, UnitType> bestLayout = new HashMap<>();
+    private Area area;
+    private ChokePoint choke;
+    private Base base;
+    private double chokeAngle, bestWallScore, jpsDist;
+    private boolean pylonWall, openWall, requireTight, movedStart, pylonWallPiece, allowLifted, flatRamp;
+    private Station closestStation;
 
-    Wall(Area _area, ChokePoint _choke, List<UnitType> _buildings, List<UnitType> _defenses, UnitType _tightType, boolean _requireTight, boolean _openWall) {
+    public Wall(Area _area, ChokePoint _choke, List<UnitType> _buildings, List<UnitType> _defenses, UnitType _tightType, boolean _requireTight, boolean _openWall) {
         area = _area;
         choke = _choke;
         rawBuildings = _buildings;
@@ -46,52 +51,63 @@ public class Wall {
         cleanup();
     }
 
-    ChokePoint getChokePoint() {
+    /// Returns the Chokepoint associated with this Wall.
+    public ChokePoint getChokePoint() {
         return choke;
     }
 
-    Area getArea() {
+    /// Returns the Area associated with this Wall.
+    public Area getArea() {
         return area;
     }
 
-    TreeSet<TilePosition> getDefenses() {
+    /// Returns the defense locations associated with this Wall.
+    public TreeSet<TilePosition> getDefenses() {
         return defenses;
     }
 
-    TilePosition getOpening() {
+    /// Returns the TilePosition belonging to the opening of the wall.
+    public TilePosition getOpening() {
         return opening;
     }
 
-    Position getCentroid() {
+    /// Returns the TilePosition belonging to the centroid of the wall pieces.
+    public Position getCentroid() {
         return centroid;
     }
 
-    TreeSet<TilePosition> getLargeTiles() {
+    /// Returns the TilePosition belonging to large UnitType buildings.
+    public TreeSet<TilePosition> getLargeTiles() {
         return largeTiles;
     }
 
-    TreeSet<TilePosition> getMediumTiles() {
+    /// Returns the TilePosition belonging to medium UnitType buildings.
+    public TreeSet<TilePosition> getMediumTiles() {
         return mediumTiles;
     }
 
-    TreeSet<TilePosition> getSmallTiles() {
+    /// Returns the TilePosition belonging to small UnitType buildings.
+    public TreeSet<TilePosition> getSmallTiles() {
         return smallTiles;
     }
 
-    List<UnitType> getRawBuildings() {
+    /// Returns the raw vector of the buildings the wall was initialized with.
+    public List<UnitType> getRawBuildings() {
         return rawBuildings;
     }
 
-    List<UnitType> getRawDefenses() {
+    /// Returns the raw vector of the defenses the wall was initialized with.
+    public List<UnitType> getRawDefenses() {
         return rawDefenses;
     }
 
-    boolean isPylonWall() {
+    /// Returns true if the Wall only contains Pylons.
+    public boolean isPylonWall() {
         return pylonWall;
     }
 
     /// Adds a piece at the TilePosition based on the UnitType.
-    void addToWallPieces(TilePosition here, UnitType building) {
+    public void addToWallPieces(TilePosition here, UnitType building) {
         if (building.tileWidth() >= 4)
             largeTiles.add(here);
         else if (building.tileWidth() >= 3)
@@ -102,7 +118,7 @@ public class Wall {
             smallTiles.add(here);
     }
 
-    Position findCentroid() {
+    private Position findCentroid() {
         // Create current centroid using all buildings except Pylons
         Position currentCentroid = new Position(0, 0);
         int sizeWall = rawBuildings.size();
@@ -129,7 +145,7 @@ public class Wall {
         return new Position(currentCentroid.x/sizeWall, currentCentroid.y/sizeWall);
     }
 
-    TilePosition findOpening() {
+    private TilePosition findOpening() {
         if (!openWall) {
             return TilePosition.Invalid;
         }
@@ -186,7 +202,7 @@ public class Wall {
         return currentOpening;
     }
 
-    Path findPathOut() {
+    private Path findPathOut() {
         // Check that the path points are possible to reach
         checkPathPoints();
         Position startCenter = new Position(pathStart.toPosition().x + 16, pathStart.toPosition().y + 16);
@@ -199,7 +215,7 @@ public class Wall {
         return newPath;
     }
 
-    boolean powerCheck(UnitType type, TilePosition here) {
+    private boolean powerCheck(UnitType type, TilePosition here) {
         if (type != UnitType.Protoss_Pylon || pylonWall)
             return true;
 
@@ -260,7 +276,7 @@ public class Wall {
         return true;
     }
 
-    boolean angleCheck(UnitType type, TilePosition here) {
+    private boolean angleCheck(UnitType type, TilePosition here) {
         Position centerHere = new Position(here.toPosition().x + type.tileWidth()*16,
                 here.toPosition().y + type.tileHeight()*16);
 
@@ -286,7 +302,7 @@ public class Wall {
         return true;
     }
 
-    boolean placeCheck(UnitType type, TilePosition here) {
+    private boolean placeCheck(UnitType type, TilePosition here) {
         // Allow Pylon to overlap station defenses
         if (type == UnitType.Protoss_Pylon) {
             if (closestStation != null && here != closestStation.getDefenseLocations().last()) {
@@ -308,25 +324,25 @@ public class Wall {
     }
 
     // Functions for each dimension check
-    int gapRight(UnitType parent, int dimR) {
+    private int gapRight(UnitType parent, int dimR) {
         return (parent.tileWidth() * 16) - parent.dimensionLeft() + dimR;
     }
 
-    int gapLeft(UnitType parent, int dimL) {
+    private int gapLeft(UnitType parent, int dimL) {
         return (parent.tileWidth() * 16) - parent.dimensionRight() - 1 + dimL;
     }
 
-    int gapUp(UnitType parent, int dimU) {
+    private int gapUp(UnitType parent, int dimU) {
         return (parent.tileHeight() * 16) - parent.dimensionDown() - 1 + dimU;
     }
 
-    int gapDown(UnitType parent, int dimD) {
+    private int gapDown(UnitType parent, int dimD) {
         return (parent.tileHeight() * 16) - parent.dimensionUp() + dimD;
     }
 
 
     // Check if the building is terrain tight when placed here
-    boolean terrainTightCheck(WalkPosition w, boolean check) {
+    private boolean terrainTightCheck(WalkPosition w, boolean check) {
         TilePosition t = new TilePosition(w);
 
         // If the walk position is invalid or un-walkable
@@ -348,7 +364,7 @@ public class Wall {
 
 
     // Iterate vertical tiles adjacent of this placement
-    List<Pair<Boolean, Integer>> checkVerticalSide(WalkPosition start, boolean check, String gap, int dim, int walkWidth,
+    private List<Pair<Boolean, Integer>> checkVerticalSide(WalkPosition start, boolean check, String gap, int dim, int walkWidth,
                                                    boolean terrainTight, boolean parentTight, int p1Tight, int p2Tight,
                                                    boolean checkL, boolean checkR, int vertTight, int horizTight) {
         for (int x = start.x - 1; x < start.x + walkWidth + 1; x++) {
@@ -417,7 +433,7 @@ public class Wall {
     }
 
     // Iterate horizontal tiles adjacent of this placement
-    List<Pair<Boolean, Integer>> checkHorizontalSide(WalkPosition start, boolean check, String gap, int dim, int walkHeight,
+    private List<Pair<Boolean, Integer>> checkHorizontalSide(WalkPosition start, boolean check, String gap, int dim, int walkHeight,
                                                      boolean terrainTight, boolean parentTight, int p1Tight, int p2Tight,
                                                      boolean checkU, boolean checkD, int vertTight, int horizTight) {
         for (int y = start.y - 1; y < start.y + walkHeight + 1; y++) {
@@ -486,7 +502,7 @@ public class Wall {
     }
 
 
-    boolean tightCheck(UnitType type, TilePosition here) {
+    private boolean tightCheck(UnitType type, TilePosition here) {
         // If this is a powering pylon and we are not making a pylon wall, we don't care if it's tight
         if (type == UnitType.Protoss_Pylon && !pylonWall && !pylonWallPiece) {
             return true;
@@ -562,7 +578,7 @@ public class Wall {
         return false;
     }
 
-    boolean spawnCheck(UnitType type, TilePosition here) {
+    private boolean spawnCheck(UnitType type, TilePosition here) {
         // TODO: Check if units spawn in bad spots, just returns true for now
         checkPathPoints();
         Position startCenter = new Position(pathStart.toPosition().x + 16, pathStart.toPosition().y + 16);
@@ -585,7 +601,7 @@ public class Wall {
         return true;
     }
 
-    void initialize() {
+    private void initialize() {
         // Clear failed counters
         Walls.failedPlacement = 0;
         Walls.failedAngle = 0;
@@ -736,7 +752,7 @@ public class Wall {
         }
     }
 
-    void initializePathPoints() {
+    private void initializePathPoints() {
         Pair<Position, Position> line = new Pair<>(new Position(choke.getNodePosition(ChokePoint.Node.END1).toPosition().x + 4, choke.getNodePosition(ChokePoint.Node.END1).toPosition().y + 4),
                 new Position(choke.getNodePosition(ChokePoint.Node.END2).toPosition().y + 4, choke.getNodePosition(ChokePoint.Node.END2).toPosition().y + 4));
         Pair<Position, Position> perpLine = openWall ? JBWEB.perpendicularLine(line, 160.0) : JBWEB.perpendicularLine(line, 96.0);
@@ -768,7 +784,7 @@ public class Wall {
         pathEnd = initialPathEnd;
     }
 
-    boolean neighbourArea(Area area) {
+    private boolean neighbourArea(Area area) {
         for (Area subArea : area.getAccessibleNeighbors()) {
             if (area == subArea) {
                 return true;
@@ -777,14 +793,14 @@ public class Wall {
         return false;
     }
 
-    boolean notValidPathPoint(TilePosition testTile) {
+    private boolean notValidPathPoint(TilePosition testTile) {
         return !testTile.isValid(JBWEB.game)
                 || !JBWEB.isWalkable(testTile)
                 || JBWEB.isReserved(testTile, 1, 1)
                 || JBWEB.isUsed(testTile, 1, 1) != UnitType.None;
-    };
+    }
 
-    void checkPathPoints() {
+    private void checkPathPoints() {
         // Push the path start as far from the path end if it's not in a valid location
         double distBest = 0.0;
         if (notValidPathPoint(pathStart)) {
@@ -875,7 +891,7 @@ public class Wall {
         return true;
     }
 
-    void addPieces() {
+    private void addPieces() {
         // For each permutation, try to make a wall combination that is better than the current best
         do {
             currentLayout.clear();
@@ -892,7 +908,7 @@ public class Wall {
         }
     }
 
-    void addNextPiece(TilePosition start) {
+    private void addNextPiece(TilePosition start) {
         // Get the value without incrementing
         UnitType type = typeIterator.next();
         typeIterator.previous();
@@ -988,7 +1004,7 @@ public class Wall {
         }
     }
 
-    void addDefenses() {
+    private void addDefenses() {
         // Prevent adding defenses if we don't have a wall
         if (bestLayout.isEmpty()) {
             return;
@@ -1085,7 +1101,7 @@ public class Wall {
         }
     }
 
-    void scoreWall() {
+    private void scoreWall() {
         // Create a path searching for an opening
         Path pathOut = findPathOut();
 
@@ -1123,7 +1139,7 @@ public class Wall {
         }
     }
 
-    void cleanup() {
+    private void cleanup() {
         // Add a reserved path
         if (openWall && !bestLayout.isEmpty()) {
             Path currentPath = findPathOut();
@@ -1147,8 +1163,8 @@ public class Wall {
         }
     }
 
-
-    int getGroundDefenseCount() {
+    /// Returns the number of ground defenses associated with this Wall.
+    public int getGroundDefenseCount() {
         // Returns how many visible ground defensive structures exist in this Walls defense locations
         int count = 0;
         for (TilePosition defense : defenses) {
@@ -1162,7 +1178,8 @@ public class Wall {
         return count;
     }
 
-    int getAirDefenseCount() {
+    /// Returns the number of air defenses associated with this Wall.
+    public int getAirDefenseCount() {
         // Returns how many visible air defensive structures exist in this Walls defense locations
         int count = 0;
         for (TilePosition defense : defenses) {
@@ -1176,7 +1193,8 @@ public class Wall {
         return count;
     }
 
-    void draw() {
+    /// Draws all the features of the Wall.
+    public void draw() {
         TreeSet<Position> anglePositions = new TreeSet<>();
         Color color = JBWEB.game.self().getColor();
         Text textColor = color.id == 185 ? Text.DarkGreen : JBWEB.game.self().getTextColor();

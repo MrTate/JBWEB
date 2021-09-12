@@ -15,12 +15,12 @@ import static jbweb.Pathfinding.maxCacheSize;
 import static jbweb.Pathfinding.unitPathCache;
 
 public class Path {
-    List<TilePosition> tiles;
-    double dist;
-    boolean reachable;
-    TilePosition source, target;
+    private List<TilePosition> tiles;
+    private double dist;
+    private boolean reachable;
+    private TilePosition source, target;
 
-    Path() {
+    public Path() {
         tiles = new ArrayList<>();
         dist = 0.0;
         reachable = false;
@@ -28,23 +28,28 @@ public class Path {
         target = TilePosition.Invalid;
     }
 
-    List<TilePosition> getTiles() {
+    /// Returns the vector of TilePositions associated with this Path.
+    public List<TilePosition> getTiles() {
         return tiles;
     }
 
-    TilePosition getSource() {
+    /// Returns the source (start) TilePosition of the Path.
+    public TilePosition getSource() {
         return source;
     }
 
-    TilePosition getTarget() {
+    /// Returns the target (end) TilePosition of the Path.
+    public TilePosition getTarget() {
         return target;
     }
 
-    double getDistance() {
+    /// Returns the distance from the source to the target in pixels.
+    public double getDistance() {
         return dist;
     }
 
-    boolean isReachable() {
+    /// Returns a check if the path was able to reach the target.
+    public boolean isReachable() {
         return reachable;
     }
 
@@ -67,7 +72,7 @@ public class Path {
     }
 
     // This function requires that parentGrid has been filled in for a path from source to target
-    void createPath(TilePosition s, TilePosition t, TilePosition[][] parentGrid) {
+    private void createPath(TilePosition s, TilePosition t, TilePosition[][] parentGrid) {
         tiles.add(target);
         reachable = true;
         TilePosition check = parentGrid[target.x][target.y];
@@ -88,7 +93,8 @@ public class Path {
         dist -= 64.0;
     }
 
-    void createUnitPath(Position s, Position t, Wall wall) {
+    /// Creates a path from the source to the target using JPS and collision provided by BWEB based on walkable tiles and used tiles.
+    public void createUnitPath(Position s, Position t, Wall wall) {
         target = new TilePosition(t);
         source = new TilePosition(s);
 
@@ -165,8 +171,8 @@ public class Path {
         }
     }
 
-    // P3 = function <bool(const TilePosition&)> isWalkable
-    void bfsPath(Position s, Position t, Wall wall) {
+    /// Creates a path from the source to the target using BFS.
+    public void bfsPath(Position s, Position t, Wall wall) {
         TilePosition source = new TilePosition(s);
         TilePosition target = new TilePosition(t);
         List<TilePosition> direction = new ArrayList<>();

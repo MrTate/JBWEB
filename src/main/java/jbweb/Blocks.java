@@ -9,11 +9,11 @@ import bwapi.*;
 import bwem.*;
 
 public class Blocks {
-    static List<Block> allBlocks;
-    HashMap<Area, Integer> typePerArea;
-    HashMap<Piece, Integer> mainPieces;
+    private static List<Block> allBlocks = new ArrayList<>();
+    private HashMap<Area, Integer> typePerArea = new HashMap<>();
+    private HashMap<Piece, Integer> mainPieces = new HashMap<>();
 
-    int countPieces(List<Piece> pieces, Piece type) {
+    private int countPieces(List<Piece> pieces, Piece type) {
         int count = 0;
         for (Piece piece : pieces) {
         if (piece == type)
@@ -22,7 +22,7 @@ public class Blocks {
         return count;
     }
 
-    List<Piece> whichPieces(int width, int height, boolean faceUp, boolean faceLeft) {
+    private List<Piece> whichPieces(int width, int height, boolean faceUp, boolean faceLeft) {
         List<Piece> pieces = new ArrayList<>();
 
         // Zerg Block pieces
@@ -240,7 +240,7 @@ public class Blocks {
         return pieces;
     }
 
-    boolean canAddBlock(TilePosition here, int width, int height) {
+    private boolean canAddBlock(TilePosition here, int width, int height) {
         // Check if a block of specified size would overlap any bases, resources or other blocks
         for (int x = here.x - 1; x < here.x + width + 1; x++) {
             for (int y = here.y - 1; y < here.y + height + 1; y++) {
@@ -253,7 +253,7 @@ public class Blocks {
         return true;
     }
 
-    boolean canAddProxyBlock(TilePosition here, int width, int height) {
+    private boolean canAddProxyBlock(TilePosition here, int width, int height) {
         // Check if a proxy block of specified size is not buildable here
         for (int x = here.x - 1; x < here.x + width + 1; x++) {
             for (int y = here.y - 1; y < here.y + height + 1; y++) {
@@ -266,19 +266,19 @@ public class Blocks {
         return true;
     }
 
-    void insertBlock(TilePosition here, List<Piece> pieces) {
+    private void insertBlock(TilePosition here, List<Piece> pieces) {
         Block newBlock = new Block(here, pieces, false, false);
         allBlocks.add(newBlock);
         JBWEB.addReserve(here, newBlock.width(), newBlock.height());
     }
 
-    void insertProxyBlock(TilePosition here, List<Piece> pieces) {
+    private void insertProxyBlock(TilePosition here, List<Piece> pieces) {
         Block newBlock = new Block(here, pieces, true, false);
         allBlocks.add(newBlock);
         JBWEB.addReserve(here, newBlock.width(), newBlock.height());
     }
 
-    void insertDefensiveBlock(TilePosition here, List<Piece> pieces) {
+    private void insertDefensiveBlock(TilePosition here, List<Piece> pieces) {
         Block newBlock = new Block(here, pieces, false, true);
         allBlocks.add(newBlock);
         JBWEB.addReserve(here, newBlock.width(), newBlock.height());
@@ -352,9 +352,9 @@ public class Blocks {
                 }
             }
         }
-    };
+    }
 
-    void findMainStartBlocks() {
+    private void findMainStartBlocks() {
         Race race = JBWEB.game.self().getRace();
         Position firstStart = JBWEB.getMainPosition();
         Position secondStart = race != Race.Zerg ? (new Position(JBWEB.getMainChoke().getCenter().x + JBWEB.getMainPosition().x/2,
@@ -364,7 +364,7 @@ public class Blocks {
         searchStart(secondStart);
     }
 
-    void findMainDefenseBlock() {
+    private void findMainDefenseBlock() {
         if (JBWEB.game.self().getRace() == Race.Zerg)
         return;
 
@@ -399,7 +399,7 @@ public class Blocks {
         }
     }
 
-    void findProductionBlocks() {
+    private void findProductionBlocks() {
         HashMap<Double, TilePosition> tilesByPathDist = new HashMap<>();
         int totalMedium = 0;
         int totalLarge = 0;
@@ -497,7 +497,7 @@ public class Blocks {
         return false;
     }
 
-    void findProxyBlock() {
+    private void findProxyBlock() {
         // For base-specific locations, avoid all areas likely to be traversed by worker scouts
         HashSet<Area> areasToAvoid = new HashSet<>();
         for (TilePosition first : JBWEB.mapBWEM.getMap().getStartingLocations()) {
@@ -579,7 +579,9 @@ public class Blocks {
         }
     }
 
-    void eraseBlock(TilePosition here) {
+    /// Erases any blocks at the specified TilePosition.
+    /// <param name="here"> The TilePosition that you want to delete any BWEB::Block that exists here.
+    public void eraseBlock(TilePosition here) {
         List<Block> blocksToRemove = new ArrayList<>();
         for (Block block : allBlocks) {
             if (here.x >= block.getTilePosition().x && here.x < block.getTilePosition().x + block.width() &&
@@ -592,6 +594,7 @@ public class Blocks {
         }
     }
 
+    /// Initializes the building of every BWEB::Block on the map, call it only once per game.
     public void findBlocks() {
         findMainDefenseBlock();
         findMainStartBlocks();
@@ -599,16 +602,19 @@ public class Blocks {
         findProductionBlocks();
     }
 
+    /// Calls the draw function for each Block that exists.
     public static void draw() {
         for (Block block : allBlocks) {
             block.draw();
         }
     }
 
+    /// Returns a List containing every Block.
     public static List<Block> getBlocks() {
         return allBlocks;
     }
 
+    /// Returns the closest BWEB::Block to the given TilePosition.
     public Block getClosestBlock(TilePosition here) {
         double distBest = Double.MAX_VALUE;
         Block bestBlock = null;

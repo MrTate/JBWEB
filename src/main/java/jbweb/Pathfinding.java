@@ -7,17 +7,20 @@ public class Pathfinding {
 
     static int maxCacheSize = 10000;
 
-    static void clearCache() {
+    /// Clears the entire Pathfinding cache. All Paths will be generated as a new Path.
+    public static void clearCache() {
         unitPathCache.indexList.clear();
         unitPathCache.pathCacheIndex = 0;
         unitPathCache.pathCache.clear();
     }
 
-    boolean terrainWalkable(TilePosition tile) {
+    /// Returns true if the TilePosition is walkable (does not include any buildings).
+    public boolean terrainWalkable(TilePosition tile) {
         return JBWEB.isWalkable(tile);
     }
 
-    boolean unitWalkable(TilePosition tile) {
+    /// Returns true if the TilePosition is walkable (includes buildings).
+    public boolean unitWalkable(TilePosition tile) {
         return JBWEB.isWalkable(tile) && JBWEB.isUsed(tile, 1, 1) == UnitType.None;
     }
 }

@@ -9,29 +9,29 @@ import java.util.HashMap;
 import java.util.TreeSet;
 
 public class JBWEB {
-    public static Game game;
-    public static BWEM mapBWEM;
+    static Game game;
+    static BWEM mapBWEM;
     private static Position mainPosition = Position.Invalid;
-    Position naturalPosition = Position.Invalid;
-    TilePosition mainTile = TilePosition.Invalid;
-    TilePosition naturalTile = TilePosition.Invalid;
+    private static Position naturalPosition = Position.Invalid;
+    private static TilePosition mainTile = TilePosition.Invalid;
+    private static TilePosition naturalTile = TilePosition.Invalid;
     private static Area naturalArea = null;
     private static Area mainArea = null;
     private static ChokePoint naturalChoke = null;
     private static ChokePoint mainChoke = null;
 
-    boolean drawReserveOverlap, drawUsed, drawWalk, drawArea;
+    private static boolean drawReserveOverlap, drawUsed, drawWalk, drawArea;
 
-    HashMap<Key, Boolean> lastKeyState;
-    static HashMap<ChokePoint, TreeSet<TilePosition>> chokeTiles;
-    HashMap<ChokePoint, Pair<Position, Position>> chokeLines;
+    private static HashMap<Key, Boolean> lastKeyState = new HashMap<>();
+    private static HashMap<ChokePoint, TreeSet<TilePosition>> chokeTiles = new HashMap<>();
+    private static HashMap<ChokePoint, Pair<Position, Position>> chokeLines = new HashMap<>();
 
-    static int overlapGrid[][] = new int[256][256];
-    static UnitType usedGrid[][] = new UnitType[256][256];
+    private static int overlapGrid[][] = new int[256][256];
+    private static UnitType usedGrid[][] = new UnitType[256][256];
     static boolean walkGrid[][] = new boolean[256][256];
-    boolean logInfo = true;
+    private static final boolean logInfo = true;
 
-    void findLines() {
+    private static void findLines() {
         for (Area area : mapBWEM.getMap().getAreas()) {
             for (ChokePoint choke : area.getChokePoints()) {
                 Position p1, p2;
@@ -99,13 +99,13 @@ public class JBWEB {
         }
     }
 
-    void findMain() {
+    private static void findMain() {
         mainTile = game.self().getStartLocation();
         mainPosition = new Position(mainTile.toPosition().x + 64, mainTile.toPosition().y + 48);
         mainArea = mapBWEM.getMap().getArea(mainTile);
     }
 
-    void findNatural() {
+    private static void findNatural() {
         double distBest = Double.MAX_VALUE;
         for (Area area : mapBWEM.getMap().getAreas()) {
             for (Base base : area.getBases()) {
@@ -131,7 +131,7 @@ public class JBWEB {
         }
     }
 
-    void findMainChoke() {
+    private static void findMainChoke() {
         // Add all main chokes to a set
         TreeSet<ChokePoint> mainChokes = new TreeSet<>(mainArea.getChokePoints());
         if (mainChokes.size() == 1) {
@@ -191,7 +191,7 @@ public class JBWEB {
         }
     }
 
-    void findNaturalChoke() {
+    private static void findNaturalChoke() {
         if (!naturalPosition.isValid(game)) {
             naturalChoke = mainChoke;
             return;
@@ -253,7 +253,7 @@ public class JBWEB {
         }
     }
 
-    void findNeutrals() {
+    private static void findNeutrals() {
         // Add overlap for neutrals
         for (Unit unit : game.getNeutralUnits()) {
             if (unit != null && unit.exists() && unit.getType().topSpeed() == 0.0)
@@ -263,7 +263,8 @@ public class JBWEB {
         }
     }
 
-    void easyWrite(String stuff) {
+    /// Writes to the log.txt file
+    public static void easyWrite(String stuff) {
         if (logInfo) {
             try {
                 FileWriter writeFile = new FileWriter("bwapi-data/write/BWEB_Log.txt");
@@ -275,14 +276,15 @@ public class JBWEB {
         }
     }
 
-    private ChokePoint findNode(TreeSet<ChokePoint> treeSet, ChokePoint choke) {
+    private static ChokePoint findNode(TreeSet<ChokePoint> treeSet, ChokePoint choke) {
         for (ChokePoint cp : treeSet) {
             if (cp == choke) return cp;
         }
         return null;
     }
 
-    void draw() {
+    /// Draws all JBWEB::Walls, JBWEB::Stations, and JBWEB::Blocks when called. Call this every frame if you need debugging information.
+    public static void draw() {
         WalkPosition mouse = new WalkPosition(game.getMousePosition().x + game.getScreenPosition().x,
                 game.getMousePosition().y + game.getScreenPosition().y);
         Area mouseArea = mouse.isValid(game) ? mapBWEM.getMap().getArea(mouse) : null;
@@ -353,7 +355,8 @@ public class JBWEB {
         Stations.draw();
     }
 
-    void onStart(Game _game, BWEM _mapBWEM) {
+    /// Called on game start to initialize JBWEB
+    public static void onStart(Game _game, BWEM _mapBWEM) {
         game = _game;
         mapBWEM = _mapBWEM;
         // Initializes usedGrid and walkGrid
@@ -385,9 +388,11 @@ public class JBWEB {
 
         for (Area area : mapBWEM.getMap().getAreas()){
             for (ChokePoint choke : area.getChokePoints()){
+                TreeSet<TilePosition> tileGeography = new TreeSet<>();
                 for (WalkPosition geo : choke.getGeometry()) {
-                    chokeTiles.get(choke).add(geo.toTilePosition());
+                    tileGeography.add(geo.toTilePosition());
                 }
+                chokeTiles.put(choke, tileGeography);
             }
         }
 
@@ -399,7 +404,8 @@ public class JBWEB {
         findLines();
     }
 
-    void onUnitDiscover(Unit unit) {
+    /// Stores used tiles if it is a building. Increments defense counters for any stations where the placed building is a static defense unit.
+    public static void onUnitDiscover(Unit unit) {
         TilePosition tile = unit.getTilePosition();
         UnitType type = unit.getType();
 
@@ -423,7 +429,8 @@ public class JBWEB {
         }
     }
 
-    void onUnitDestroy(Unit unit) {
+    /// Removes used tiles if it is a building. Decrements defense counters for any stations where the destroyed building is a static defense unit.
+    public static void onUnitDestroy(Unit unit) {
         TilePosition tile = unit.getTilePosition();
         UnitType type = unit.getType();
 
@@ -447,10 +454,12 @@ public class JBWEB {
         }
     }
 
-    void onUnitMorph(Unit unit) {
+    ///  Calls JBWEB::onUnitDiscover.
+    public void onUnitMorph(Unit unit) {
         onUnitDiscover(unit);
     }
 
+    /// Adds a section of BWAPI::TilePositions to the BWEB overlap grid.
     public static void addReserve(TilePosition t, int w, int h) {
         for (int x = t.x; x < t.x + w; x++) {
             for (int y = t.y; y < t.y + h; y++) {
@@ -462,7 +471,8 @@ public class JBWEB {
         }
     }
 
-    void removeReserve(TilePosition t, int w, int h) {
+    /// Removes a section of BWAPI::TilePositions from the BWEB overlap grid.
+    public static void removeReserve(TilePosition t, int w, int h) {
         for (int x = t.x; x < t.x + w; x++) {
             for (int y = t.y; y < t.y + h; y++) {
                 TilePosition t2 = new TilePosition(x, y);
@@ -473,6 +483,7 @@ public class JBWEB {
         }
     }
 
+    /// Returns true if a section of BWAPI::TilePositions are within BWEBs overlap grid.
     public static boolean isReserved(TilePosition here, int width, int height) {
         for (int x = here.x; x < here.x + width; x++) {
             for (int y = here.y; y < here.y + height; y++) {
@@ -488,6 +499,7 @@ public class JBWEB {
         return false;
     }
 
+    /// Adds a section of BWAPI::TilePositions to the BWEB used grid.
     public static void addUsed(TilePosition t, UnitType type) {
         for (int x = t.x; x < t.x + type.tileWidth(); x++) {
             for (int y = t.y; y < t.y + type.tileHeight(); y++)
@@ -496,6 +508,7 @@ public class JBWEB {
         }
     }
 
+    /// Removes a section of BWAPI::TilePositions from the BWEB used grid.
     public static void removeUsed(TilePosition t, int w, int h) {
         for (int x = t.x; x < t.x + w; x++) {
             for (int y = t.y; y < t.y + h; y++) {
@@ -507,6 +520,10 @@ public class JBWEB {
         }
     }
 
+    /// Returns the first UnitType found in a section of BWAPI::TilePositions, if it is within BWEBs used grid.
+    /// <param name="tile"> The BWAPI::TilePosition you want to check.
+    /// <param name="width"> The width of BWAPI::TilePositions to check. Default should be 1.
+    /// <param name="height"> The height of BWAPI::TilePositions to check. Default should be 1.
     public static UnitType isUsed(TilePosition here, int width, int height) {
         for (int x = here.x; x < here.x + width; x++) {
             for (int y = here.y; y < here.y + height; y++) {
@@ -521,10 +538,15 @@ public class JBWEB {
         return UnitType.None;
     }
 
+    /// Returns true if a BWAPI::TilePosition is fully walkable.
+    /// <param name="tile"> The BWAPI::TilePosition you want to check.
     public static boolean isWalkable(TilePosition here) {
         return walkGrid[here.x][here.y];
     }
 
+    /// Returns true if the given BWAPI::UnitType is placeable at the given BWAPI::TilePosition.
+    /// <param name="type"> The BWAPI::UnitType of the structure you want to build.
+    /// <param name="tile"> The BWAPI::TilePosition you want to build on.
     public static boolean isPlaceable(UnitType type, TilePosition location) {
         if (type.requiresCreep()) {
             for (int x = location.x; x < location.x + type.tileWidth(); x++) {
@@ -553,6 +575,11 @@ public class JBWEB {
         return true;
     }
 
+    /// Returns how many BWAPI::TilePosition are within a BWEM::Area.
+    /// <param name="area"> The BWEM::Area to check.
+    /// <param name="tile"> The BWAPI::TilePosition to check.
+    /// <param name="width"> The width of BWAPI::TilePositions to check. Default should be 1.
+    /// <param name="height"> The height of BWAPI::TilePositions to check. Default should be 1.
     public static int tilesWithinArea(Area area, TilePosition here, int width, int height) {
         int cnt = 0;
         for (int x = here.x; x < here.x + width; x++) {
@@ -608,7 +635,9 @@ public class JBWEB {
         return getClosestChokeTile(cp, start);
     }
 
-
+    /// Returns the estimated ground distance from one Position type to another Position type.
+    /// <param name="start"> The first Position.
+    /// <param name="end"> The second Position.
     public static double getGroundDistance(Position s, Position e) {
         Position start = new Position(s);
         Position end = new Position(e);
@@ -648,6 +677,7 @@ public class JBWEB {
         return dist + last.getDistance(end);
     }
 
+    /// Returns the angle of a pair of BWAPI::Point in degrees.
     public static double getAngle(Pair<Position, Position> p) {
         Position left = p.getFirst().x < p.getSecond().x ? p.getFirst() : p.getSecond();
         Position right = left == p.getFirst() ? p.getSecond() : p.getFirst();
@@ -656,6 +686,7 @@ public class JBWEB {
         return (Math.abs(dx) > 1.0 ? Math.atan(dy / dx) * 180.0 / 3.14 : 90.0);
     }
 
+    /// Returns the closest BWAPI::Position that makes up the geometry of a BWEM::ChokePoint to another BWAPI::Position.
     public static Position getClosestChokeTile(ChokePoint choke, Position here) {
         double best = Double.MAX_VALUE;
         Position posBest = Position.Invalid;
@@ -670,20 +701,23 @@ public class JBWEB {
         return posBest;
     }
 
-    private static TreeSet<TilePosition> getChokeTiles(ChokePoint choke) {
+    /// Returns a set of BWAPI::TilePositions that make up the geometry of a BWEM::ChokePoint.
+    public static TreeSet<TilePosition> getChokeTiles(ChokePoint choke) {
         if (choke != null) {
             return chokeTiles.get(choke);
         }
         return null;
     }
 
-    Pair<Position, Position> lineOfBestFit(ChokePoint choke) {
+    /// Returns two BWAPI::Positions representing a line of best fit for a given BWEM::ChokePoint.
+    public static Pair<Position, Position> lineOfBestFit(ChokePoint choke) {
         if (choke != null) {
             return chokeLines.get(choke);
         }
         return null;
     }
 
+    /// Returns two BWAPI::Positions perpendicular to a line at a given distance away in pixels.
     public static Pair<Position, Position> perpendicularLine(Pair<Position, Position> points, double length) {
         Position n1 = points.getFirst();
         Position n2 = points.getSecond();
@@ -699,6 +733,9 @@ public class JBWEB {
         return new Pair<>(direction1, direction2);
     }
 
+    /// Returns the closest buildable BWAPI::TilePosition for any type of structure.
+    /// <param name="type"> The BWAPI::UnitType of the structure you want to build.
+    /// <param name="tile"> The BWAPI::TilePosition you want to build closest to.
     public TilePosition getBuildPosition(UnitType type, TilePosition searchCenter) {
         double distBest = Double.MAX_VALUE;
         TilePosition tileBest = TilePosition.Invalid;
@@ -726,6 +763,9 @@ public class JBWEB {
         return tileBest;
     }
 
+    /// Returns the closest buildable BWAPI::TilePosition for a defensive structure.
+    /// <param name="type"> The BWAPI::UnitType of the structure you want to build.
+    /// <param name="tile"> The BWAPI::TilePosition you want to build closest to.
     public TilePosition getDefBuildPosition(UnitType type, TilePosition searchCenter) {
         double distBest = Double.MAX_VALUE;
         TilePosition tileBest = TilePosition.Invalid;
@@ -755,34 +795,42 @@ public class JBWEB {
         return tileBest;
     }
 
+    /// Returns the BWEM::Area of the natural expansion.
     public static Area getNaturalArea() {
         return naturalArea;
     }
 
+    /// Returns the BWEM::Area of the main.
     public static Area getMainArea() {
         return mainArea;
     }
 
+    /// Returns the BWEM::Chokepoint of the natural.
     public static ChokePoint getNaturalChoke() {
         return naturalChoke;
     }
 
+    /// Returns the BWEM::Chokepoint of the main.
     public static ChokePoint getMainChoke() {
         return mainChoke;
     }
 
-    public TilePosition getNaturalTile() {
+    /// Returns the BWAPI::TilePosition of the natural expansion.
+    public static TilePosition getNaturalTile() {
         return naturalTile;
     }
 
-    public Position getNaturalPosition() {
+    /// Returns the BWAPI::Position of the natural expansion.
+    public static Position getNaturalPosition() {
         return naturalPosition;
     }
 
-    public TilePosition getMainTile() {
+    /// Returns the BWAPI::TilePosition of the main.
+    public static TilePosition getMainTile() {
         return mainTile;
     }
 
+    /// Returns the BWAPI::Position of the main.
     public static Position getMainPosition() {
         return mainPosition;
     }
