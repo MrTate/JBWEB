@@ -2,16 +2,16 @@ package jbweb;
 
 import bwapi.*;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
 
 public class Block {
     private int w = 0;
     private int h = 0;
     private final TilePosition tile;
-    private TreeSet<TilePosition> smallTiles = new TreeSet<>();
-    private TreeSet<TilePosition> mediumTiles = new TreeSet<>();
-    private TreeSet<TilePosition> largeTiles = new TreeSet<>();
+    private List<TilePosition> smallTiles = new ArrayList<>();
+    private List<TilePosition> mediumTiles = new ArrayList<>();
+    private List<TilePosition> largeTiles = new ArrayList<>();
     private final boolean proxy;
     private final boolean defensive;
 
@@ -79,17 +79,17 @@ public class Block {
     }
 
     /// Returns the set of TilePositions that belong to 2x2 (small) buildings.
-    public TreeSet<TilePosition> getSmallTiles() {
+    public List<TilePosition> getSmallTiles() {
         return smallTiles;
     }
 
     /// Returns the set of TilePositions that belong to 3x2 (medium) buildings.
-    public TreeSet<TilePosition> getMediumTiles() {
+    public List<TilePosition> getMediumTiles() {
         return mediumTiles;
     }
 
     /// Returns the set of TilePositions that belong to 4x3 (large) buildings.
-    public TreeSet<TilePosition> getLargeTiles() {
+    public List<TilePosition> getLargeTiles() {
         return largeTiles;
     }
 

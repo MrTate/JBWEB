@@ -10,10 +10,10 @@ public class Stations {
     private static List<Station> mains = new ArrayList<>();
     private static List<Station> naturals = new ArrayList<>();
 
-    private TreeSet<TilePosition> stationDefenses(Base base, boolean placeRight, boolean placeBelow, boolean isMain, boolean isNatural) {
-        TreeSet<TilePosition> defenses = new TreeSet<>();
-        TreeSet<TilePosition> basePlacements = new TreeSet<>();
-        TreeSet<TilePosition> geyserPlacements = new TreeSet<>();
+    private List<TilePosition> stationDefenses(Base base, boolean placeRight, boolean placeBelow, boolean isMain, boolean isNatural) {
+        List<TilePosition> defenses = new ArrayList<>();
+        List<TilePosition> basePlacements = new ArrayList<>();
+        List<TilePosition> geyserPlacements = new ArrayList<>();
         TilePosition here = base.getLocation();
 
         // Insert defenses
@@ -285,7 +285,7 @@ public class Stations {
 
                 boolean placeRight = base.getCenter().x < defenseCentroid.x;
                 boolean placeBelow = base.getCenter().y < defenseCentroid.y;
-                TreeSet<TilePosition> defenses = stationDefenses(base, placeRight, placeBelow, isMain, isNatural);
+                List<TilePosition> defenses = stationDefenses(base, placeRight, placeBelow, isMain, isNatural);
 
                 // Add to our station lists
                 Station newStation = new Station(resourceCentroid, defenses, base, isMain, isNatural);

@@ -9,11 +9,11 @@ public class Wall {
     private UnitType tightType;
     private Position centroid;
     private TilePosition opening, initialPathStart, initialPathEnd, pathStart, pathEnd, creationStart;
-    private TreeSet<TilePosition> defenses = new TreeSet<>();
-    private TreeSet<TilePosition> smallTiles = new TreeSet<>();
-    private TreeSet<TilePosition> mediumTiles = new TreeSet<>();
-    private TreeSet<TilePosition> largeTiles = new TreeSet<>();
-    private TreeSet<Position> notableLocations = new TreeSet<>();
+    private List<TilePosition> defenses = new ArrayList<>();
+    private List<TilePosition> smallTiles = new ArrayList<>();
+    private List<TilePosition> mediumTiles = new ArrayList<>();
+    private List<TilePosition> largeTiles = new ArrayList<>();
+    private List<Position> notableLocations = new ArrayList<>();
     private ListIterator<UnitType> typeIterator;
     private List<UnitType> rawBuildings;
     private List<UnitType> rawDefenses;
@@ -62,7 +62,7 @@ public class Wall {
     }
 
     /// Returns the defense locations associated with this Wall.
-    public TreeSet<TilePosition> getDefenses() {
+    public List<TilePosition> getDefenses() {
         return defenses;
     }
 
@@ -77,17 +77,17 @@ public class Wall {
     }
 
     /// Returns the TilePosition belonging to large UnitType buildings.
-    public TreeSet<TilePosition> getLargeTiles() {
+    public List<TilePosition> getLargeTiles() {
         return largeTiles;
     }
 
     /// Returns the TilePosition belonging to medium UnitType buildings.
-    public TreeSet<TilePosition> getMediumTiles() {
+    public List<TilePosition> getMediumTiles() {
         return mediumTiles;
     }
 
     /// Returns the TilePosition belonging to small UnitType buildings.
-    public TreeSet<TilePosition> getSmallTiles() {
+    public List<TilePosition> getSmallTiles() {
         return smallTiles;
     }
 
@@ -305,7 +305,7 @@ public class Wall {
     private boolean placeCheck(UnitType type, TilePosition here) {
         // Allow Pylon to overlap station defenses
         if (type == UnitType.Protoss_Pylon) {
-            if (closestStation != null && here != closestStation.getDefenseLocations().last()) {
+            if (closestStation != null && here != closestStation.getDefenseLocations().get(closestStation.getDefenseLocations().size()-1)) {
                 return true;
             }
         }
@@ -1057,7 +1057,7 @@ public class Wall {
                     TilePosition t = new TilePosition(x, y);
                     Position center = new Position(t.toPosition().x + width/2, t.toPosition().y + height/2);
                     Position closestGeo = JBWEB.getClosestChokeTile(choke, center);
-                    boolean overlapsDefense = closestStation != null && t != closestStation.getDefenseLocations().last() && t.equals(defenses.last());
+                    boolean overlapsDefense = closestStation != null && t != closestStation.getDefenseLocations().get(closestStation.getDefenseLocations().size()-1) && t.equals(defenses.get(defenses.size()-1));
 
                     double dist = center.getDistance(closestGeo);
                     boolean tooClose = dist < furthest || center.getDistance(openingCenter) < arbitraryCloseMetric;
@@ -1195,7 +1195,7 @@ public class Wall {
 
     /// Draws all the features of the Wall.
     public void draw() {
-        TreeSet<Position> anglePositions = new TreeSet<>();
+        List<Position> anglePositions = new ArrayList<>();
         Color color = JBWEB.game.self().getColor();
         Text textColor = color.id == 185 ? Text.DarkGreen : JBWEB.game.self().getTextColor();
 

@@ -3,16 +3,16 @@ package jbweb;
 import bwapi.*;
 import bwem.*;
 
-import java.util.TreeSet;
+import java.util.List;
 
 public class Station {
     private final Base base;
-    private final TreeSet<TilePosition> defenses;
+    private final List<TilePosition> defenses;
     private final Position resourceCentroid;
     private final boolean main;
     private final boolean natural;
 
-    Station(Position _resourceCentroid, TreeSet<TilePosition> _defenses, Base _base, boolean _main, boolean _natural) {
+    Station(Position _resourceCentroid, List<TilePosition> _defenses, Base _base, boolean _main, boolean _natural) {
         resourceCentroid = _resourceCentroid;
         defenses = _defenses;
         base = _base;
@@ -28,7 +28,7 @@ public class Station {
         return resourceCentroid;
     }
 
-    public TreeSet<TilePosition> getDefenseLocations() {
+    public List<TilePosition> getDefenseLocations() {
         return defenses;
     }
 

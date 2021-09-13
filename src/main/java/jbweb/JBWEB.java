@@ -5,8 +5,9 @@ import bwem.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.TreeSet;
+import java.util.List;
 
 public class JBWEB {
     static Game game;
@@ -23,7 +24,7 @@ public class JBWEB {
     private static boolean drawReserveOverlap, drawUsed, drawWalk, drawArea;
 
     private static HashMap<Key, Boolean> lastKeyState = new HashMap<>();
-    private static HashMap<ChokePoint, TreeSet<TilePosition>> chokeTiles = new HashMap<>();
+    private static HashMap<ChokePoint, List<TilePosition>> chokeTiles = new HashMap<>();
     private static HashMap<ChokePoint, Pair<Position, Position>> chokeLines = new HashMap<>();
 
     private static int overlapGrid[][] = new int[256][256];
@@ -133,10 +134,7 @@ public class JBWEB {
 
     private static void findMainChoke() {
         // Add all main chokes to a set
-        TreeSet<ChokePoint> mainChokes = new TreeSet<>();
-        for (ChokePoint chokePoint : mainArea.getChokePoints()) {
-            mainChokes.add(chokePoint);
-        }
+        List<ChokePoint> mainChokes = new ArrayList<>(mainArea.getChokePoints());
 
         if (mainChokes.size() == 1) {
             mainChoke = mainChokes.iterator().next();
@@ -144,17 +142,14 @@ public class JBWEB {
         }
 
         // Add all natural chokes to a set
-        TreeSet<ChokePoint> naturalChokes = new TreeSet<>();
-        for (ChokePoint chokePoint : naturalArea.getChokePoints()) {
-            naturalChokes.add(chokePoint);
-        }
+        List<ChokePoint> naturalChokes = new ArrayList<>(naturalArea.getChokePoints());
 
         // If the natural area has only one chokepoint, then our main choke leads out of our base, find a choke that doesn't belong to the natural as well
         if (naturalArea != null && naturalArea.getChokePoints().size() == 1) {
             double distBest = Double.MAX_VALUE;
             for (ChokePoint choke : mainArea.getChokePoints()) {
                 double dist = getGroundDistance(choke.getCenter().toPosition(), mainPosition);
-                if (dist < distBest && findNode(naturalChokes, choke) == naturalChokes.last()) {
+                if (dist < distBest && findNode(naturalChokes, choke) == naturalChokes.get(naturalChokes.size()-1)) {
                     mainChoke = choke;
                     distBest = dist;
                 }
@@ -166,7 +161,7 @@ public class JBWEB {
             double distBest = Double.MAX_VALUE;
             for (ChokePoint choke : naturalArea.getChokePoints()) {
                 double dist = getGroundDistance(choke.getCenter().toPosition(), mainPosition);
-                if (dist < distBest && findNode(mainChokes, choke) != mainChokes.last()) {
+                if (dist < distBest && findNode(mainChokes, choke) != mainChokes.get(mainChokes.size()-1)) {
                     mainChoke = choke;
                     distBest = dist;
                 }
@@ -204,7 +199,7 @@ public class JBWEB {
             return;
         }
 
-        TreeSet<ChokePoint> nonChokes = new TreeSet<>();
+        List<ChokePoint> nonChokes = new ArrayList<>();
         for (ChokePoint choke : mapBWEM.getMap().getPath(mainPosition, naturalPosition)) {
             nonChokes.add(choke);
         }
@@ -226,7 +221,7 @@ public class JBWEB {
                     boolean wrongArea = false;
                     for (ChokePoint choke : area.getChokePoints()) {
                         if ((!choke.isBlocked() && choke.getNodePosition(ChokePoint.Node.END1).getDistance(choke.getNodePosition(ChokePoint.Node.END2)) <= 2)
-                                || findNode(nonChokes, choke) != nonChokes.last()) {
+                                || findNode(nonChokes, choke) != nonChokes.get(nonChokes.size()-1)) {
                             wrongArea = true;
                         }
                     }
@@ -283,7 +278,7 @@ public class JBWEB {
         }
     }
 
-    private static ChokePoint findNode(TreeSet<ChokePoint> treeSet, ChokePoint choke) {
+    private static ChokePoint findNode(List<ChokePoint> treeSet, ChokePoint choke) {
         for (ChokePoint cp : treeSet) {
             if (cp == choke) return cp;
         }
@@ -395,7 +390,7 @@ public class JBWEB {
 
         for (Area area : mapBWEM.getMap().getAreas()){
             for (ChokePoint choke : area.getChokePoints()){
-                TreeSet<TilePosition> tileGeography = new TreeSet<>();
+                List<TilePosition> tileGeography = new ArrayList<>();
                 for (WalkPosition geo : choke.getGeometry()) {
                     tileGeography.add(geo.toTilePosition());
                 }
@@ -709,7 +704,7 @@ public class JBWEB {
     }
 
     /// Returns a set of BWAPI::TilePositions that make up the geometry of a BWEM::ChokePoint.
-    public static TreeSet<TilePosition> getChokeTiles(ChokePoint choke) {
+    public static List<TilePosition> getChokeTiles(ChokePoint choke) {
         if (choke != null) {
             return chokeTiles.get(choke);
         }
@@ -749,7 +744,7 @@ public class JBWEB {
 
         // Search through each block to find the closest block and valid position
         for (Block block : Blocks.getBlocks()) {
-            TreeSet<TilePosition> placements;
+            List<TilePosition> placements;
 
             if (type.tileWidth() == 4) {
                 placements = block.getLargeTiles();
