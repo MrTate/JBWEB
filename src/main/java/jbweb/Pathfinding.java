@@ -3,7 +3,7 @@ package jbweb;
 import bwapi.*;
 
 public class Pathfinding {
-    static PathCache unitPathCache;
+    static PathCache unitPathCache = new PathCache();
 
     static int maxCacheSize = 10000;
 
