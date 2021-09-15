@@ -10,10 +10,10 @@ import bwem.*;
 
 public class Blocks {
     private static List<Block> allBlocks = new ArrayList<>();
-    private HashMap<Area, Integer> typePerArea = new HashMap<>();
-    private HashMap<Piece, Integer> mainPieces = new HashMap<>();
+    private static HashMap<Area, Integer> typePerArea = new HashMap<>();
+    private static HashMap<Piece, Integer> mainPieces = new HashMap<>();
 
-    private int countPieces(List<Piece> pieces, Piece type) {
+    private static int countPieces(List<Piece> pieces, Piece type) {
         int count = 0;
         for (Piece piece : pieces) {
         if (piece == type)
@@ -22,7 +22,7 @@ public class Blocks {
         return count;
     }
 
-    private List<Piece> whichPieces(int width, int height, boolean faceUp, boolean faceLeft) {
+    private static List<Piece> whichPieces(int width, int height, boolean faceUp, boolean faceLeft) {
         List<Piece> pieces = new ArrayList<>();
 
         // Zerg Block pieces
@@ -240,7 +240,7 @@ public class Blocks {
         return pieces;
     }
 
-    private boolean canAddBlock(TilePosition here, int width, int height) {
+    private static boolean canAddBlock(TilePosition here, int width, int height) {
         // Check if a block of specified size would overlap any bases, resources or other blocks
         for (int x = here.x - 1; x < here.x + width + 1; x++) {
             for (int y = here.y - 1; y < here.y + height + 1; y++) {
@@ -253,7 +253,7 @@ public class Blocks {
         return true;
     }
 
-    private boolean canAddProxyBlock(TilePosition here, int width, int height) {
+    private static boolean canAddProxyBlock(TilePosition here, int width, int height) {
         // Check if a proxy block of specified size is not buildable here
         for (int x = here.x - 1; x < here.x + width + 1; x++) {
             for (int y = here.y - 1; y < here.y + height + 1; y++) {
@@ -266,25 +266,25 @@ public class Blocks {
         return true;
     }
 
-    private void insertBlock(TilePosition here, List<Piece> pieces) {
+    private static void insertBlock(TilePosition here, List<Piece> pieces) {
         Block newBlock = new Block(here, pieces, false, false);
         allBlocks.add(newBlock);
         JBWEB.addReserve(here, newBlock.width(), newBlock.height());
     }
 
-    private void insertProxyBlock(TilePosition here, List<Piece> pieces) {
+    private static void insertProxyBlock(TilePosition here, List<Piece> pieces) {
         Block newBlock = new Block(here, pieces, true, false);
         allBlocks.add(newBlock);
         JBWEB.addReserve(here, newBlock.width(), newBlock.height());
     }
 
-    private void insertDefensiveBlock(TilePosition here, List<Piece> pieces) {
+    private static void insertDefensiveBlock(TilePosition here, List<Piece> pieces) {
         Block newBlock = new Block(here, pieces, false, true);
         allBlocks.add(newBlock);
         JBWEB.addReserve(here, newBlock.width(), newBlock.height());
     }
 
-    private boolean creepOnCorners(TilePosition here, int width, int height) {
+    private static boolean creepOnCorners(TilePosition here, int width, int height) {
         boolean b1 = JBWEB.game.hasCreep(here);
         boolean b2 = JBWEB.game.hasCreep(new TilePosition(here.x + width - 1, here.y));
         boolean b3 = JBWEB.game.hasCreep(new TilePosition(here.x, here.y + height - 1));
@@ -292,7 +292,7 @@ public class Blocks {
         return b1 && b2 && b3 && b4;
     }
 
-    private void searchStart(Position start) {
+    private static void searchStart(Position start) {
         TilePosition tileStart = new TilePosition(start);
         TilePosition tileBest = TilePosition.Invalid;
         double distBest = Double.MAX_VALUE;
@@ -344,8 +344,12 @@ public class Blocks {
                 if (tileBest.isValid(JBWEB.game) && canAddBlock(tileBest, i, j)) {
                     if (JBWEB.mapBWEM.getMap().getArea(tileBest) == JBWEB.getMainArea()) {
                         for (Piece piece : piecesBest) {
-                            int tmp = mainPieces.get(piece) + 1;
-                            mainPieces.put(piece, tmp);
+                            if (mainPieces.get(piece) == null) {
+                                mainPieces.put(piece, 1);
+                            } else {
+                                int tmp = mainPieces.get(piece) + 1;
+                                mainPieces.put(piece, tmp);
+                            }
                         }
                     }
                     insertBlock(tileBest, piecesBest);
@@ -354,7 +358,7 @@ public class Blocks {
         }
     }
 
-    private void findMainStartBlocks() {
+    private static void findMainStartBlocks() {
         Race race = JBWEB.game.self().getRace();
         Position firstStart = JBWEB.getMainPosition();
         Position secondStart = race != Race.Zerg ? (new Position(JBWEB.getMainChoke().getCenter().x + JBWEB.getMainPosition().x/2,
@@ -364,9 +368,10 @@ public class Blocks {
         searchStart(secondStart);
     }
 
-    private void findMainDefenseBlock() {
-        if (JBWEB.game.self().getRace() == Race.Zerg)
-        return;
+    private static void findMainDefenseBlock() {
+        if (JBWEB.game.self().getRace() == Race.Zerg) {
+            return;
+        }
 
         // Added a block that allows a good shield battery placement or bunker placement
         TilePosition tileBest = TilePosition.Invalid;
@@ -399,7 +404,7 @@ public class Blocks {
         }
     }
 
-    private void findProductionBlocks() {
+    private static void findProductionBlocks() {
         HashMap<Double, TilePosition> tilesByPathDist = new HashMap<>();
         int totalMedium = 0;
         int totalLarge = 0;
@@ -462,8 +467,12 @@ public class Blocks {
 
                         if (JBWEB.mapBWEM.getMap().getArea(tile) == JBWEB.getMainArea()) {
                             for (Piece piece : pieces) {
-                                int tmp = mainPieces.get(piece) + 1;
-                                mainPieces.put(piece, tmp);
+                                if (mainPieces.get(piece) == null) {
+                                    mainPieces.put(piece, 1);
+                                } else {
+                                    int tmp = mainPieces.get(piece) + 1;
+                                    mainPieces.put(piece, tmp);
+                                }
                             }
                         }
                     }
@@ -473,7 +482,7 @@ public class Blocks {
     }
 
     // Check if this block is in a good area
-    private boolean goodArea(TilePosition t, List<TilePosition> enemyStartLocations, HashSet<Area> areasToAvoid) {
+    private static boolean goodArea(TilePosition t, List<TilePosition> enemyStartLocations, HashSet<Area> areasToAvoid) {
         for (TilePosition start : enemyStartLocations) {
             if (JBWEB.mapBWEM.getMap().getArea(t) == JBWEB.mapBWEM.getMap().getArea(start)) {
                 return false;
@@ -488,7 +497,7 @@ public class Blocks {
     }
 
     // Check if there's a blocking neutral between the positions to prevent bad pathing
-    private boolean blockedPath(Position source, Position target) {
+    private static boolean blockedPath(Position source, Position target) {
         for (ChokePoint choke : JBWEB.mapBWEM.getMap().getPath(source, target)) {
             if (JBWEB.isUsed(new TilePosition(choke.getCenter()), 1, 1) != UnitType.None){
                 return true;
@@ -497,7 +506,7 @@ public class Blocks {
         return false;
     }
 
-    private void findProxyBlock() {
+    private static void findProxyBlock() {
         // For base-specific locations, avoid all areas likely to be traversed by worker scouts
         HashSet<Area> areasToAvoid = new HashSet<>();
         for (TilePosition first : JBWEB.mapBWEM.getMap().getStartingLocations()) {
@@ -595,7 +604,7 @@ public class Blocks {
     }
 
     /// Initializes the building of every BWEB::Block on the map, call it only once per game.
-    public void findBlocks() {
+    public static void findBlocks() {
         findMainDefenseBlock();
         findMainStartBlocks();
         findProxyBlock();

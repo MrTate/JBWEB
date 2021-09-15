@@ -10,7 +10,7 @@ public class Stations {
     private static List<Station> mains = new ArrayList<>();
     private static List<Station> naturals = new ArrayList<>();
 
-    private List<TilePosition> stationDefenses(Base base, boolean placeRight, boolean placeBelow, boolean isMain, boolean isNatural) {
+    private static List<TilePosition> stationDefenses(Base base, boolean placeRight, boolean placeBelow, boolean isMain, boolean isNatural) {
         List<TilePosition> defenses = new ArrayList<>();
         List<TilePosition> basePlacements = new ArrayList<>();
         List<TilePosition> geyserPlacements = new ArrayList<>();
@@ -161,7 +161,7 @@ public class Stations {
         return defenses;
     }
 
-    private void addResourceOverlap(Position resourceCenter, Position startCenter, Position stationCenter) {
+    private static void addResourceOverlap(Position resourceCenter, Position startCenter, Position stationCenter) {
         TilePosition test = new TilePosition(startCenter);
         TilePosition stationTilePosition = new TilePosition(stationCenter);
 
@@ -190,7 +190,7 @@ public class Stations {
     }
 
     /// Initializes the building of every BWEB::Station on the map, call it only once per game.
-    public void findStations() {
+    public static void findStations() {
         // Find all main bases
         List<Base> mainBases = new ArrayList<>();
         List<Base> natBases = new ArrayList<>();
@@ -337,7 +337,7 @@ public class Stations {
     }
 
     /// Returns the closest natural BWEB::Station to the given TilePosition.
-    public Station getClosestNaturalStation(TilePosition here) {
+    public static Station getClosestNaturalStation(TilePosition here) {
         double distBest = Double.MAX_VALUE;
         Station bestStation = null;
         for (Station station : naturals) {
@@ -357,12 +357,12 @@ public class Stations {
     }
 
     /// Returns a vector containing every main BWEB::Station.
-    public List<Station> getMainStations() {
+    public static List<Station> getMainStations() {
         return mains;
     }
 
     /// Returns a vector containing every natural BWEB::Station.
-    public List<Station> getNaturalStations() {
+    public static List<Station> getNaturalStations() {
         return naturals;
     }
 }

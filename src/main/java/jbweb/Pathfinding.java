@@ -15,12 +15,12 @@ public class Pathfinding {
     }
 
     /// Returns true if the TilePosition is walkable (does not include any buildings).
-    public boolean terrainWalkable(TilePosition tile) {
+    public static boolean terrainWalkable(TilePosition tile) {
         return JBWEB.isWalkable(tile);
     }
 
     /// Returns true if the TilePosition is walkable (includes buildings).
-    public boolean unitWalkable(TilePosition tile) {
+    public static boolean unitWalkable(TilePosition tile) {
         return JBWEB.isWalkable(tile) && JBWEB.isUsed(tile, 1, 1) == UnitType.None;
     }
 }

@@ -13,7 +13,7 @@ import bwem.*;
 
 public class Walls {
     private static HashMap<ChokePoint, Wall> walls = new HashMap<>();
-    private boolean logInfo = true;
+    private static boolean logInfo = true;
 
     static int failedPlacement = 0;
     static int failedAngle = 0;
@@ -32,7 +32,7 @@ public class Walls {
     /// <param name="defenses"> (Optional) A Vector of UnitTypes that you want the Wall to have defenses consisting of.
     /// <param name="openWall"> (Optional) Set as true if you want an opening in the wall for unit movement.
     /// <param name="requireTight"> (Optional) Set as true if you want pixel perfect placement.
-    public Wall createWall(List<UnitType> buildings, Area area, ChokePoint choke, UnitType tightType, List<UnitType> defenses, boolean openWall, boolean requireTight) {
+    public static Wall createWall(List<UnitType> buildings, Area area, ChokePoint choke, UnitType tightType, List<UnitType> defenses, boolean openWall, boolean requireTight) {
         FileWriter writeFile = null;
         try {
             writeFile = new FileWriter("bwapi-data/write/BWEB_Wall.txt");
@@ -157,7 +157,7 @@ public class Walls {
 
     /// Creates a Forge Fast Expand at the natural.
     /// Places 1 Forge, 1 Gateway, 1 Pylon and 10 Cannons.
-    public Wall createFFE() {
+    public static Wall createFFE() {
         List<UnitType> buildings = new ArrayList<>();
         buildings.add(UnitType.Protoss_Forge);
         buildings.add(UnitType.Protoss_Gateway);
@@ -178,7 +178,7 @@ public class Walls {
 
     /// Creates a "Sim City" of Zerg buildings at the natural.
     /// Places 10 Sunkens, 1 Evolution Chamber and 1 Hatchery.
-    public Wall createZSimCity() {
+    public static Wall createZSimCity() {
         List<UnitType> buildings = new ArrayList<>();
         buildings.add(UnitType.Zerg_Hatchery);
         buildings.add(UnitType.Zerg_Evolution_Chamber);
@@ -198,7 +198,7 @@ public class Walls {
 
     /// Creates a full wall of Terran buildings at the main choke.
     /// Places 2 Depots and 1 Barracks.
-    public Wall createTWall() {
+    public static Wall createTWall() {
         List<UnitType> buildings = new ArrayList<>();
         buildings.add(UnitType.Terran_Supply_Depot);
         buildings.add(UnitType.Terran_Supply_Depot);
@@ -210,7 +210,7 @@ public class Walls {
     }
 
     /// Returns the closest Wall to the given TilePosition.
-    public Wall getClosestWall(TilePosition here) {
+    public static Wall getClosestWall(TilePosition here) {
         double distBest = Double.MAX_VALUE;
         Wall bestWall = null;
         for (ChokePoint chokePoint : walls.keySet()) {
@@ -229,7 +229,7 @@ public class Walls {
     /// Note: If you only pass an Area or a ChokePoint (not both), it will imply and pick a Wall that exists within that Area or blocks that ChokePoint.
     /// <param name="area"> The Area that the Wall resides in.
     /// <param name="choke"> The Chokepoint that the Wall blocks.
-    public Wall getWall(ChokePoint choke) {
+    public static Wall getWall(ChokePoint choke) {
         if (choke == null) {
             return null;
         }
