@@ -5,7 +5,7 @@ BWEB started as a decision to create a standard and simple method for bots to op
 
 Current head is forked from [this commit](https://github.com/Cmccrave/BWEB/commit/a65a57115ef4b6161a477b2e38382b8d0b5b6c50) (v1.14.2)
 
-###Differences between BWEB and JBWEB
+### Differences between BWEB and JBWEB
 
 * Uses [JavaJPS](https://github.com/MrTate/JavaJPS) library instead of porting JPS from BWEB.
 
