@@ -33,14 +33,6 @@ public class Walls {
     /// <param name="openWall"> (Optional) Set as true if you want an opening in the wall for unit movement.
     /// <param name="requireTight"> (Optional) Set as true if you want pixel perfect placement.
     public static Wall createWall(List<UnitType> buildings, Area area, ChokePoint choke, UnitType tightType, List<UnitType> defenses, boolean openWall, boolean requireTight) {
-        FileWriter writeFile = null;
-        try {
-            writeFile = new FileWriter("bwapi-data/write/BWEB_Wall.txt");
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-
         Date date = new Date(System.currentTimeMillis());
         SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
         String timeNow = formatter.format(date);
@@ -53,51 +45,26 @@ public class Walls {
 
         // Open the log file if desired and write information
         if (logInfo) {
-            try {
-                writeFile.write(timeNow);
-                writeFile.write(JBWEB.game.mapFileName());
-                writeFile.write("At: " + clock + " o'clock.");
-                writeFile.write("\n");
-                writeFile.write("Buildings:");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+            System.out.println(timeNow + " " + JBWEB.game.mapFileName() + " At: " + clock + " o'clock.\n");
+            System.out.println("Buildings:");
             for (UnitType building : buildings){
-                try {
-                    writeFile.write(building.toString());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                System.out.println(building.toString());
             }
         }
 
         // Verify inputs are correct
         if (area == null) {
-            try {
-                writeFile.write("JBWEB: Can't create a wall without a valid Area");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            System.out.println("JBWEB: Can't create a wall without a valid Area");
             return null;
         }
 
         if (choke == null) {
-
-            try {
-                writeFile.write("JBWEB: Can't create a wall without a valid Chokepoint");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            System.out.println("JBWEB: Can't create a wall without a valid Chokepoint");
             return null;
         }
 
         if (buildings.isEmpty()) {
-            try {
-                writeFile.write("JBWEB: Can't create a wall with an empty vector of UnitTypes.");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            System.out.println("JBWEB: Can't create a wall with an empty vector of UnitTypes.");
             return null;
         }
 
@@ -105,11 +72,7 @@ public class Walls {
         for (ChokePoint chokePoint : walls.keySet()) {
             Wall wall = walls.get(chokePoint);
             if (wall.getArea() == area && wall.getChokePoint() == choke) {
-                try {
-                    writeFile.write("JBWEB: Can't create a Wall where one already exists.");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                System.out.println("JBWEB: Can't create a Wall where one already exists.");
                 return wall;
             }
         }
@@ -122,28 +85,18 @@ public class Walls {
 
         // Log information
         if (logInfo) {
-            try {
-                writeFile.write("Failure Reasons:");
-                writeFile.write("Power: " + failedPower);
-                writeFile.write("Angle: " + failedAngle);
-                writeFile.write("Placement: " + failedPlacement);
-                writeFile.write("Tight: " + failedTight);
-                writeFile.write("Path: " + failedPath);
-                writeFile.write("Spawn: " + failedSpawn);
-                writeFile.write("\n");
+            System.out.println("Failure Reasons:");
+            System.out.println("Power: " + failedPower);
+            System.out.println("Angle: " + failedAngle);
+            System.out.println("Placement: " + failedPlacement);
+            System.out.println("Tight: " + failedTight);
+            System.out.println("Path: " + failedPath);
+            System.out.println("Spawn: " + failedSpawn);
+            System.out.println("\n");
 
-                date = new Date(System.currentTimeMillis() - date.getTime());
-                writeFile.write("Generation Time: " + date.getTime() + "ms and " + (wallFound ? "successful." : "failed."));
-                writeFile.write("--------------------");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            writeFile.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            date = new Date(System.currentTimeMillis() - date.getTime());
+            System.out.println("Generation Time: " + date.getTime() + "ms and " + (wallFound ? "successful." : "failed."));
+            System.out.println("--------------------");
         }
 
         // If we found a suitable Wall, push into container and return pointer to it
